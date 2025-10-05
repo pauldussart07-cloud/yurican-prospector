@@ -276,6 +276,25 @@ const Prospects = () => {
     });
   }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts]);
 
+  // Déplier automatiquement les leads lors de la recherche
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      // Déplier tous les leads filtrés qui ont des contacts
+      const leadsToExpand = new Set(
+        filteredAndSortedLeads
+          .filter(({ lead }) => {
+            const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+            return leadContacts.length > 0;
+          })
+          .map(({ lead }) => lead.id)
+      );
+      setExpandedLeads(leadsToExpand);
+    } else {
+      // Replier tout quand la recherche est vide
+      setExpandedLeads(new Set());
+    }
+  }, [searchQuery, filteredAndSortedLeads, contacts]);
+
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedLeads.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
