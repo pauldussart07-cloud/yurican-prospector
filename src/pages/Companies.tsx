@@ -59,7 +59,7 @@ const Companies = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
   const [discoveredCompanies, setDiscoveredCompanies] = useState<Set<string>>(new Set());
-  const [userCredits, setUserCredits] = useState<number>(0);
+  const [userCredits, setUserCredits] = useState<number>(500000);
   const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
 
@@ -80,16 +80,29 @@ const Companies = () => {
 
     const loadCredits = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        // Mode maquette : utiliser 500000 crédits par défaut
+        setUserCredits(500000);
+        return;
+      }
 
       const { data } = await supabase
         .from('user_credits')
         .select('credits')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setUserCredits(data.credits);
+      } else {
+        // Créer les crédits si l'utilisateur n'en a pas encore
+        const { error } = await supabase
+          .from('user_credits')
+          .insert({ user_id: user.id, credits: 500000 });
+        
+        if (!error) {
+          setUserCredits(500000);
+        }
       }
     };
 
@@ -142,16 +155,18 @@ const Companies = () => {
     try {
       // Déduire les crédits
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      if (user) {
+        // Si connecté, mettre à jour la base de données
+        const { error } = await supabase
+          .from('user_credits')
+          .update({ credits: userCredits - 8 })
+          .eq('user_id', user.id);
 
-      const { error } = await supabase
-        .from('user_credits')
-        .update({ credits: userCredits - 8 })
-        .eq('user_id', user.id);
+        if (error) throw error;
+      }
 
-      if (error) throw error;
-
-      // Mettre à jour le solde local
+      // Mettre à jour le solde local (fonctionne aussi en mode maquette)
       setUserCredits(userCredits - 8);
 
       // Marquer comme découverte
