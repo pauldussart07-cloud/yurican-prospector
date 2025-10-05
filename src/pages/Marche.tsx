@@ -213,6 +213,7 @@ const Marche = () => {
           company_siret: company.siret,
           company_naf: company.naf,
           status: 'Nouveau',
+          is_hot_signal: viewMode === 'signal',
         }, {
           onConflict: 'user_id,company_id'
         });
