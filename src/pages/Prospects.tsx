@@ -625,7 +625,7 @@ const Prospects = () => {
                       }}
                     >
                       <UsersIcon className="h-4 w-4 mr-2" />
-                      Générer des contacts
+                      Chercher les contacts
                     </Button>
                   )}
                 </CardContent>
