@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Target, Coins, ChevronDown, Plus, Bell } from "lucide-react";
+import { Target, Coins, ChevronDown, Plus, Bell, LogOut } from "lucide-react";
 import { useTargeting } from "@/contexts/TargetingContext";
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Targeting {
   id: string;
@@ -22,6 +23,7 @@ interface Targeting {
 
 const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { activeTargeting, setActiveTargeting, credits } = useTargeting();
   const [allTargetings, setAllTargetings] = useState<Targeting[]>([]);
   const [showAll, setShowAll] = useState(false);
@@ -63,6 +65,15 @@ const Header = () => {
 
     setActiveTargeting(targeting as any);
     setShowAll(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: 'Déconnexion réussie',
+      description: 'À bientôt !',
+    });
+    navigate('/login');
   };
 
   const displayedTargetings = showAll ? allTargetings : allTargetings.slice(0, 3);
@@ -122,7 +133,11 @@ const Header = () => {
           <Coins className="h-3 w-3" />
           {credits} crédits
         </Badge>
-        <div className="text-sm text-muted-foreground">Client Enterprise</div>
+        
+        <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Déconnexion
+        </Button>
       </div>
     </header>
   );
