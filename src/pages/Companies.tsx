@@ -459,15 +459,15 @@ const Companies = () => {
                       />
                     </div>
 
-                    {/* Bloc 1 : Logo entreprise (grisé) */}
-                    <div className="flex-shrink-0 blur-sm select-none pointer-events-none">
+                    {/* Bloc 1 : Logo entreprise */}
+                    <div className={`flex-shrink-0 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`}>
                       <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </div>
                     </div>
 
-                    {/* Bloc 2 : Raison sociale, département, secteur (grisé) */}
-                    <div className="flex-shrink-0 w-32 blur-sm select-none pointer-events-none">
+                    {/* Bloc 2 : Raison sociale, département, secteur */}
+                    <div className={`flex-shrink-0 w-32 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`}>
                       <h3 className="text-xs font-semibold truncate">
                         {company.name}
                       </h3>
@@ -519,8 +519,8 @@ const Companies = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 4 : CA et Effectif (grisé) */}
-                    <div className="flex-shrink-0 w-24 blur-sm select-none pointer-events-none">
+                    {/* Bloc 4 : CA et Effectif */}
+                    <div className={`flex-shrink-0 w-24 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`}>
                       <div className="flex items-center gap-2 mb-1">
                         {getRevenueIcon(company.ca)}
                         <span className="text-xs font-medium">
@@ -535,8 +535,8 @@ const Companies = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 5 : Liens (grisé) */}
-                    <div className="flex-shrink-0 flex flex-col gap-1 blur-sm select-none pointer-events-none">
+                    {/* Bloc 5 : Liens */}
+                    <div className={`flex-shrink-0 flex flex-col gap-1 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`}>
                       <Button size="sm" variant="ghost" className="h-7 justify-start">
                         <ExternalLink className="h-3 w-3 mr-1.5" />
                         <span className="text-xs">Site web</span>
@@ -548,16 +548,18 @@ const Companies = () => {
                     </div>
 
                     {/* Bloc 6 : Bouton Découvrir */}
-                    <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <Button 
-                        size="sm" 
-                        onClick={() => handleDiscover(company)}
-                        className="gap-2"
-                      >
-                        <Building2 className="h-4 w-4" />
-                        <span className="text-sm">Découvrir</span>
-                      </Button>
-                    </div>
+                    {!isDiscovered && (
+                      <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleDiscover(company)}
+                          className="gap-2"
+                        >
+                          <Building2 className="h-4 w-4" />
+                          <span className="text-sm">Découvrir</span>
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
