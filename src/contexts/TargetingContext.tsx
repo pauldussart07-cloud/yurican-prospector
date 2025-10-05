@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Targeting {
@@ -54,23 +54,38 @@ export const TargetingProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadActiveTargeting = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.log('No user logged in');
+          return;
+        }
 
-      const { data } = await supabase
-        .from('targetings')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .maybeSingle();
+        const { data } = await supabase
+          .from('targetings')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
 
-      if (data) {
-        setActiveTargeting(data as Targeting);
+        if (data) {
+          setActiveTargeting(data as Targeting);
+        }
+      } catch (error) {
+        console.error('Error loading targeting:', error);
+      }
+    };
+
+    const loadCredits = async () => {
+      try {
+        await refreshCredits();
+      } catch (error) {
+        console.error('Error loading credits:', error);
       }
     };
 
     loadActiveTargeting();
-    refreshCredits();
+    loadCredits();
   }, []);
 
   return (
