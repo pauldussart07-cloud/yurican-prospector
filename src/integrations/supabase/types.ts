@@ -20,6 +20,7 @@ export type Database = {
           decision_level: Database["public"]["Enums"]["decision_level"]
           id: string
           name: string
+          position: number | null
           service: Database["public"]["Enums"]["persona_service"]
           updated_at: string | null
           user_id: string | null
@@ -29,6 +30,7 @@ export type Database = {
           decision_level: Database["public"]["Enums"]["decision_level"]
           id?: string
           name: string
+          position?: number | null
           service: Database["public"]["Enums"]["persona_service"]
           updated_at?: string | null
           user_id?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           decision_level?: Database["public"]["Enums"]["decision_level"]
           id?: string
           name?: string
+          position?: number | null
           service?: Database["public"]["Enums"]["persona_service"]
           updated_at?: string | null
           user_id?: string | null

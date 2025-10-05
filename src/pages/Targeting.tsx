@@ -8,7 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTargeting } from '@/contexts/TargetingContext';
-import { Plus, Trash2, Check, X, Building2, Users } from 'lucide-react';
+import { Plus, Trash2, Check, X, Building2, Users, GripVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Targeting {
   id: string;
@@ -27,10 +44,69 @@ interface Persona {
   name: string;
   service: string;
   decision_level: string;
+  position: number;
 }
 
 const SERVICES = ['Commerce', 'Marketing', 'IT', 'RH', 'Direction', 'Finance', 'Production', 'Logistique'];
 const DECISION_LEVELS = ['Décisionnaire', 'Influenceur', 'Utilisateur'];
+
+interface SortablePersonaCardProps {
+  persona: Persona;
+  index: number;
+  onDelete: (id: string) => void;
+}
+
+const SortablePersonaCard = ({ persona, index, onDelete }: SortablePersonaCardProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: persona.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className={isDragging ? 'shadow-lg' : ''}>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing touch-none"
+            >
+              <GripVertical className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+              {index + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium">{persona.name}</div>
+              <div className="flex gap-2 mt-1 flex-wrap">
+                <Badge variant="outline" className="text-xs">{persona.service}</Badge>
+                <Badge variant="secondary" className="text-xs">{persona.decision_level}</Badge>
+              </div>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(persona.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const SECTORS = [
   'Technologie et Numérique',
@@ -123,7 +199,7 @@ const Targeting = () => {
       .from('personas')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .order('position', { ascending: true });
 
     if (error) {
       toast({
@@ -224,14 +300,26 @@ const Targeting = () => {
       return;
     }
 
+    if (personas.length >= 3) {
+      toast({
+        title: 'Limite atteinte',
+        description: 'Vous ne pouvez créer que 3 ciblages contacts maximum',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    const nextPosition = personas.length;
 
     const { error } = await supabase.from('personas').insert([{
       user_id: user.id,
       name: contactName,
       service: service as any,
       decision_level: decisionLevel as any,
+      position: nextPosition,
     }]);
 
     if (error) {
@@ -338,11 +426,58 @@ const Targeting = () => {
         variant: 'destructive',
       });
     } else {
+      // Réorganiser les positions après suppression
+      const remainingPersonas = personas.filter(p => p.id !== contactId);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        for (let i = 0; i < remainingPersonas.length; i++) {
+          await supabase
+            .from('personas')
+            .update({ position: i })
+            .eq('id', remainingPersonas[i].id);
+        }
+      }
+      
       toast({
         title: 'Succès',
         description: 'Ciblage contact supprimé',
       });
       loadPersonas();
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = personas.findIndex((p) => p.id === active.id);
+      const newIndex = personas.findIndex((p) => p.id === over.id);
+
+      const newOrder = arrayMove(personas, oldIndex, newIndex);
+      setPersonas(newOrder);
+
+      // Mettre à jour les positions dans la base de données
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        for (let i = 0; i < newOrder.length; i++) {
+          await supabase
+            .from('personas')
+            .update({ position: i })
+            .eq('id', newOrder[i].id);
+        }
+      }
+
+      toast({
+        title: 'Ordre mis à jour',
+        description: 'Le classement des ciblages contacts a été sauvegardé',
+      });
     }
   };
 
@@ -622,13 +757,14 @@ const Targeting = () => {
               size="sm"
               onClick={() => setShowContactForm(!showContactForm)}
               variant={showContactForm ? "outline" : "default"}
+              disabled={personas.length >= 3}
             >
               {showContactForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-              {showContactForm ? 'Annuler' : 'Ajouter'}
+              {showContactForm ? 'Annuler' : personas.length >= 3 ? '3/3' : 'Ajouter'}
             </Button>
           </div>
 
-          {showContactForm && (
+          {personas.length < 3 && showContactForm && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Nouveau ciblage contact</CardTitle>
@@ -684,38 +820,36 @@ const Targeting = () => {
             </Card>
           )}
 
-          <div className="space-y-3">
-            {personas.length === 0 ? (
-              <Card>
-                <CardContent className="p-6 text-center text-muted-foreground">
-                  Aucun ciblage contact créé
-                </CardContent>
-              </Card>
-            ) : (
-              personas.map((persona) => (
-                <Card key={persona.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium">{persona.name}</div>
-                        <div className="flex gap-2 mt-1 flex-wrap">
-                          <Badge variant="outline" className="text-xs">{persona.service}</Badge>
-                          <Badge variant="secondary" className="text-xs">{persona.decision_level}</Badge>
-                        </div>
-                      </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteContact(persona.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+          {personas.length < 3 && (
+            <Card className="border-dashed">
+              <CardContent className="p-6 text-center text-muted-foreground">
+                <p className="mb-2">Vous devez créer 3 ciblages contacts pour continuer</p>
+                <p className="text-sm">Ciblages créés : {personas.length}/3</p>
+              </CardContent>
+            </Card>
+          )}
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={personas.map(p => p.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-3">
+                {personas.map((persona, index) => (
+                  <SortablePersonaCard
+                    key={persona.id}
+                    persona={persona}
+                    index={index}
+                    onDelete={handleDeleteContact}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </div>
       </div>
     </div>
