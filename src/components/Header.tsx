@@ -85,8 +85,8 @@ const Header = () => {
   const displayedTargetings = showAll ? allTargetings : allTargetings.slice(0, 3);
 
   return (
-    <header className="h-14 border-b border-border flex items-center px-6 bg-background sticky top-0 z-10">
-      <SidebarTrigger />
+    <header className="h-14 border-b border-sidebar-border flex items-center px-6 bg-header text-header-foreground sticky top-0 z-10">
+      <SidebarTrigger className="text-header-foreground" />
       <div className="ml-auto flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

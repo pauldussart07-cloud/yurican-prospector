@@ -8,10 +8,10 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 240 1% 88%;
+    --background: 0 0% 100%;
     --foreground: 222 37% 15%;
 
-    --card: 0 0% 100%;
+    --card: 145 40% 92%;
     --card-foreground: 222 37% 15%;
 
     --popover: 0 0% 100%;
@@ -23,7 +23,7 @@ All colors MUST be HSL.
     --secondary: 222 50% 35%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 1% 95%;
+    --muted: 0 0% 96%;
     --muted-foreground: 222 20% 45%;
 
     --accent: 175 99% 41%;
@@ -38,7 +38,7 @@ All colors MUST be HSL.
     --warning: 38 95% 55%;
     --warning-foreground: 0 0% 10%;
 
-    --border: 222 15% 75%;
+    --border: 222 15% 85%;
     --input: 0 0% 100%;
     --ring: 175 99% 41%;
 
@@ -53,21 +53,24 @@ All colors MUST be HSL.
     --sidebar-border: 222 30% 35%;
     --sidebar-ring: 175 99% 41%;
 
+    --header-background: 222 37% 26%;
+    --header-foreground: 0 0% 98%;
+
     --shadow-sm: 0 1px 2px 0 hsl(222 37% 10% / 0.15);
     --shadow-md: 0 4px 6px -1px hsl(222 37% 10% / 0.2);
     --shadow-lg: 0 10px 15px -3px hsl(222 37% 10% / 0.25);
     --shadow-xl: 0 20px 25px -5px hsl(222 37% 10% / 0.3);
 
     --gradient-primary: linear-gradient(135deg, hsl(175 99% 41%), hsl(175 99% 50%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
+    --gradient-card: linear-gradient(135deg, hsl(145 40% 92%), hsl(145 40% 95%));
     --glow-primary: 0 0 20px hsl(175 99% 41% / 0.4);
   }
 
   .dark {
-    --background: 240 1% 88%;
+    --background: 0 0% 100%;
     --foreground: 222 37% 15%;
 
-    --card: 0 0% 100%;
+    --card: 145 40% 92%;
     --card-foreground: 222 37% 15%;
 
     --popover: 0 0% 100%;
@@ -79,7 +82,7 @@ All colors MUST be HSL.
     --secondary: 222 50% 35%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 1% 95%;
+    --muted: 0 0% 96%;
     --muted-foreground: 222 20% 45%;
 
     --accent: 175 99% 41%;
@@ -94,7 +97,7 @@ All colors MUST be HSL.
     --warning: 38 95% 55%;
     --warning-foreground: 0 0% 10%;
 
-    --border: 222 15% 75%;
+    --border: 222 15% 85%;
     --input: 0 0% 100%;
     --ring: 175 99% 41%;
 
@@ -106,6 +109,9 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 222 30% 35%;
     --sidebar-ring: 175 99% 41%;
+
+    --header-background: 222 37% 26%;
+    --header-foreground: 0 0% 98%;
 
     --gradient-bg: linear-gradient(135deg, hsl(175 99% 41%), hsl(175 99% 50%));
   }
