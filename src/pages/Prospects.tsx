@@ -394,6 +394,28 @@ const Prospects = () => {
     return discoveredContacts.has(`${contactId}-${type}`);
   };
 
+  // Fonction pour surligner le texte correspondant à la recherche
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+    
+    return (
+      <>
+        {parts.map((part, index) => 
+          regex.test(part) ? (
+            <mark key={index} className="bg-yellow-200 text-foreground font-semibold">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
@@ -566,7 +588,7 @@ const Prospects = () => {
                     {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
                     <div className="flex-shrink-0 w-48">
                       <h3 className="text-sm font-semibold truncate">
-                        {company.name}
+                        {highlightText(company.name, searchQuery)}
                       </h3>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                         <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -669,7 +691,7 @@ const Prospects = () => {
                                   <Medal className="h-3.5 w-3.5 text-primary" />
                                   <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
                                 </div>
-                                <p className="font-medium text-sm">{contact.fullName}</p>
+                                <p className="font-medium text-sm">{highlightText(contact.fullName, searchQuery)}</p>
                                 <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
                               <div className="flex gap-2">
@@ -814,7 +836,7 @@ const Prospects = () => {
                   {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
                   <div className="flex-shrink-0 w-48">
                     <h3 className="text-sm font-semibold truncate">
-                      {company.name}
+                      {highlightText(company.name, searchQuery)}
                     </h3>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                       <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -862,7 +884,7 @@ const Prospects = () => {
                   <div className="flex-1 px-2">
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
-                        {company.name} - {company.sector.toLowerCase()} - {company.department}. 
+                        {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
                         {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
                       </p>
                       <Button
@@ -916,7 +938,7 @@ const Prospects = () => {
                                   <Medal className="h-3.5 w-3.5 text-primary" />
                                   <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
                                 </div>
-                                <p className="font-medium text-sm">{contact.fullName}</p>
+                                <p className="font-medium text-sm">{highlightText(contact.fullName, searchQuery)}</p>
                                 <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
                               <div className="flex gap-2">
@@ -1228,7 +1250,7 @@ const Prospects = () => {
                       <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mb-3">
                         <Building2 className="h-8 w-8 text-muted-foreground" />
                       </div>
-                      <h3 className="font-semibold text-center text-sm">{company.name}</h3>
+                      <h3 className="font-semibold text-center text-sm">{highlightText(company.name, searchQuery)}</h3>
                     </div>
 
                     {/* Informations détaillées condensées */}
@@ -1367,7 +1389,7 @@ const Prospects = () => {
                       </div>
                       <div className="space-y-3">
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          {company.name} - {company.sector.toLowerCase()} - {company.department}. 
+                          {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
                           {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ CA.
                         </p>
                         
