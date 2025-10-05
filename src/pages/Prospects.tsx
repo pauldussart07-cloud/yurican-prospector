@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -99,6 +99,7 @@ const Prospects = () => {
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
   const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department' | 'status'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [searchQuery, setSearchQuery] = useState('');
 
 
   const handleGenerateContacts = async () => {
@@ -225,7 +226,29 @@ const Prospects = () => {
       }))
       .filter(item => item.company);
 
-    return leadsWithCompanies.sort((a, b) => {
+    // Filtrer par recherche sémantique
+    let searchFiltered = leadsWithCompanies;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      searchFiltered = leadsWithCompanies.filter(({ lead, company }) => {
+        // Recherche dans le nom de l'entreprise
+        if (company?.name.toLowerCase().includes(query)) return true;
+        
+        // Recherche dans les contacts associés
+        const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+        return leadContacts.some(contact => {
+          const fullName = contact.fullName.toLowerCase();
+          const [firstName, ...lastNameParts] = fullName.split(' ');
+          const lastName = lastNameParts.join(' ');
+          
+          return fullName.includes(query) || 
+                 firstName.includes(query) || 
+                 lastName.includes(query);
+        });
+      });
+    }
+
+    return searchFiltered.sort((a, b) => {
       let comparison = 0;
       
       switch (sortCriteria) {
@@ -251,7 +274,7 @@ const Prospects = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [leads, viewMode, sortCriteria, sortDirection]);
+  }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedLeads.length / itemsPerPage);
@@ -394,6 +417,19 @@ const Prospects = () => {
                     {leads.filter(l => l.isHotSignal).length}
                   </Badge>
                 )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 border-l pl-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher une entreprise ou un contact..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-80"
+                />
               </div>
             </div>
           </div>
