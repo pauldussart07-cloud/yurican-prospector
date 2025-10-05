@@ -702,253 +702,241 @@ const Prospects = () => {
         setShowContactDialog(open);
         if (!open) setShowActions(false);
       }}>
-        <DialogContent className="max-w-7xl">
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           {selectedContact && (() => {
             const company = mockCompanies.find(c => c.id === selectedContact.companyId);
             const lead = leads.find(l => l.companyId === selectedContact.companyId);
             if (!company) return null;
 
             return (
-              <div className="space-y-6">
-                {/* Bloc 1 : Informations société et détaillées */}
-                <Card className="p-6 bg-card">
-                  <div className="space-y-6">
-                    {/* Moitié haute : Blocs 2, 3, 4 */}
-                    <div className="grid grid-cols-3 gap-6">
-                      {/* Bloc 2 : Informations du contact */}
-                      <Card className="p-4 bg-background">
-                        <div className="flex items-center gap-2 mb-4">
-                          <UserCircle2 className="h-5 w-5 text-primary" />
-                          <h3 className="font-semibold text-lg">Contact</h3>
-                        </div>
-                        <div className="space-y-3">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Nom complet</Label>
-                            <p className="text-sm font-medium mt-1">{selectedContact.fullName}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Intitulé du poste</Label>
-                            <p className="text-sm font-medium mt-1">{selectedContact.role}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Niveau de hiérarchie</Label>
-                            <Badge variant="secondary" className="mt-1">{selectedContact.seniority}</Badge>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Service</Label>
-                            <Badge variant="outline" className="mt-1">{selectedContact.domain}</Badge>
-                          </div>
-                          <div className="pt-2 border-t">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs">{selectedContact.email}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs blur-sm select-none">{selectedContact.phone}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-
-                      {/* Bloc 3 : Synthèse entreprise + Signal */}
-                      <Card className="p-4 bg-background">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Building2 className="h-5 w-5 text-primary" />
-                          <h3 className="font-semibold text-lg">Synthèse</h3>
-                        </div>
-                        <div className="space-y-4">
-                          <p className="text-sm text-muted-foreground leading-relaxed">
-                            {company.name} est une entreprise spécialisée dans {company.sector.toLowerCase()}, située dans le département {company.department}. 
-                            Avec un effectif de {company.headcount} employés et un chiffre d'affaires de {(company.ca / 1000000).toFixed(1)}M€.
-                          </p>
-                          
-                          {viewMode === 'signal' && lead?.signalSummary && (
-                            <div className="pt-4 border-t">
-                              <Label className="text-xs text-muted-foreground mb-2 block">Résumé du signal</Label>
-                              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                                <p className="text-xs text-orange-900 leading-relaxed">
-                                  {lead.signalSummary}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-
-                      {/* Bloc 4 : Actions */}
-                      <Card className="p-4 bg-background">
-                        <div className="flex items-center gap-2 mb-4">
-                          <Target className="h-5 w-5 text-primary" />
-                          <h3 className="font-semibold text-lg">Actions</h3>
-                        </div>
-                        <Button 
-                          className="w-full mb-3"
-                          onClick={() => setShowActions(!showActions)}
-                          variant="default"
-                        >
-                          <span className="flex-1">Call to Action</span>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${showActions ? 'rotate-180' : ''}`} />
-                        </Button>
-                        
-                        {showActions && (
-                          <div className="space-y-2">
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 1
-                            </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 2
-                            </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 3
-                            </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 4
-                            </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 5
-                            </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start">
-                              Action 6
-                            </Button>
-                          </div>
-                        )}
-                      </Card>
+              <div className="grid grid-cols-[320px_1fr] gap-6">
+                {/* Bloc 1 : Informations entreprise (gauche) */}
+                <Card className="p-4 bg-card h-fit">
+                  <div className="space-y-4">
+                    {/* Logo et nom */}
+                    <div className="flex flex-col items-center pb-4 border-b">
+                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mb-3">
+                        <Building2 className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="font-semibold text-center text-sm">{company.name}</h3>
                     </div>
 
-                    {/* Moitié basse : Note, dates */}
-                    <div className="grid grid-cols-3 gap-6 pt-6 border-t">
-                      <div className="col-span-2 space-y-4">
-                        <div>
-                          <Label htmlFor="note" className="text-sm font-medium mb-2 block">Note</Label>
-                          <Textarea 
-                            id="note"
-                            placeholder="Ajoutez vos notes sur ce prospect..."
-                            className="min-h-[100px] resize-none"
-                          />
+                    {/* Informations détaillées condensées */}
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Département</Label>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          <p className="text-xs">{company.department}</p>
                         </div>
                       </div>
-                      
-                      <div className="space-y-4">
+
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Secteur</Label>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <Briefcase className="h-3 w-3 text-muted-foreground" />
+                          <p className="text-xs">{company.sector}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-xs text-muted-foreground">NAF</Label>
+                        <Badge variant="secondary" className="mt-1 text-xs">{company.naf}</Badge>
+                      </div>
+
+                      <div className="flex justify-between pt-2 border-t">
                         <div>
-                          <Label className="text-sm font-medium mb-2 block">Date de création</Label>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
+                          <Label className="text-xs text-muted-foreground">CA</Label>
+                          <div className="flex items-center gap-1 mt-1">
+                            <TrendingUp className="h-3 w-3 text-green-600" />
+                            <p className="text-xs font-semibold">{(company.ca / 1000000).toFixed(1)}M€</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Effectif</Label>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Users className="h-3 w-3 text-blue-600" />
+                            <p className="text-xs font-semibold">{company.headcount}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t">
+                        <Label className="text-xs text-muted-foreground">SIRET</Label>
+                        <p className="text-xs mt-1">{company.siret}</p>
+                      </div>
+
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Adresse</Label>
+                        <p className="text-xs mt-1 leading-tight">{company.address}</p>
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
+                        <a 
+                          href={company.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <Globe className="h-3 w-3" />
+                          Site
+                        </a>
+                        <a 
+                          href={company.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <Linkedin className="h-3 w-3" />
+                          LinkedIn
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Colonne droite : Blocs 2, 3, 4 + Note et dates */}
+                <div className="space-y-4">
+                  {/* Blocs 2, 3, 4 en ligne */}
+                  <div className="grid grid-cols-3 gap-4">
+                    {/* Bloc 2 : Informations du contact */}
+                    <Card className="p-4 bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <UserCircle2 className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold text-sm">Contact</h3>
+                      </div>
+                      <div className="space-y-2.5">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Nom complet</Label>
+                          <p className="text-sm font-medium mt-0.5">{selectedContact.fullName}</p>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Poste</Label>
+                          <p className="text-xs mt-0.5">{selectedContact.role}</p>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Niveau</Label>
+                          <Badge variant="secondary" className="mt-0.5 text-xs">{selectedContact.seniority}</Badge>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Service</Label>
+                          <Badge variant="outline" className="mt-0.5 text-xs">{selectedContact.domain}</Badge>
+                        </div>
+                        <div className="pt-2 border-t space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs truncate">{selectedContact.email}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs blur-sm select-none">{selectedContact.phone}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Bloc 3 : Synthèse entreprise + Signal */}
+                    <Card className="p-4 bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Building2 className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold text-sm">Synthèse</h3>
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {company.name} - {company.sector.toLowerCase()} - {company.department}. 
+                          {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ CA.
+                        </p>
+                        
+                        {viewMode === 'signal' && lead?.signalSummary && (
+                          <div className="pt-3 border-t">
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">Signal</Label>
+                            <div className="bg-orange-50 border border-orange-200 rounded p-2">
+                              <p className="text-xs text-orange-900 leading-relaxed">
+                                {lead.signalSummary}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+
+                    {/* Bloc 4 : Actions */}
+                    <Card className="p-4 bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Target className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold text-sm">Actions</h3>
+                      </div>
+                      <Button 
+                        className="w-full mb-2 h-8 text-xs"
+                        onClick={() => setShowActions(!showActions)}
+                        variant="default"
+                      >
+                        <span className="flex-1">Call to Action</span>
+                        <ChevronDown className={`h-3 w-3 transition-transform ${showActions ? 'rotate-180' : ''}`} />
+                      </Button>
+                      
+                      {showActions && (
+                        <div className="space-y-1.5">
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 1
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 2
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 3
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 4
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 5
+                          </Button>
+                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            Action 6
+                          </Button>
+                        </div>
+                      )}
+                    </Card>
+                  </div>
+
+                  {/* Note et dates en bas */}
+                  <Card className="p-4 bg-card">
+                    <div className="grid grid-cols-[1fr_200px] gap-4">
+                      <div>
+                        <Label htmlFor="note" className="text-xs font-medium mb-2 block">Note</Label>
+                        <Textarea 
+                          id="note"
+                          placeholder="Ajoutez vos notes..."
+                          className="min-h-[80px] resize-none text-xs"
+                        />
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs font-medium mb-1.5 block">Date de création</Label>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
                             <span>{new Date().toLocaleDateString('fr-FR')}</span>
                           </div>
                         </div>
                         
                         <div>
-                          <Label className="text-sm font-medium mb-2 block">Date de suivi</Label>
+                          <Label className="text-xs font-medium mb-1.5 block">Date de suivi</Label>
                           <div className="flex items-center gap-2">
                             <Input 
                               type="date"
-                              className="flex-1"
+                              className="flex-1 h-8 text-xs"
                             />
-                            <Button size="icon" variant="outline">
-                              <Calendar className="h-4 w-4" />
+                            <Button size="icon" variant="outline" className="h-8 w-8">
+                              <Calendar className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Informations détaillées de l'entreprise */}
-                    <div className="pt-6 border-t">
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Building2 className="h-5 w-5" />
-                        Informations détaillées
-                      </h3>
-                      
-                      <div className="grid grid-cols-4 gap-6">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Logo</Label>
-                          <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mt-2">
-                            <Building2 className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Raison sociale</Label>
-                          <p className="text-sm font-medium mt-2">{company.name}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Département</Label>
-                          <div className="flex items-center gap-1.5 mt-2">
-                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                            <p className="text-sm font-medium">{company.department}</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Secteur</Label>
-                          <div className="flex items-center gap-1.5 mt-2">
-                            <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
-                            <p className="text-sm font-medium">{company.sector}</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Code NAF</Label>
-                          <Badge variant="secondary" className="mt-2">{company.naf}</Badge>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Chiffre d'affaires</Label>
-                          <div className="flex items-center gap-2 mt-2">
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                            <p className="text-sm font-semibold">{(company.ca / 1000000).toFixed(1)}M€</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Effectif</Label>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Users className="h-4 w-4 text-blue-600" />
-                            <p className="text-sm font-semibold">{company.headcount} employés</p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">SIRET</Label>
-                          <p className="text-sm font-medium mt-2">{company.siret}</p>
-                        </div>
-
-                        <div className="col-span-2">
-                          <Label className="text-xs text-muted-foreground">Adresse</Label>
-                          <p className="text-sm font-medium mt-2">{company.address}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Site web</Label>
-                          <a 
-                            href={company.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline flex items-center gap-2 mt-2"
-                          >
-                            <Globe className="h-3.5 w-3.5" />
-                            Visiter
-                          </a>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">LinkedIn</Label>
-                          <a 
-                            href={company.linkedin} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sm text-primary hover:underline flex items-center gap-2 mt-2"
-                          >
-                            <Linkedin className="h-3.5 w-3.5" />
-                            Voir le profil
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                </div>
               </div>
             );
           })()}
