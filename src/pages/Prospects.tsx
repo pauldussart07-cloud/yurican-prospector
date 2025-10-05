@@ -283,6 +283,15 @@ const Prospects = () => {
     return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
   };
 
+  // Calculer le statut du lead basé sur ses contacts
+  const getLeadStatus = (leadId: string): ContactStatus => {
+    const leadContacts = contacts.filter(c => c.companyId === leadId);
+    if (leadContacts.length === 0) return 'Nouveau';
+    
+    const statuses = leadContacts.map(c => (c as any).status || 'Nouveau' as ContactStatus);
+    return getMostAdvancedStatus(statuses);
+  };
+
   // Filtrer et trier les leads
   const filteredAndSortedLeads = useMemo(() => {
     let filtered = leads;
@@ -435,15 +444,6 @@ const Prospects = () => {
     setContacts(contacts.map(c => 
       c.id === contactId ? { ...c, status: newStatus } : c
     ));
-  };
-
-  // Calculer le statut du lead basé sur ses contacts
-  const getLeadStatus = (leadId: string): ContactStatus => {
-    const leadContacts = contacts.filter(c => c.companyId === leadId);
-    if (leadContacts.length === 0) return 'Nouveau';
-    
-    const statuses = leadContacts.map(c => (c as any).status || 'Nouveau' as ContactStatus);
-    return getMostAdvancedStatus(statuses);
   };
 
   const handleSaveContact = () => {
