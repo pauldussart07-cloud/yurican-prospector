@@ -61,6 +61,7 @@ const Marche = () => {
   const [discoveredCompanies, setDiscoveredCompanies] = useState<Set<string>>(new Set());
   const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
+  const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -503,17 +504,29 @@ const Marche = () => {
                             </div>
                           </div>
                           
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className={`text-sm text-muted-foreground ${expandedNews.has(company.id) ? '' : 'line-clamp-2'}`}>
                             Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn. Opportunité à saisir rapidement pour proposer nos services.
                           </p>
                           <button 
                             className="text-xs text-primary hover:underline mt-1"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleCompanyClick(company);
+                              if (!isDiscovered) {
+                                // Si l'entreprise est floutée, on agrandit juste l'actualité
+                                const newExpanded = new Set(expandedNews);
+                                if (expandedNews.has(company.id)) {
+                                  newExpanded.delete(company.id);
+                                } else {
+                                  newExpanded.add(company.id);
+                                }
+                                setExpandedNews(newExpanded);
+                              } else {
+                                // Si l'entreprise est découverte, on ouvre la fiche complète
+                                handleCompanyClick(company);
+                              }
                             }}
                           >
-                            Afficher plus →
+                            {!isDiscovered && expandedNews.has(company.id) ? 'Afficher moins ←' : 'Afficher plus →'}
                           </button>
                         </div>
                       </div>
