@@ -636,13 +636,18 @@ const Prospects = () => {
             );
           }
 
-          // Mode ciblage (affichage original)
+          // Mode ciblage avec la même structure que signal mais avec synthèse entreprise
           return (
             <Card key={lead.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   {/* Checkbox */}
-                  <Checkbox />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedLeads.has(lead.id)}
+                      onCheckedChange={() => handleSelectLead(lead.id)}
+                    />
+                  </div>
 
                   {/* Bloc 1 : Logo entreprise */}
                   <div className="flex-shrink-0">
@@ -651,7 +656,7 @@ const Prospects = () => {
                     </div>
                   </div>
 
-                  {/* Bloc 2 : Raison sociale, département, secteur */}
+                  {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
                   <div className="flex-shrink-0 w-48">
                     <h3 className="text-sm font-semibold truncate">
                       {company.name}
@@ -664,87 +669,63 @@ const Prospects = () => {
                       <Briefcase className="h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{company.sector}</span>
                     </div>
-                  </div>
-
-                  {/* Bloc 4 : CA et Effectif */}
-                  <div className="flex-shrink-0 w-32">
-                    <div className="flex items-center gap-2 mb-1">
-                      {getRevenueIcon(company.ca)}
-                      <span className="text-xs font-medium">
-                        {(company.ca / 1000000).toFixed(1)}M€
-                      </span>
+                    <div className="flex items-center gap-3 mt-2">
+                      <div className="flex items-center gap-1">
+                        {getHeadcountIcon(company.headcount)}
+                        <span className="text-xs font-medium">{company.headcount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {getRevenueIcon(company.ca)}
+                        <span className="text-xs font-medium">{(company.ca / 1000000).toFixed(1)}M€</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {getHeadcountIcon(company.headcount)}
-                      <span className="text-xs font-medium">
-                        {company.headcount} emp.
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Bloc 5 : Liens */}
-                  <div className="flex-shrink-0 flex flex-col gap-1">
-                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
-                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                        <ExternalLink className="h-3 w-3" />
-                        <span className="text-xs">Site web</span>
+                    <div className="flex gap-2 mt-2">
+                      <a 
+                        href={company.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Globe className="h-3 w-3" />
+                        Site
                       </a>
-                    </Button>
-                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
-                      <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                      <a 
+                        href={company.linkedin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Linkedin className="h-3 w-3" />
-                        <span className="text-xs">LinkedIn</span>
+                        LinkedIn
                       </a>
-                    </Button>
+                    </div>
                   </div>
 
-                  {/* Spacer */}
-                  <div className="flex-1" />
-
-                  {/* Contacts avec HoverCard */}
-                  <HoverCard openDelay={200}>
-                    <HoverCardTrigger asChild>
+                  {/* Synthèse entreprise */}
+                  <div className="flex-1 px-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
+                        {company.name} - {company.sector.toLowerCase()} - {company.department}. 
+                        {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
+                      </p>
                       <Button
-                        variant="outline"
+                        variant="link"
                         size="sm"
-                        className="gap-2"
-                        onClick={() => {
-                          setSelectedLead(lead.id);
-                          setShowPersonaDialog(true);
+                        className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const firstContact = leadContacts[0];
+                          if (firstContact) {
+                            handleContactClick(firstContact);
+                          }
                         }}
                       >
-                        <UsersIcon className="h-4 w-4" />
-                        {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
+                        Voir plus →
                       </Button>
-                    </HoverCardTrigger>
-                    {leadContacts.length > 0 && (
-                      <HoverCardContent className="w-96 p-4" align="end">
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-sm">Contacts</h4>
-                          {leadContacts.map((contact) => (
-                            <div key={contact.id} className="border-b pb-3 last:border-0 last:pb-0">
-                              <p className="font-medium text-sm">{contact.fullName}</p>
-                              <p className="text-xs text-muted-foreground">{contact.role}</p>
-                              <div className="flex gap-2 mt-2">
-                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                              </div>
-                              <div className="flex flex-col gap-1 mt-2 text-xs">
-                                <div className="flex items-center gap-2">
-                                  <Mail className="h-3 w-3 text-muted-foreground" />
-                                  <span>{contact.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-3 w-3 text-muted-foreground" />
-                                  <span>{contact.phone}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </HoverCardContent>
-                    )}
-                  </HoverCard>
+                    </div>
+                  </div>
 
                   {/* Statut */}
                   <Select defaultValue={lead.status}>
@@ -760,6 +741,131 @@ const Prospects = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Section contacts dépliable */}
+                {leadContacts.length > 0 && (
+                  <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpanded(lead.id)}>
+                    <CollapsibleTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-3 justify-start gap-2"
+                      >
+                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        <UsersIcon className="h-4 w-4" />
+                        {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-3 space-y-2">
+                      {leadContacts.map((contact) => (
+                        <Card
+                          key={contact.id}
+                          className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => handleContactClick(contact)}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4">
+                              <div>
+                                <p className="font-medium text-sm">{contact.fullName}</p>
+                                <p className="text-xs text-muted-foreground">{contact.role}</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                              </div>
+                            </div>
+                            
+                            {/* Note et date de suivi */}
+                            <div className="flex-1 flex flex-col gap-1 px-4">
+                              {(contact as any).followUpDate && (
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>Suivi: {new Date((contact as any).followUpDate).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                              )}
+                              {(contact as any).note && (
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-xs font-medium text-muted-foreground">Note :</span>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
+                                      {(contact as any).note}
+                                    </p>
+                                    {(contact as any).note.length > 50 && (
+                                      <Button
+                                        variant="link"
+                                        size="sm"
+                                        className="h-auto p-0 text-xs"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleContactClick(contact);
+                                        }}
+                                      >
+                                        Afficher plus
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Mail et téléphone */}
+                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              <a 
+                                href={`mailto:${contact.email}`}
+                                className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                              >
+                                <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                <span className="text-xs text-primary font-medium">
+                                  {contact.email}
+                                </span>
+                              </a>
+                              {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                <a 
+                                  href={`tel:${contact.phone}`}
+                                  className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                >
+                                  <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                  <span className="text-xs text-primary font-medium">
+                                    {contact.phone}
+                                  </span>
+                                </a>
+                              ) : (
+                                <div className="flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="h-auto p-0 text-xs ml-1"
+                                    onClick={() => handleDiscoverRequest(contact.id, 'phone')}
+                                  >
+                                    Découvrir
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+
+                {/* Bouton pour ajouter des contacts si aucun */}
+                {leadContacts.length === 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-3"
+                    onClick={() => {
+                      setSelectedLead(lead.id);
+                      setShowPersonaDialog(true);
+                    }}
+                  >
+                    <UsersIcon className="h-4 w-4 mr-2" />
+                    Chercher les contacts
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );
