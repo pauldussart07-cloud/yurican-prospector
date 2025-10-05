@@ -643,6 +643,26 @@ export const mockLeads: Lead[] = [
     createdAt: new Date('2024-02-05'),
     updatedAt: new Date('2024-02-05'),
   },
+  {
+    id: 'l6',
+    companyId: '9',
+    status: 'New',
+    contactsCount: 0,
+    isHotSignal: true,
+    signalSummary: 'Expansion nationale en cours. L\'entreprise ouvre 5 nouvelles agences et recrute massivement dans le transport et la logistique.',
+    createdAt: new Date('2024-02-06'),
+    updatedAt: new Date('2024-02-06'),
+  },
+  {
+    id: 'l7',
+    companyId: '18',
+    status: 'New',
+    contactsCount: 0,
+    isHotSignal: true,
+    signalSummary: 'Investissement de 3M€ dans la digitalisation de l\'établissement. Recherche active de solutions CRM et de gestion hôtelière.',
+    createdAt: new Date('2024-02-07'),
+    updatedAt: new Date('2024-02-07'),
+  },
 ];
 
 // Mock activities
