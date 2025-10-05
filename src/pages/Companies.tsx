@@ -7,6 +7,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { mockCompanies, Company, mockLeads, Lead } from '@/lib/mockData';
 import { companySummaryService } from '@/services/companySummaryService';
@@ -53,6 +55,7 @@ const Companies = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedCompanies, setSelectedCompanies] = useState<Set<string>>(new Set());
   const [personas, setPersonas] = useState<Persona[]>([]);
+  const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -261,14 +264,27 @@ const Companies = () => {
       <div className="space-y-3">
         {/* Header avec checkbox select all et actions */}
         <div className="flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <Checkbox
-              checked={selectedCompanies.size === paginatedCompanies.length && paginatedCompanies.length > 0}
-              onCheckedChange={handleSelectAll}
-            />
-            <span className="text-sm text-muted-foreground">
-              Tout sélectionner
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={selectedCompanies.size === paginatedCompanies.length && paginatedCompanies.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-muted-foreground">
+                Tout sélectionner
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-3 border-l pl-4">
+              <Label htmlFor="view-mode" className="text-sm font-medium">
+                {viewMode === 'ciblage' ? 'Ciblage' : 'Signal'}
+              </Label>
+              <Switch
+                id="view-mode"
+                checked={viewMode === 'signal'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
+              />
+            </div>
           </div>
 
           {/* Actions quand des entreprises sont sélectionnées */}
@@ -326,6 +342,114 @@ const Companies = () => {
             if (headcount >= 50) return <Users className="h-4 w-4 text-blue-500" />;
             return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
           };
+
+          if (viewMode === 'signal') {
+            return (
+              <Card 
+                key={company.id} 
+                className="hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    {/* Checkbox */}
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedCompanies.has(company.id)}
+                        onCheckedChange={() => handleSelectCompany(company.id)}
+                      />
+                    </div>
+
+                    {/* Partie gauche floutée */}
+                    <div className="flex-1 flex items-center gap-4 blur-sm select-none pointer-events-none">
+                      {/* Logo entreprise */}
+                      <div className="flex-shrink-0">
+                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                          <Building2 className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      </div>
+
+                      {/* Raison sociale, département, secteur */}
+                      <div className="flex-shrink-0 w-48">
+                        <h3 className="text-sm font-semibold truncate">
+                          {company.name}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                          <MapPin className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{company.department}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Briefcase className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{company.sector}</span>
+                        </div>
+                      </div>
+
+                      {/* CA et Effectif */}
+                      <div className="flex-shrink-0 w-32">
+                        <div className="flex items-center gap-2 mb-1">
+                          {getRevenueIcon(company.ca)}
+                          <span className="text-xs font-medium">
+                            {(company.ca / 1000000).toFixed(1)}M€
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getHeadcountIcon(company.headcount)}
+                          <span className="text-xs font-medium">
+                            {company.headcount} emp.
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Liens */}
+                      <div className="flex-shrink-0 flex flex-col gap-1">
+                        <Button size="sm" variant="ghost" className="h-7 justify-start">
+                          <ExternalLink className="h-3 w-3 mr-1.5" />
+                          <span className="text-xs">Site web</span>
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 justify-start">
+                          <Linkedin className="h-3 w-3 mr-1.5" />
+                          <span className="text-xs">LinkedIn</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Résumé du signal (non flouté) */}
+                    <div className="flex-1 min-w-0 px-4">
+                      <div className="flex items-start gap-2">
+                        <FileText className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="text-sm font-semibold mb-1">Signal détecté</h4>
+                          <p className="text-sm text-muted-foreground line-clamp-3">
+                            Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn. Opportunité à saisir rapidement.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions GO/NO GO */}
+                    <div className="flex flex-col gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleGo(company)}
+                        className="gap-1.5 bg-green-600 hover:bg-green-700"
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" />
+                        <span className="text-xs">GO</span>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => handleNoGo(company)}
+                        className="gap-1.5"
+                      >
+                        <ThumbsDown className="h-3.5 w-3.5" />
+                        <span className="text-xs">NO GO</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          }
 
           return (
             <Card 
