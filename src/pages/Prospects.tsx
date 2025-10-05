@@ -528,19 +528,17 @@ const Prospects = () => {
                             className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => handleContactClick(contact)}
                           >
-                            <div className="flex items-start gap-3">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-4 mb-2">
-                                  <div>
-                                    <p className="font-medium text-sm">{contact.fullName}</p>
-                                    <p className="text-xs text-muted-foreground">{contact.role}</p>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                    <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                                  </div>
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1 flex items-center gap-4">
+                                <div>
+                                  <p className="font-medium text-sm">{contact.fullName}</p>
+                                  <p className="text-xs text-muted-foreground">{contact.role}</p>
                                 </div>
-                                <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex gap-2">
+                                  <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                  <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                                </div>
+                                <div className="flex items-center gap-3 ml-4" onClick={(e) => e.stopPropagation()}>
                                   <div className="flex items-center gap-2">
                                     <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                                     <a 
