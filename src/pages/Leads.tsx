@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
@@ -35,6 +37,9 @@ const Leads = () => {
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [generatingContacts, setGeneratingContacts] = useState(false);
+  const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [showContactDialog, setShowContactDialog] = useState(false);
   
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
@@ -193,6 +198,21 @@ const Leads = () => {
     setSelectedLeads(newSelected);
   };
 
+  const toggleLeadExpanded = (leadId: string) => {
+    const newExpanded = new Set(expandedLeads);
+    if (newExpanded.has(leadId)) {
+      newExpanded.delete(leadId);
+    } else {
+      newExpanded.add(leadId);
+    }
+    setExpandedLeads(newExpanded);
+  };
+
+  const handleContactClick = (contact: Contact) => {
+    setSelectedContact(contact);
+    setShowContactDialog(true);
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
@@ -324,9 +344,130 @@ const Leads = () => {
 
         {paginatedLeads.map(({ lead, company }) => {
           const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+          const isExpanded = expandedLeads.has(lead.id);
 
           if (!company) return null;
 
+          // En mode signal, affichage différent
+          if (viewMode === 'signal') {
+            return (
+              <Card key={lead.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    {/* Checkbox */}
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedLeads.has(lead.id)}
+                        onCheckedChange={() => handleSelectLead(lead.id)}
+                      />
+                    </div>
+
+                    {/* Bloc 1 : Logo entreprise */}
+                    <div className="flex-shrink-0">
+                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    </div>
+
+                    {/* Bloc 2 : Raison sociale, département, secteur */}
+                    <div className="flex-shrink-0 w-48">
+                      <h3 className="text-sm font-semibold truncate">
+                        {company.name}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{company.department}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Briefcase className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{company.sector}</span>
+                      </div>
+                    </div>
+
+                    {/* Signal résumé - plus large */}
+                    {lead.signalSummary && (
+                      <div className="flex-1 px-4">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <p className="text-sm text-orange-900 leading-relaxed">
+                            {lead.signalSummary}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Statut */}
+                    <Select defaultValue={lead.status}>
+                      <SelectTrigger className="w-36">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="New">Nouveau</SelectItem>
+                        <SelectItem value="A_TRAITER">À traiter</SelectItem>
+                        <SelectItem value="A_SUIVRE">À suivre</SelectItem>
+                        <SelectItem value="GO">GO</SelectItem>
+                        <SelectItem value="NO_GO">NO GO</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Section contacts dépliable */}
+                  {leadContacts.length > 0 && (
+                    <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpanded(lead.id)}>
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full mt-3 justify-start gap-2"
+                        >
+                          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          <UsersIcon className="h-4 w-4" />
+                          {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-3 space-y-2">
+                        {leadContacts.map((contact) => (
+                          <Card
+                            key={contact.id}
+                            className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                            onClick={() => handleContactClick(contact)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex-1">
+                                <p className="font-medium text-sm">{contact.fullName}</p>
+                                <p className="text-xs text-muted-foreground">{contact.role}</p>
+                              </div>
+                              <div className="flex gap-2">
+                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
+
+                  {/* Bouton pour ajouter des contacts si aucun */}
+                  {leadContacts.length === 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-3"
+                      onClick={() => {
+                        setSelectedLead(lead.id);
+                        setShowPersonaDialog(true);
+                      }}
+                    >
+                      <UsersIcon className="h-4 w-4 mr-2" />
+                      Générer des contacts
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          }
+
+          // Mode ciblage (affichage original)
           return (
             <Card key={lead.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
@@ -388,21 +529,8 @@ const Leads = () => {
                     </Button>
                   </div>
 
-                  {/* Signal résumé (affiché uniquement en mode signal) */}
-                  {viewMode === 'signal' && lead.signalSummary && (
-                    <div className="flex-1 max-w-md px-4">
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                        <p className="text-xs text-orange-900 leading-relaxed">
-                          {lead.signalSummary}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Spacer (uniquement si pas de signal) */}
-                  {!(viewMode === 'signal' && lead.signalSummary) && (
-                    <div className="flex-1" />
-                  )}
+                  {/* Spacer */}
+                  <div className="flex-1" />
 
                   {/* Contacts avec HoverCard */}
                   <HoverCard openDelay={200}>
@@ -565,6 +693,176 @@ const Leads = () => {
               {generatingContacts ? 'Génération...' : 'Générer les contacts'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog fiche contact détaillée */}
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent className="max-w-4xl">
+          {selectedContact && (
+            <div className="space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedContact.fullName}</DialogTitle>
+                <DialogDescription>{selectedContact.role}</DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-2 gap-6">
+                {/* Colonne gauche : Infos contact */}
+                <div className="space-y-4">
+                  <Card className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Linkedin className="h-5 w-5 text-blue-600" />
+                        <a 
+                          href={`https://linkedin.com/in/${selectedContact.fullName.toLowerCase().replace(' ', '-')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          LinkedIn
+                        </a>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Fonction:</span>
+                          <span className="text-sm">{selectedContact.role}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Email:</span>
+                          <a href={`mailto:${selectedContact.email}`} className="text-sm text-blue-600 hover:underline">
+                            {selectedContact.email}
+                          </a>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Téléphone:</span>
+                          <span className="text-sm text-muted-foreground">{selectedContact.phone}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Séniorité:</span>
+                          <Badge variant="secondary">{selectedContact.seniority}</Badge>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">Domaine:</span>
+                          <Badge variant="secondary">{selectedContact.domain}</Badge>
+                        </div>
+
+                        <div className="flex justify-center pt-2">
+                          <Badge variant="outline" className="text-xs">5 crédits</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                {/* Colonne droite : Infos entreprise et suivi */}
+                <div className="space-y-4">
+                  {(() => {
+                    const company = mockCompanies.find(c => c.id === selectedContact.companyId);
+                    return company ? (
+                      <>
+                        <Card className="p-4">
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <Globe className="h-5 w-5" />
+                              <a 
+                                href={company.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline truncate"
+                              >
+                                {company.website}
+                              </a>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Linkedin className="h-5 w-5 text-blue-600" />
+                              <a 
+                                href={company.linkedin} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline truncate"
+                              >
+                                LinkedIn Entreprise
+                              </a>
+                            </div>
+                          </div>
+                        </Card>
+
+                        <Card className="p-4">
+                          <div className="space-y-3">
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Date de création</Label>
+                              <p className="text-sm font-medium">{selectedContact.createdAt.toLocaleDateString('fr-FR')}</p>
+                            </div>
+
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Date de suivi</Label>
+                              <p className="text-sm font-medium">{new Date().toLocaleDateString('fr-FR')}</p>
+                            </div>
+
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Statut</Label>
+                              <Select defaultValue="a_rappeler">
+                                <SelectTrigger className="w-full mt-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="a_rappeler">À rappeler</SelectItem>
+                                  <SelectItem value="en_cours">En cours</SelectItem>
+                                  <SelectItem value="contacte">Contacté</SelectItem>
+                                  <SelectItem value="qualifie">Qualifié</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div>
+                              <Label className="text-xs text-muted-foreground">Email</Label>
+                              <p className="text-sm">{selectedContact.email}</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Tel standard</Label>
+                                <p className="text-sm">Tel standard</p>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Tel mobile</Label>
+                                <p className="text-sm">Tel standard</p>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+
+                        <Card className="p-4">
+                          <div className="space-y-2">
+                            <Label className="font-semibold">BRIEF</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Lecture du Site Web + LinkedIn par Perplexity pour récupérer une synthèse concise de l'entreprise
+                            </p>
+                          </div>
+                        </Card>
+
+                        <Card className="p-4">
+                          <div className="space-y-2">
+                            <Label className="font-semibold">Commentaires</Label>
+                            <Textarea 
+                              placeholder="Notes du commercial..."
+                              className="min-h-[100px]"
+                            />
+                          </div>
+                        </Card>
+                      </>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
