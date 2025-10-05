@@ -17,7 +17,34 @@ interface Lead {
 
 interface LeadContact {
   lead_id: string;
+  status: string;
 }
+
+type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
+
+const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engagé', 'Discussion', 'RDV', 'Exclu'];
+
+// Fonction pour obtenir le statut le plus avancé
+const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
+  if (statuses.length === 0) return 'Nouveau';
+  
+  let maxIndex = 0;
+  statuses.forEach(status => {
+    const index = STATUS_HIERARCHY.indexOf(status);
+    if (index > maxIndex) maxIndex = index;
+  });
+  
+  return STATUS_HIERARCHY[maxIndex];
+};
+
+// Fonction pour obtenir le statut d'un lead basé sur ses contacts
+const getLeadStatus = (leadId: string, contacts: LeadContact[]): ContactStatus => {
+  const leadContacts = contacts.filter(c => c.lead_id === leadId);
+  if (leadContacts.length === 0) return 'Nouveau';
+  
+  const statuses = leadContacts.map(c => c.status as ContactStatus);
+  return getMostAdvancedStatus(statuses);
+};
 
 const Vision = () => {
   const navigate = useNavigate();
@@ -39,7 +66,7 @@ const Vision = () => {
           .eq('user_id', user.id),
         supabase
           .from('lead_contacts')
-          .select('lead_id')
+          .select('lead_id, status')
           .eq('user_id', user.id)
       ]);
 
@@ -51,13 +78,13 @@ const Vision = () => {
     fetchData();
   }, []);
 
-  // Calculer les données pour l'histogramme des statuts
+  // Calculer les données pour l'histogramme des statuts basé sur les contacts
   const statusData = [
-    { status: 'Nouveau', count: leads.filter(l => l.status === 'Nouveau').length },
-    { status: 'A traiter', count: leads.filter(l => l.status === 'A traiter').length },
-    { status: 'En cours', count: leads.filter(l => l.status === 'En cours').length },
-    { status: 'GO', count: leads.filter(l => l.status === 'GO').length },
-    { status: 'NO GO', count: leads.filter(l => l.status === 'NO GO').length },
+    { status: 'Nouveau', count: leads.filter(l => getLeadStatus(l.id, leadContacts) === 'Nouveau').length },
+    { status: 'Engagé', count: leads.filter(l => getLeadStatus(l.id, leadContacts) === 'Engagé').length },
+    { status: 'Discussion', count: leads.filter(l => getLeadStatus(l.id, leadContacts) === 'Discussion').length },
+    { status: 'RDV', count: leads.filter(l => getLeadStatus(l.id, leadContacts) === 'RDV').length },
+    { status: 'Exclu', count: leads.filter(l => getLeadStatus(l.id, leadContacts) === 'Exclu').length },
   ].filter(item => item.count > 0);
 
   // Calculer la répartition géographique
@@ -73,12 +100,11 @@ const Vision = () => {
 
   // Calculer les statistiques des signaux
   const hotSignalLeads = leads.filter(l => l.is_hot_signal);
-  const hotSignalLeadIds = new Set(hotSignalLeads.map(l => l.id));
   const leadsWithContacts = new Set(leadContacts.map(c => c.lead_id));
 
-  const signalUndiscovered = hotSignalLeads.filter(l => l.status === 'Nouveau').length;
+  const signalUndiscovered = hotSignalLeads.filter(l => getLeadStatus(l.id, leadContacts) === 'Nouveau').length;
   const signalDiscoveredNoContacts = hotSignalLeads.filter(l => 
-    l.status !== 'Nouveau' && !leadsWithContacts.has(l.id)
+    getLeadStatus(l.id, leadContacts) !== 'Nouveau' && !leadsWithContacts.has(l.id)
   ).length;
   const signalWithContacts = hotSignalLeads.filter(l => leadsWithContacts.has(l.id)).length;
 
