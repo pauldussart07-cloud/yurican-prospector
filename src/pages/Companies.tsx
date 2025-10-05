@@ -3,7 +3,7 @@ import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, User
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -659,95 +659,96 @@ const Companies = () => {
         </Pagination>
       </div>
 
-      {/* Bandeau large pour les détails */}
-      <Sheet open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
-        <SheetContent className="w-full max-w-[95vw] overflow-y-auto" side="bottom">
+      {/* Modal centré pour les détails */}
+      <Dialog open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
+        <DialogOverlay className="bg-background/80 backdrop-blur-sm" />
+        <DialogContent className="max-w-6xl max-h-[60vh] overflow-y-auto p-8">
           {selectedCompany && (
-            <div className="max-w-7xl mx-auto py-8">
+            <div className="w-full">
               {/* Disposition en 3 colonnes */}
-              <div className="grid grid-cols-12 gap-8">
+              <div className="grid grid-cols-12 gap-6">
                 {/* Colonne gauche : Nom de société, secteur, département */}
-                <div className="col-span-3 space-y-4">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <Building2 className="h-8 w-8 text-muted-foreground" />
+                <div className="col-span-3 space-y-3">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      <Building2 className="h-6 w-6 text-muted-foreground" />
                     </div>
                   </div>
                   
                   <div>
-                    <h2 className="text-2xl font-bold mb-4">{selectedCompany.name}</h2>
+                    <h2 className="text-xl font-bold mb-3">{selectedCompany.name}</h2>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       <div>
-                        <span className="text-sm text-muted-foreground">Code NAF</span>
+                        <span className="text-xs text-muted-foreground">Code NAF</span>
                         <div className="mt-1">
-                          <Badge>{selectedCompany.naf}</Badge>
+                          <Badge className="text-xs">{selectedCompany.naf}</Badge>
                         </div>
                       </div>
                       
                       <div>
-                        <span className="text-sm text-muted-foreground">Secteur d'activité</span>
+                        <span className="text-xs text-muted-foreground">Secteur d'activité</span>
                         <div className="mt-1">
-                          <Badge variant="outline">{selectedCompany.sector}</Badge>
+                          <Badge variant="outline" className="text-xs">{selectedCompany.sector}</Badge>
                         </div>
                       </div>
                       
                       <div>
-                        <span className="text-sm text-muted-foreground">Département</span>
-                        <p className="text-base font-medium mt-1">{selectedCompany.department}</p>
+                        <span className="text-xs text-muted-foreground">Département</span>
+                        <p className="text-sm font-medium mt-1">{selectedCompany.department}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Colonne centrale : Informations complètes */}
-                <div className="col-span-5 border-l border-r px-8">
-                  <h3 className="text-lg font-semibold mb-4">Informations</h3>
-                  <div className="space-y-4">
+                <div className="col-span-5 border-l border-r px-6">
+                  <h3 className="text-base font-semibold mb-3">Informations</h3>
+                  <div className="space-y-2.5">
                     <div>
-                      <span className="text-sm text-muted-foreground">Adresse</span>
-                      <p className="text-base font-medium mt-1">{selectedCompany.address}</p>
+                      <span className="text-xs text-muted-foreground">Adresse</span>
+                      <p className="text-sm font-medium mt-1">{selectedCompany.address}</p>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">SIRET</span>
-                      <p className="text-base font-medium mt-1">{selectedCompany.siret}</p>
+                      <span className="text-xs text-muted-foreground">SIRET</span>
+                      <p className="text-sm font-medium mt-1">{selectedCompany.siret}</p>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">Code NAF</span>
-                      <p className="text-base font-medium mt-1">{selectedCompany.naf}</p>
+                      <span className="text-xs text-muted-foreground">Code NAF</span>
+                      <p className="text-sm font-medium mt-1">{selectedCompany.naf}</p>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">Chiffre d'affaires</span>
-                      <p className="text-base font-medium mt-1">{(selectedCompany.ca / 1000000).toFixed(1)}M€</p>
+                      <span className="text-xs text-muted-foreground">Chiffre d'affaires</span>
+                      <p className="text-sm font-medium mt-1">{(selectedCompany.ca / 1000000).toFixed(1)}M€</p>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">Effectif</span>
-                      <p className="text-base font-medium mt-1">{selectedCompany.headcount} employés</p>
+                      <span className="text-xs text-muted-foreground">Effectif</span>
+                      <p className="text-sm font-medium mt-1">{selectedCompany.headcount} employés</p>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">Site web</span>
+                      <span className="text-xs text-muted-foreground">Site web</span>
                       <a 
                         href={selectedCompany.website} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-base font-medium text-primary hover:underline mt-1 block"
+                        className="text-sm font-medium text-primary hover:underline mt-1 block"
                       >
                         Visiter →
                       </a>
                     </div>
                     
                     <div>
-                      <span className="text-sm text-muted-foreground">LinkedIn</span>
+                      <span className="text-xs text-muted-foreground">LinkedIn</span>
                       <a 
                         href={selectedCompany.linkedin} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-base font-medium text-primary hover:underline mt-1 block"
+                        className="text-sm font-medium text-primary hover:underline mt-1 block"
                       >
                         Voir le profil →
                       </a>
@@ -757,28 +758,30 @@ const Companies = () => {
 
                 {/* Colonne droite : Synthèse */}
                 <div className="col-span-4">
-                  <h3 className="text-lg font-semibold mb-4">Synthèse</h3>
-                  <div className="bg-muted/30 rounded-lg p-4 border border-border">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  <h3 className="text-base font-semibold mb-3">Synthèse</h3>
+                  <div className="bg-muted/30 rounded-lg p-3 border border-border">
+                    <p className="text-xs leading-relaxed whitespace-pre-wrap">
                       {loadingSummary ? 'Génération de la synthèse en cours...' : summary || 'Aucune synthèse disponible'}
                     </p>
                   </div>
                   
                   {/* Actions */}
-                  <div className="flex flex-col gap-3 mt-6">
+                  <div className="flex flex-col gap-2 mt-4">
                     <Button 
                       className="w-full"
+                      size="sm"
                       onClick={() => handleGo(selectedCompany)}
                     >
-                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      <ThumbsUp className="h-3.5 w-3.5 mr-2" />
                       Ajouter aux Leads (GO)
                     </Button>
                     <Button 
                       variant="destructive"
                       className="w-full"
+                      size="sm"
                       onClick={() => handleNoGo(selectedCompany)}
                     >
-                      <ThumbsDown className="h-4 w-4 mr-2" />
+                      <ThumbsDown className="h-3.5 w-3.5 mr-2" />
                       Masquer (NO GO)
                     </Button>
                   </div>
@@ -786,8 +789,8 @@ const Companies = () => {
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
