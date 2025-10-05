@@ -528,7 +528,7 @@ const Prospects = () => {
                             className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => handleContactClick(contact)}
                           >
-                            <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
                               <div className="flex items-center gap-4">
                                 <div>
                                   <p className="font-medium text-sm">{contact.fullName}</p>
@@ -540,59 +540,71 @@ const Prospects = () => {
                                 </div>
                               </div>
                               
-                              <div className="flex items-center gap-4">
-                                {/* Note et date de suivi */}
-                                <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                                  {(contact as any).note && (
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="font-medium">Note:</span>
-                                      <span className="truncate max-w-[150px]">{(contact as any).note}</span>
-                                    </div>
-                                  )}
-                                  {(contact as any).followUpDate && (
-                                    <div className="flex items-center gap-1.5">
-                                      <Calendar className="h-3 w-3" />
-                                      <span>{new Date((contact as any).followUpDate).toLocaleDateString('fr-FR')}</span>
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                {/* Mail et téléphone */}
-                                <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
-                                  <a 
-                                    href={`mailto:${contact.email}`}
-                                    className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                  >
-                                    <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                    <span className="text-xs text-primary font-medium">
-                                      {contact.email}
-                                    </span>
-                                  </a>
-                                  {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                    <a 
-                                      href={`tel:${contact.phone}`}
-                                      className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                    >
-                                      <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                      <span className="text-xs text-primary font-medium">
-                                        {contact.phone}
-                                      </span>
-                                    </a>
-                                  ) : (
-                                    <div className="flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
-                                      <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                      <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                              {/* Note et date de suivi */}
+                              <div className="flex-1 flex flex-col gap-1 px-4">
+                                {(contact as any).note && (
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
+                                      {(contact as any).note}
+                                    </p>
+                                    {(contact as any).note.length > 50 && (
                                       <Button
                                         variant="link"
                                         size="sm"
-                                        className="h-auto p-0 text-xs ml-1"
-                                        onClick={() => handleDiscoverRequest(contact.id, 'phone')}
+                                        className="h-auto p-0 text-xs"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleContactClick(contact);
+                                        }}
                                       >
-                                        Découvrir
+                                        Afficher plus
                                       </Button>
-                                    </div>
-                                  )}
-                                </div>
+                                    )}
+                                  </div>
+                                )}
+                                {(contact as any).followUpDate && (
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>Suivi: {new Date((contact as any).followUpDate).toLocaleDateString('fr-FR')}</span>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Mail et téléphone */}
+                              <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
+                                <a 
+                                  href={`mailto:${contact.email}`}
+                                  className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                >
+                                  <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                  <span className="text-xs text-primary font-medium">
+                                    {contact.email}
+                                  </span>
+                                </a>
+                                {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                  <a 
+                                    href={`tel:${contact.phone}`}
+                                    className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                  >
+                                    <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                    <span className="text-xs text-primary font-medium">
+                                      {contact.phone}
+                                    </span>
+                                  </a>
+                                ) : (
+                                  <div className="flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                                    <Button
+                                      variant="link"
+                                      size="sm"
+                                      className="h-auto p-0 text-xs ml-1"
+                                      onClick={() => handleDiscoverRequest(contact.id, 'phone')}
+                                    >
+                                      Découvrir
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </Card>
