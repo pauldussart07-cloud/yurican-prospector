@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
+import { KanbanView } from '@/components/KanbanView';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -100,6 +102,7 @@ const Prospects = () => {
   const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department' | 'status'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
+  const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
 
 
   const handleGenerateContacts = async () => {
@@ -419,16 +422,79 @@ const Prospects = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Prospects</h1>
-        <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold">Prospects</h1>
+          <ToggleGroup type="single" value={displayMode} onValueChange={(value) => value && setDisplayMode(value as 'list' | 'kanban')}>
+            <ToggleGroupItem value="list" aria-label="Vue liste">
+              <List className="h-4 w-4 mr-2" />
+              Liste
+            </ToggleGroupItem>
+            <ToggleGroupItem value="kanban" aria-label="Vue kanban">
+              <Kanban className="h-4 w-4 mr-2" />
+              Kanban
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
           {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length > 1 ? 's' : ''}
         </Badge>
       </div>
 
-      {/* Liste des leads */}
-      <div className="space-y-3">
-        {/* Header avec checkbox select all et actions */}
-        <div className="flex items-center justify-between px-4">
+      {displayMode === 'kanban' ? (
+        <div className="space-y-4">
+          {/* Header pour la vue Kanban */}
+          <div className="flex items-center justify-between px-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Label htmlFor="view-mode-kanban" className="text-sm font-medium">
+                  Ciblage
+                </Label>
+                <Switch
+                  id="view-mode-kanban"
+                  checked={viewMode === 'signal'}
+                  onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
+                />
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="view-mode-kanban" className="text-sm font-medium">
+                    Signal
+                  </Label>
+                  {leads.filter(l => l.isHotSignal).length > 0 && (
+                    <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                      {leads.filter(l => l.isHotSignal).length}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 border-l pl-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Rechercher une entreprise ou un contact..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 w-80"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Vue Kanban */}
+          <KanbanView
+            leads={filteredAndSortedLeads}
+            contacts={contacts}
+            onContactClick={handleContactClick}
+            searchQuery={searchQuery}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Liste des leads */}
+          <div className="space-y-3">
+            {/* Header avec checkbox select all et actions */}
+            <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <Checkbox
@@ -1060,7 +1126,7 @@ const Prospects = () => {
           );
         })}
 
-        {/* Pagination */}
+      {/* Pagination */}
         {totalPages > 1 && (
           <Pagination className="mt-6">
             <PaginationContent>
@@ -1082,7 +1148,7 @@ const Prospects = () => {
                 } else {
                   pageNum = currentPage - 2 + i;
                 }
-                
+
                 return (
                   <PaginationItem key={pageNum}>
                     <PaginationLink
@@ -1106,6 +1172,8 @@ const Prospects = () => {
           </Pagination>
         )}
       </div>
+        </>
+      )}
 
       {/* Dialog pour sélectionner les personas */}
       <Dialog open={showPersonaDialog} onOpenChange={setShowPersonaDialog}>
