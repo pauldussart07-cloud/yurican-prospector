@@ -148,7 +148,19 @@ const Targeting = () => {
 
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    
+    if (!user) {
+      console.log('No user found');
+      toast({
+        title: 'Erreur',
+        description: 'Vous devez être connecté pour créer un ciblage',
+        variant: 'destructive',
+      });
+      setLoading(false);
+      return;
+    }
+
+    console.log('User:', user.id);
 
     // Déterminer les départements selon le type de localisation
     let departmentsToSave: string[] = [];
@@ -164,7 +176,7 @@ const Targeting = () => {
       departmentsToSave = selectedDepartments;
     }
 
-    const { error } = await supabase.from('targetings').insert({
+    const dataToInsert = {
       user_id: user.id,
       name,
       departments: departmentsToSave,
@@ -174,14 +186,21 @@ const Targeting = () => {
       min_revenue: minRevenue ? parseInt(minRevenue) * 1000000 : null,
       max_revenue: maxRevenue ? parseInt(maxRevenue) * 1000000 : null,
       is_active: false,
-    });
+    };
+
+    console.log('Data to insert:', dataToInsert);
+
+    const { data, error } = await supabase.from('targetings').insert(dataToInsert).select();
+
+    console.log('Insert result:', { data, error });
 
     setLoading(false);
 
     if (error) {
+      console.error('Error creating targeting:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible de créer le ciblage',
+        description: `Impossible de créer le ciblage: ${error.message}`,
         variant: 'destructive',
       });
     } else {
