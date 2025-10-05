@@ -291,9 +291,11 @@ const Companies = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Entreprises</h1>
-        <div className="text-sm text-muted-foreground">
-          {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold">Entreprises</h1>
+          <Badge variant="secondary" className="text-sm">
+            Votre Ciblage représente {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
+          </Badge>
         </div>
       </div>
 
