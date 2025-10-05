@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Phone, Mail, Users as UsersIcon, Building2, MapPin } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
@@ -17,7 +17,6 @@ const Leads = () => {
   const { toast } = useToast();
   const [leads] = useState<Lead[]>(mockLeads);
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
-  const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [generatingContacts, setGeneratingContacts] = useState(false);
@@ -26,15 +25,6 @@ const Leads = () => {
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
   const [contactCount, setContactCount] = useState(3);
 
-  const toggleExpand = (leadId: string) => {
-    const newExpanded = new Set(expandedLeads);
-    if (newExpanded.has(leadId)) {
-      newExpanded.delete(leadId);
-    } else {
-      newExpanded.add(leadId);
-    }
-    setExpandedLeads(newExpanded);
-  };
 
   const handleGenerateContacts = async () => {
     if (!selectedLead || selectedPersonas.length === 0) {
@@ -71,9 +61,6 @@ const Leads = () => {
       setShowPersonaDialog(false);
       setSelectedPersonas([]);
       setContactCount(3);
-      
-      // Auto-expand the lead to show new contacts
-      setExpandedLeads(new Set([...expandedLeads, selectedLead]));
     } catch (error) {
       console.error('Error generating contacts:', error);
       toast({
@@ -101,6 +88,20 @@ const Leads = () => {
     'Opérations',
   ];
 
+  // Déterminer la taille de l'icône CA
+  const getRevenueIcon = (ca: number) => {
+    if (ca >= 50000000) return <TrendingUp className="h-5 w-5 text-green-600" />;
+    if (ca >= 10000000) return <TrendingUp className="h-4 w-4 text-green-500" />;
+    return <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />;
+  };
+
+  // Déterminer la taille de l'icône effectif
+  const getHeadcountIcon = (headcount: number) => {
+    if (headcount >= 250) return <Users className="h-5 w-5 text-blue-600" />;
+    if (headcount >= 50) return <Users className="h-4 w-4 text-blue-500" />;
+    return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
@@ -111,140 +112,136 @@ const Leads = () => {
       </div>
 
       {/* Liste des leads */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {leads.map((lead) => {
           const company = mockCompanies.find(c => c.id === lead.companyId);
           const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
-          const isExpanded = expandedLeads.has(lead.id);
 
           if (!company) return null;
 
           return (
-            <Card key={lead.id} className="overflow-hidden">
-              <CardContent className="p-6">
-                {/* Lead header */}
-                <div className="flex items-start gap-4">
-                  <button
-                    onClick={() => toggleExpand(lead.id)}
-                    className="mt-1 hover:bg-muted rounded p-1 transition-colors"
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-5 w-5" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5" />
-                    )}
-                  </button>
+            <Card key={lead.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  {/* Checkbox */}
+                  <Checkbox />
 
-                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                    <Building2 className="h-6 w-6 text-muted-foreground" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold">{company.name}</h3>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      <Badge variant="outline">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {company.department}
-                      </Badge>
-                      <Badge variant="outline">{company.sector}</Badge>
-                      <Badge>{company.siret}</Badge>
+                  {/* Bloc 1 : Logo entreprise */}
+                  <div className="flex-shrink-0">
+                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-muted-foreground" />
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedLead(lead.id);
-                        setShowPersonaDialog(true);
-                      }}
-                    >
-                      <UsersIcon className="h-4 w-4 mr-2" />
-                      {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
-                    </Button>
-
-                    <Select defaultValue={lead.status}>
-                      <SelectTrigger className="w-36">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="New">Nouveau</SelectItem>
-                        <SelectItem value="A_TRAITER">À traiter</SelectItem>
-                        <SelectItem value="A_SUIVRE">À suivre</SelectItem>
-                        <SelectItem value="GO">GO</SelectItem>
-                        <SelectItem value="NO_GO">NO GO</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Bloc 2 : Raison sociale, département, secteur */}
+                  <div className="flex-shrink-0 w-48">
+                    <h3 className="text-sm font-semibold truncate">
+                      {company.name}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                      <MapPin className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{company.department}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Briefcase className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{company.sector}</span>
+                    </div>
                   </div>
+
+                  {/* Bloc 4 : CA et Effectif */}
+                  <div className="flex-shrink-0 w-32">
+                    <div className="flex items-center gap-2 mb-1">
+                      {getRevenueIcon(company.ca)}
+                      <span className="text-xs font-medium">
+                        {(company.ca / 1000000).toFixed(1)}M€
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getHeadcountIcon(company.headcount)}
+                      <span className="text-xs font-medium">
+                        {company.headcount} emp.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bloc 5 : Liens */}
+                  <div className="flex-shrink-0 flex flex-col gap-1">
+                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                        <ExternalLink className="h-3 w-3" />
+                        <span className="text-xs">Site web</span>
+                      </a>
+                    </Button>
+                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                      <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                        <Linkedin className="h-3 w-3" />
+                        <span className="text-xs">LinkedIn</span>
+                      </a>
+                    </Button>
+                  </div>
+
+                  {/* Spacer */}
+                  <div className="flex-1" />
+
+                  {/* Contacts avec HoverCard */}
+                  <HoverCard openDelay={200}>
+                    <HoverCardTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedLead(lead.id);
+                          setShowPersonaDialog(true);
+                        }}
+                      >
+                        <UsersIcon className="h-4 w-4" />
+                        {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
+                      </Button>
+                    </HoverCardTrigger>
+                    {leadContacts.length > 0 && (
+                      <HoverCardContent className="w-96 p-4" align="end">
+                        <div className="space-y-3">
+                          <h4 className="font-semibold text-sm">Contacts</h4>
+                          {leadContacts.map((contact) => (
+                            <div key={contact.id} className="border-b pb-3 last:border-0 last:pb-0">
+                              <p className="font-medium text-sm">{contact.fullName}</p>
+                              <p className="text-xs text-muted-foreground">{contact.role}</p>
+                              <div className="flex gap-2 mt-2">
+                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                              </div>
+                              <div className="flex flex-col gap-1 mt-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <Mail className="h-3 w-3 text-muted-foreground" />
+                                  <span>{contact.email}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-3 w-3 text-muted-foreground" />
+                                  <span>{contact.phone}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </HoverCardContent>
+                    )}
+                  </HoverCard>
+
+                  {/* Statut */}
+                  <Select defaultValue={lead.status}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="New">Nouveau</SelectItem>
+                      <SelectItem value="A_TRAITER">À traiter</SelectItem>
+                      <SelectItem value="A_SUIVRE">À suivre</SelectItem>
+                      <SelectItem value="GO">GO</SelectItem>
+                      <SelectItem value="NO_GO">NO GO</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-
-                {/* Contacts dépliés */}
-                {isExpanded && leadContacts.length > 0 && (
-                  <div className="mt-6 space-y-3 border-t pt-6">
-                    {leadContacts.map((contact) => (
-                      <Card key={contact.id} className="bg-muted/30">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{contact.fullName}</h4>
-                              <p className="text-sm text-muted-foreground">{contact.role}</p>
-                              
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                <Badge variant="secondary">{contact.seniority}</Badge>
-                                <Badge variant="secondary">{contact.domain}</Badge>
-                              </div>
-
-                              <div className="flex gap-4 mt-3 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <Mail className="h-4 w-4 text-muted-foreground" />
-                                  <span className="blur-sm hover:blur-none transition-all cursor-pointer">
-                                    {contact.email}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4 text-muted-foreground" />
-                                  <span className="blur-sm hover:blur-none transition-all cursor-pointer">
-                                    {contact.phone}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
-                                <Phone className="h-4 w-4 mr-1" />
-                                Appeler
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Mail className="h-4 w-4 mr-1" />
-                                Email
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {isExpanded && leadContacts.length === 0 && (
-                  <div className="mt-6 text-center py-8 border-t text-muted-foreground">
-                    <UsersIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Aucun contact pour cette entreprise</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-4"
-                      onClick={() => {
-                        setSelectedLead(lead.id);
-                        setShowPersonaDialog(true);
-                      }}
-                    >
-                      Générer des contacts
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           );
