@@ -383,16 +383,16 @@ const Companies = () => {
                       />
                     </div>
 
-                    {/* Bloc 1 : Logo entreprise */}
-                    <div className="flex-shrink-0">
+                    {/* Bloc 1 : Logo entreprise (grisé) */}
+                    <div className="flex-shrink-0 blur-sm select-none pointer-events-none">
                       <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
                         <Building2 className="h-6 w-6 text-muted-foreground" />
                       </div>
                     </div>
 
-                    {/* Bloc 2 : Raison sociale, département, secteur */}
-                    <div className="flex-shrink-0 w-48">
-                      <h3 className="text-sm font-semibold truncate hover:text-primary">
+                    {/* Bloc 2 : Raison sociale, département, secteur (grisé) */}
+                    <div className="flex-shrink-0 w-40 blur-sm select-none pointer-events-none">
+                      <h3 className="text-sm font-semibold truncate">
                         {company.name}
                       </h3>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
@@ -405,37 +405,37 @@ const Companies = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 3 : Signal détecté (remplace le résumé) */}
-                    <div className="flex-1 min-w-0">
+                    {/* Bloc 3 : Signal détecté (plus d'espace) */}
+                    <div className="flex-1 min-w-0 px-2">
                       <div className="flex items-start gap-2">
-                        <FileText className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold mb-1">Signal détecté</h4>
+                          <h4 className="text-base font-semibold mb-2">Signal détecté</h4>
                           
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-medium text-muted-foreground">Famille :</span>
-                              <Badge variant="secondary" className="text-xs">
+                          <div className="flex items-center gap-4 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-muted-foreground">Famille :</span>
+                              <Badge variant="secondary" className="text-sm">
                                 Appel d'offre
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-medium text-muted-foreground">Secteur :</span>
-                              <Badge variant="outline" className="text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-muted-foreground">Secteur :</span>
+                              <Badge variant="outline" className="text-sm">
                                 {company.sector}
                               </Badge>
                             </div>
                           </div>
                           
-                          <p className="text-sm text-muted-foreground line-clamp-2">
-                            Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn.
+                          <p className="text-sm text-muted-foreground line-clamp-3">
+                            Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn. Opportunité à saisir rapidement pour proposer nos services.
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Bloc 4 : CA et Effectif */}
-                    <div className="flex-shrink-0 w-32">
+                    {/* Bloc 4 : CA et Effectif (grisé) */}
+                    <div className="flex-shrink-0 w-28 blur-sm select-none pointer-events-none">
                       <div className="flex items-center gap-2 mb-1">
                         {getRevenueIcon(company.ca)}
                         <span className="text-xs font-medium">
@@ -450,19 +450,15 @@ const Companies = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 5 : Liens */}
-                    <div className="flex-shrink-0 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                          <ExternalLink className="h-3 w-3" />
-                          <span className="text-xs">Site web</span>
-                        </a>
+                    {/* Bloc 5 : Liens (grisé) */}
+                    <div className="flex-shrink-0 flex flex-col gap-1 blur-sm select-none pointer-events-none">
+                      <Button size="sm" variant="ghost" className="h-7 justify-start">
+                        <ExternalLink className="h-3 w-3 mr-1.5" />
+                        <span className="text-xs">Site web</span>
                       </Button>
-                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
-                        <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                          <Linkedin className="h-3 w-3" />
-                          <span className="text-xs">LinkedIn</span>
-                        </a>
+                      <Button size="sm" variant="ghost" className="h-7 justify-start">
+                        <Linkedin className="h-3 w-3 mr-1.5" />
+                        <span className="text-xs">LinkedIn</span>
                       </Button>
                     </div>
 
