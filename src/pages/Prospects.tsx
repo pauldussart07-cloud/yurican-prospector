@@ -43,6 +43,9 @@ const Prospects = () => {
   const [showActions, setShowActions] = useState(false);
   const [contactNote, setContactNote] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
+  const [discoveredContacts, setDiscoveredContacts] = useState<Set<string>>(new Set());
+  const [showDiscoverDialog, setShowDiscoverDialog] = useState(false);
+  const [contactToDiscover, setContactToDiscover] = useState<{ id: string; type: 'phone' | 'email' } | null>(null);
   
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
@@ -235,6 +238,30 @@ const Prospects = () => {
     });
     
     setShowContactDialog(false);
+  };
+
+  const handleDiscoverRequest = (contactId: string, type: 'phone' | 'email') => {
+    setContactToDiscover({ id: contactId, type });
+    setShowDiscoverDialog(true);
+  };
+
+  const handleConfirmDiscover = () => {
+    if (!contactToDiscover) return;
+    
+    const key = `${contactToDiscover.id}-${contactToDiscover.type}`;
+    setDiscoveredContacts(new Set([...discoveredContacts, key]));
+    
+    toast({
+      title: 'Contact découvert',
+      description: `8 crédits ont été débités de votre compte.`,
+    });
+    
+    setShowDiscoverDialog(false);
+    setContactToDiscover(null);
+  };
+
+  const isContactInfoDiscovered = (contactId: string, type: 'phone' | 'email') => {
+    return discoveredContacts.has(`${contactId}-${type}`);
   };
 
   return (
@@ -501,53 +528,66 @@ const Prospects = () => {
                             className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => handleContactClick(contact)}
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="flex-1 flex items-center gap-4">
-                                <div>
-                                  <p className="font-medium text-sm">{contact.fullName}</p>
-                                  <p className="text-xs text-muted-foreground">{contact.role}</p>
+                            <div className="flex items-start gap-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-4 mb-2">
+                                  <div>
+                                    <p className="font-medium text-sm">{contact.fullName}</p>
+                                    <p className="text-xs text-muted-foreground">{contact.role}</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                    <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                                  </div>
                                 </div>
-                                <div className="flex gap-2">
-                                  <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                  <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                                <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
+                                  <div className="flex items-center gap-2">
+                                    <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    {isContactInfoDiscovered(contact.id, 'email') ? (
+                                      <a 
+                                        href={`mailto:${contact.email}`}
+                                        className="text-xs text-primary hover:underline"
+                                      >
+                                        {contact.email}
+                                      </a>
+                                    ) : (
+                                      <>
+                                        <span className="text-xs blur-sm select-none">{contact.email}</span>
+                                        <Button
+                                          variant="link"
+                                          size="sm"
+                                          className="h-auto p-0 text-xs"
+                                          onClick={() => handleDiscoverRequest(contact.id, 'email')}
+                                        >
+                                          Découvrir
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                      <a 
+                                        href={`tel:${contact.phone}`}
+                                        className="text-xs text-primary hover:underline"
+                                      >
+                                        {contact.phone}
+                                      </a>
+                                    ) : (
+                                      <>
+                                        <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                                        <Button
+                                          variant="link"
+                                          size="sm"
+                                          className="h-auto p-0 text-xs"
+                                          onClick={() => handleDiscoverRequest(contact.id, 'phone')}
+                                        >
+                                          Découvrir
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8"
-                                  onClick={() => window.open(`tel:${contact.phone}`)}
-                                >
-                                  <Phone className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8"
-                                  onClick={() => window.open(`mailto:${contact.email}`)}
-                                >
-                                  <Mail className="h-4 w-4" />
-                                </Button>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      className="h-8"
-                                    >
-                                      Action
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent className="bg-background" align="end">
-                                    <DropdownMenuItem>Action 1</DropdownMenuItem>
-                                    <DropdownMenuItem>Action 2</DropdownMenuItem>
-                                    <DropdownMenuItem>Action 3</DropdownMenuItem>
-                                    <DropdownMenuItem>Action 4</DropdownMenuItem>
-                                    <DropdownMenuItem>Action 5</DropdownMenuItem>
-                                    <DropdownMenuItem>Action 6</DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
                               </div>
                             </div>
                           </Card>
@@ -802,6 +842,26 @@ const Prospects = () => {
               {generatingContacts ? 'Génération...' : 'Générer les contacts'}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog confirmation découverte */}
+      <Dialog open={showDiscoverDialog} onOpenChange={setShowDiscoverDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Découvrir le contact</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir découvrir {contactToDiscover?.type === 'phone' ? 'le téléphone' : "l'email"} de ce contact pour 8 crédits ?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowDiscoverDialog(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleConfirmDiscover}>
+              Confirmer (8 crédits)
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
