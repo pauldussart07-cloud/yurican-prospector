@@ -589,7 +589,7 @@ const Marche = () => {
                       <Button 
                         size="sm" 
                         onClick={() => handleNoGo(company)}
-                        className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
+                        className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground"
                       >
                         <ThumbsDown className="h-3.5 w-3.5" />
                         <span className="text-xs">NO GO</span>
@@ -701,7 +701,7 @@ const Marche = () => {
                     <Button 
                       size="sm" 
                       onClick={() => handleNoGo(company)}
-                      className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
+                      className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground"
                     >
                       <ThumbsDown className="h-3.5 w-3.5" />
                       <span className="text-xs">NO GO</span>
@@ -937,7 +937,7 @@ const Marche = () => {
                       GO - Ajouter aux Leads
                     </Button>
                     <Button 
-                      className="w-full bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
+                      className="w-full bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground"
                       onClick={() => handleNoGo(selectedCompany)}
                     >
                       <ThumbsDown className="h-4 w-4 mr-2" />
