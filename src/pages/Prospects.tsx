@@ -182,6 +182,18 @@ const Prospects = () => {
         createdAt: new Date(contact.created_at),
       }));
 
+      // Charger l'état découvert des contacts
+      const discovered = new Set<string>();
+      (contactsData || []).forEach(contact => {
+        if (contact.is_email_discovered) {
+          discovered.add(`${contact.id}-email`);
+        }
+        if (contact.is_phone_discovered) {
+          discovered.add(`${contact.id}-phone`);
+        }
+      });
+      setDiscoveredContacts(discovered);
+
       setLeads(transformedLeads);
       setContacts(transformedContacts);
       setLoadingLeads(false);
@@ -209,6 +221,11 @@ const Prospects = () => {
     setGeneratingContacts(true);
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
       // Récupérer les objets personas complets depuis les noms sélectionnés
       const selectedPersonaObjects = userPersonas.filter(p => 
         selectedPersonas.includes(p.name)
@@ -221,11 +238,55 @@ const Prospects = () => {
         count: contactCount,
       });
 
-      setContacts([...contacts, ...newContacts]);
+      // Sauvegarder les contacts dans Supabase
+      const contactsToInsert = newContacts.map(contact => ({
+        user_id: user.id,
+        lead_id: selectedLead,
+        full_name: contact.fullName,
+        role: contact.role,
+        email: contact.email || null,
+        phone: contact.phone || null,
+        linkedin: (contact as any).linkedin || null,
+        status: (contact as any).status || 'Nouveau',
+        note: (contact as any).note || null,
+        follow_up_date: (contact as any).followUpDate || null,
+        is_email_discovered: false,
+        is_phone_discovered: false,
+      }));
+
+      const { data: insertedContacts, error } = await supabase
+        .from('lead_contacts')
+        .insert(contactsToInsert)
+        .select();
+
+      if (error) {
+        console.error('Error saving contacts:', error);
+        throw error;
+      }
+
+      // Mettre à jour l'état local avec les contacts insérés
+      const transformedContacts = (insertedContacts || []).map(contact => ({
+        id: contact.id,
+        companyId: contact.lead_id,
+        fullName: contact.full_name,
+        role: contact.role,
+        email: contact.email || '',
+        phone: contact.phone || '',
+        linkedin: contact.linkedin || '',
+        status: contact.status as ContactStatus,
+        note: contact.note || '',
+        followUpDate: contact.follow_up_date || '',
+        seniority: 'Senior',
+        domain: 'General',
+        source: 'Manual',
+        createdAt: new Date(contact.created_at),
+      }));
+
+      setContacts([...contacts, ...transformedContacts]);
       
       toast({
         title: 'Contacts trouvés',
-        description: `${newContacts.length} contact${newContacts.length > 1 ? 's ont' : ' a'} été ajouté${newContacts.length > 1 ? 's' : ''}.`,
+        description: `${transformedContacts.length} contact${transformedContacts.length > 1 ? 's ont' : ' a'} été ajouté${transformedContacts.length > 1 ? 's' : ''}.`,
       });
 
       setShowPersonaDialog(false);
@@ -474,15 +535,66 @@ const Prospects = () => {
     setShowContactDialog(true);
   };
 
-  const handleStatusChange = (contactId: string, newStatus: ContactStatus) => {
+  const handleStatusChange = async (contactId: string, newStatus: ContactStatus) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Mise à jour dans Supabase
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('id', contactId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating contact status:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour le statut.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Mise à jour de l'état local
     setContacts(contacts.map(c => 
       c.id === contactId ? { ...c, status: newStatus } : c
     ));
+
+    toast({
+      title: 'Statut mis à jour',
+      description: 'Le statut a été enregistré avec succès.',
+    });
   };
 
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (!selectedContact) return;
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Mise à jour dans Supabase
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({ 
+        note: contactNote, 
+        follow_up_date: followUpDate || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', selectedContact.id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating contact:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'enregistrer les modifications.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Mise à jour de l'état local
     const updatedContacts = contacts.map(contact => 
       contact.id === selectedContact.id 
         ? { ...contact, note: contactNote, followUpDate }
@@ -504,9 +616,37 @@ const Prospects = () => {
     setShowDiscoverDialog(true);
   };
 
-  const handleConfirmDiscover = () => {
+  const handleConfirmDiscover = async () => {
     if (!contactToDiscover) return;
     
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Déterminer quel champ mettre à jour
+    const updateField = contactToDiscover.type === 'email' 
+      ? { is_email_discovered: true }
+      : { is_phone_discovered: true };
+
+    // Mise à jour dans Supabase
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({ 
+        ...updateField,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', contactToDiscover.id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating contact discovery:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'enregistrer la découverte.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const key = `${contactToDiscover.id}-${contactToDiscover.type}`;
     setDiscoveredContacts(new Set([...discoveredContacts, key]));
     
