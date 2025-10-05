@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTargeting } from '@/contexts/TargetingContext';
-import { Plus, Trash2, Check, X, Building2, Users, GripVertical, Trophy } from 'lucide-react';
+import { Plus, Trash2, Check, X, Building2, Users, GripVertical } from 'lucide-react';
+import PodiumIcon from '@/components/PodiumIcon';
 import {
   DndContext,
   closestCenter,
@@ -752,7 +753,7 @@ const Targeting = () => {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Users className="h-5 w-5" />
               Ciblages Contacts
-              <Trophy className="h-5 w-5 text-amber-500" />
+              <PodiumIcon className="h-6 w-6" />
             </h2>
             <Button
               size="sm"
