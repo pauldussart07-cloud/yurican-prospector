@@ -20,14 +20,14 @@ All colors MUST be HSL.
     --primary: 204 50% 88%;
     --primary-foreground: 204 20% 20%;
 
-    --secondary: 25 75% 88%;
-    --secondary-foreground: 25 15% 25%;
+    --secondary: 45 35% 88%;
+    --secondary-foreground: 45 15% 25%;
 
     --muted: 204 25% 92%;
     --muted-foreground: 204 10% 45%;
 
-    --accent: 280 55% 88%;
-    --accent-foreground: 280 15% 25%;
+    --accent: 340 55% 88%;
+    --accent-foreground: 340 15% 25%;
 
     --destructive: 0 70% 88%;
     --destructive-foreground: 0 60% 30%;
@@ -72,14 +72,14 @@ All colors MUST be HSL.
     --primary: 204 45% 65%;
     --primary-foreground: 204 15% 95%;
 
-    --secondary: 25 65% 65%;
-    --secondary-foreground: 25 15% 95%;
+    --secondary: 45 30% 70%;
+    --secondary-foreground: 45 15% 95%;
 
     --muted: 204 15% 25%;
     --muted-foreground: 204 10% 65%;
 
-    --accent: 280 50% 70%;
-    --accent-foreground: 280 15% 95%;
+    --accent: 340 50% 75%;
+    --accent-foreground: 340 15% 95%;
 
     --destructive: 0 65% 65%;
     --destructive-foreground: 0 0% 100%;
@@ -103,7 +103,7 @@ All colors MUST be HSL.
     --sidebar-border: 204 15% 25%;
     --sidebar-ring: 204 45% 65%;
 
-    --gradient-bg: linear-gradient(to right, hsl(25 65% 35%), hsl(280 50% 35%));
+    --gradient-bg: linear-gradient(to right, hsl(45 30% 35%), hsl(340 50% 35%));
   }
 }
 
