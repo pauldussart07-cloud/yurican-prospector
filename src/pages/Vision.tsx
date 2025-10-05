@@ -6,6 +6,7 @@ import { StatusHistogram } from '@/components/StatusHistogram';
 import { GeographicMap } from '@/components/GeographicMap';
 import { SignalStats } from '@/components/SignalStats';
 import { NewsArticle } from '@/components/NewsArticle';
+import { CalendarView } from '@/components/CalendarView';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Lead {
@@ -13,11 +14,20 @@ interface Lead {
   status: string;
   company_department: string | null;
   is_hot_signal: boolean;
+  company_name: string;
 }
 
 interface LeadContact {
   lead_id: string;
   status: string;
+  follow_up_date: string | null;
+  full_name: string;
+}
+
+interface NextMeeting {
+  date: Date;
+  companyName: string;
+  contactName: string;
 }
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -62,11 +72,11 @@ const Vision = () => {
       const [leadsResult, contactsResult] = await Promise.all([
         supabase
           .from('leads')
-          .select('id, status, company_department, is_hot_signal')
+          .select('id, status, company_department, is_hot_signal, company_name')
           .eq('user_id', user.id),
         supabase
           .from('lead_contacts')
-          .select('lead_id, status')
+          .select('lead_id, status, follow_up_date, full_name')
           .eq('user_id', user.id)
       ]);
 
@@ -142,6 +152,26 @@ const Vision = () => {
 
   const totalLeads = leads.length;
 
+  // Calculer le prochain RDV
+  const nextMeeting: NextMeeting | null = (() => {
+    const upcomingMeetings = leadContacts
+      .filter(c => c.follow_up_date && new Date(c.follow_up_date) >= new Date())
+      .sort((a, b) => new Date(a.follow_up_date!).getTime() - new Date(b.follow_up_date!).getTime());
+
+    if (upcomingMeetings.length === 0) return null;
+
+    const nextContact = upcomingMeetings[0];
+    const lead = leads.find(l => l.id === nextContact.lead_id);
+
+    if (!lead) return null;
+
+    return {
+      date: new Date(nextContact.follow_up_date!),
+      companyName: lead.company_name,
+      contactName: nextContact.full_name
+    };
+  })();
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex gap-6">
@@ -164,15 +194,18 @@ const Vision = () => {
             </CardContent>
           </Card>
 
-          {/* Bloc Prospects Chauds */}
-          <SignalStats 
-            undiscovered={signalUndiscovered}
-            discoveredNoContacts={signalDiscoveredNoContacts}
-            withContacts={signalWithContacts}
-            onUndiscoveredClick={() => navigate('/prospects?view=signal&status=Nouveau')}
-            onDiscoveredNoContactsClick={() => navigate('/prospects?view=signal&noContacts=true')}
-            onWithContactsClick={() => navigate('/prospects?view=signal&hasContacts=true')}
-          />
+          {/* Bloc Prospects Chauds et Agenda */}
+          <div className="grid grid-cols-2 gap-6">
+            <SignalStats 
+              undiscovered={signalUndiscovered}
+              discoveredNoContacts={signalDiscoveredNoContacts}
+              withContacts={signalWithContacts}
+              onUndiscoveredClick={() => navigate('/prospects?view=signal&status=Nouveau')}
+              onDiscoveredNoContactsClick={() => navigate('/prospects?view=signal&noContacts=true')}
+              onWithContactsClick={() => navigate('/prospects?view=signal&hasContacts=true')}
+            />
+            <CalendarView nextMeeting={nextMeeting} />
+          </div>
         </div>
 
         {/* Section actualités - 1/3 de la page */}
