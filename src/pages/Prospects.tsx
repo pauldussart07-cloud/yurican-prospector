@@ -563,7 +563,7 @@ const Prospects = () => {
                             className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => handleContactClick(contact)}
                           >
-                            <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4">
                             <div className="flex items-center gap-4">
                               <div>
                                 <div className="flex items-center gap-1 mb-1">
@@ -578,7 +578,7 @@ const Prospects = () => {
                                 <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
                               </div>
                             </div>
-                              
+                            
                             {/* Note et date de suivi */}
                             <div className="flex-1 flex flex-col gap-1 px-4">
                               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -611,44 +611,58 @@ const Prospects = () => {
                                 )}
                               </div>
                             </div>
-                              
-                              {/* Mail et téléphone */}
-                              <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            
+                            {/* Mail et téléphone */}
+                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              <a 
+                                href={`mailto:${contact.email}`}
+                                className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                              >
+                                <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                <span className="text-xs text-primary font-medium">
+                                  {contact.email}
+                                </span>
+                              </a>
+                              {isContactInfoDiscovered(contact.id, 'phone') ? (
                                 <a 
-                                  href={`mailto:${contact.email}`}
+                                  href={`tel:${contact.phone}`}
                                   className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
                                 >
-                                  <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                  <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                                   <span className="text-xs text-primary font-medium">
-                                    {contact.email}
+                                    {contact.phone}
                                   </span>
                                 </a>
-                                {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                  <a 
-                                    href={`tel:${contact.phone}`}
-                                    className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                              ) : (
+                                <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
+                                    onClick={() => handleDiscoverRequest(contact.id, 'phone')}
                                   >
-                                    <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                    <span className="text-xs text-primary font-medium">
-                                      {contact.phone}
-                                    </span>
-                                  </a>
-                                ) : (
-                                  <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
-                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                    <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                    <Button
-                                      variant="link"
-                                      size="sm"
-                                      className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
-                                      onClick={() => handleDiscoverRequest(contact.id, 'phone')}
-                                    >
-                                      Découvrir
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
+                                    Découvrir
+                                  </Button>
+                                </div>
+                              )}
                             </div>
+
+                            {/* Statut */}
+                            <Select defaultValue="New">
+                              <SelectTrigger className="w-36">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="New">Nouveau</SelectItem>
+                                <SelectItem value="A_TRAITER">À traiter</SelectItem>
+                                <SelectItem value="A_SUIVRE">À suivre</SelectItem>
+                                <SelectItem value="GO">GO</SelectItem>
+                                <SelectItem value="NO_GO">NO GO</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                           </Card>
                         ))}
                       </CollapsibleContent>
@@ -887,6 +901,20 @@ const Prospects = () => {
                                 </div>
                               )}
                             </div>
+
+                            {/* Statut */}
+                            <Select defaultValue="New">
+                              <SelectTrigger className="w-36">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="New">Nouveau</SelectItem>
+                                <SelectItem value="A_TRAITER">À traiter</SelectItem>
+                                <SelectItem value="A_SUIVRE">À suivre</SelectItem>
+                                <SelectItem value="GO">GO</SelectItem>
+                                <SelectItem value="NO_GO">NO GO</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </Card>
                       ))}
