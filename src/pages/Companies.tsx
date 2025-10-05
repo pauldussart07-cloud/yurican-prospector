@@ -317,23 +317,22 @@ const Companies = () => {
             key={company.id} 
             className="hover:shadow-md transition-shadow"
           >
-            <CardContent className="p-3">
-              <div className="flex items-center gap-3">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
                 {/* Checkbox */}
                 <Checkbox
                   checked={selectedCompanies.has(company.id)}
                   onCheckedChange={() => handleSelectCompany(company.id)}
                   onClick={(e) => e.stopPropagation()}
+                  className="mt-1"
                 />
 
-                {/* Logo */}
-                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                </div>
-
-                {/* Informations principales */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-3">
+                {/* Partie gauche - Informations entreprise */}
+                <div className="flex-shrink-0 w-64">
+                  <div className="flex items-start gap-3">
+                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                      <Building2 className="h-6 w-6 text-muted-foreground" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <h3 
                         className="text-base font-semibold hover:text-primary cursor-pointer truncate"
@@ -341,58 +340,67 @@ const Companies = () => {
                       >
                         {company.name}
                       </h3>
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        <Badge variant="outline" className="text-xs">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {company.department}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">{company.sector}</Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{company.headcount}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="h-3 w-3" />
-                        <span>{(company.ca / 1000000).toFixed(1)}M€</span>
+                      <div className="space-y-1 mt-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <span>{company.department}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Building2 className="h-3 w-3" />
+                          <span>{company.sector}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Users className="h-3 w-3" />
+                          <span>{company.headcount} employés</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <TrendingUp className="h-3 w-3" />
+                          <span>{(company.ca / 1000000).toFixed(1)}M€ CA</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-1.5">
-                  <Button size="sm" variant="ghost" asChild>
-                    <a href={company.website} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                  <Button size="sm" variant="ghost" asChild>
-                    <a href={company.linkedin} target="_blank" rel="noopener noreferrer">
-                      <Linkedin className="h-3.5 w-3.5" />
-                    </a>
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => handleCompanyClick(company)}
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                  </Button>
+                {/* Partie centre - Résumé et liens */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {company.summary || "Cliquez sur l'entreprise pour voir le résumé détaillé..."}
+                  </p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Button size="sm" variant="ghost" asChild className="h-8">
+                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span className="text-xs">Site web</span>
+                      </a>
+                    </Button>
+                    <Button size="sm" variant="ghost" asChild className="h-8">
+                      <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                        <Linkedin className="h-3.5 w-3.5" />
+                        <span className="text-xs">LinkedIn</span>
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Partie droite - Actions */}
+                <div className="flex gap-2 flex-shrink-0">
                   <Button 
                     size="sm" 
                     onClick={() => handleGo(company)}
+                    className="gap-1.5"
                   >
-                    <ThumbsUp className="h-3.5 w-3.5" />
+                    <ThumbsUp className="h-4 w-4" />
+                    <span className="text-xs">GO</span>
                   </Button>
                   <Button 
                     size="sm" 
                     variant="destructive"
                     onClick={() => handleNoGo(company)}
+                    className="gap-1.5"
                   >
-                    <ThumbsDown className="h-3.5 w-3.5" />
+                    <ThumbsDown className="h-4 w-4" />
+                    <span className="text-xs">NO GO</span>
                   </Button>
                 </div>
               </div>

@@ -12,6 +12,7 @@ export interface Company {
   address: string;
   logoUrl: string;
   isHidden: boolean;
+  summary?: string;
   createdAt: Date;
   updatedAt: Date;
 }
