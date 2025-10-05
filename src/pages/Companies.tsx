@@ -47,7 +47,8 @@ const Companies = () => {
   
   // Filtres
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'headcount-asc' | 'headcount-desc' | 'revenue-asc' | 'revenue-desc'>('asc');
+  const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [hideNoGo, setHideNoGo] = useState(true);
 
   // Pagination et sélection
@@ -184,22 +185,29 @@ const Companies = () => {
 
     // Sort
     return filtered.sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.name.localeCompare(b.name);
-      } else if (sortOrder === 'desc') {
-        return b.name.localeCompare(a.name);
-      } else if (sortOrder === 'headcount-asc') {
-        return a.headcount - b.headcount;
-      } else if (sortOrder === 'headcount-desc') {
-        return b.headcount - a.headcount;
-      } else if (sortOrder === 'revenue-asc') {
-        return a.ca - b.ca;
-      } else if (sortOrder === 'revenue-desc') {
-        return b.ca - a.ca;
+      let comparison = 0;
+      
+      switch (sortCriteria) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'sector':
+          comparison = a.sector.localeCompare(b.sector);
+          break;
+        case 'revenue':
+          comparison = a.ca - b.ca;
+          break;
+        case 'headcount':
+          comparison = a.headcount - b.headcount;
+          break;
+        case 'department':
+          comparison = a.department.localeCompare(b.department);
+          break;
       }
-      return 0;
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [companies, hideNoGo, activeTargeting, departmentFilter, sortOrder]);
+  }, [companies, hideNoGo, activeTargeting, departmentFilter, sortCriteria, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
@@ -331,37 +339,32 @@ const Companies = () => {
                       Trier par
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setSortOrder('asc')}>
-                      Nom (A → Z)
+                  <DropdownMenuContent className="bg-background">
+                    <DropdownMenuItem onClick={() => setSortCriteria('name')}>
+                      Nom de l'entreprise
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder('desc')}>
-                      Nom (Z → A)
+                    <DropdownMenuItem onClick={() => setSortCriteria('sector')}>
+                      Secteur d'activité
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder('headcount-asc')}>
-                      Effectif croissant
+                    <DropdownMenuItem onClick={() => setSortCriteria('revenue')}>
+                      Chiffre d'affaires
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder('headcount-desc')}>
-                      Effectif décroissant
+                    <DropdownMenuItem onClick={() => setSortCriteria('headcount')}>
+                      Effectif
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder('revenue-asc')}>
-                      CA croissant
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortOrder('revenue-desc')}>
-                      CA décroissant
+                    <DropdownMenuItem onClick={() => setSortCriteria('department')}>
+                      Département
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Département" />
+                <Select value={sortDirection} onValueChange={(v) => setSortDirection(v as 'asc' | 'desc')}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tous les départements</SelectItem>
-                    {departments.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
+                    <SelectItem value="asc">Croissant</SelectItem>
+                    <SelectItem value="desc">Décroissant</SelectItem>
                   </SelectContent>
                 </Select>
 
