@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { mockCompanies, Company, mockLeads, Lead } from '@/lib/mockData';
 import { companySummaryService } from '@/services/companySummaryService';
+import { contactsService } from '@/services/contactsService';
 import { useNavigate } from 'react-router-dom';
 import { useTargeting } from '@/contexts/TargetingContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -359,7 +360,7 @@ const Marche = () => {
     );
   };
 
-  const handleConfirmGetContacts = () => {
+  const handleConfirmGetContacts = async () => {
     if (selectedPersonas.length === 0) {
       toast({
         title: 'Erreur',
@@ -369,16 +370,107 @@ const Marche = () => {
       return;
     }
 
-    toast({
-      title: 'Contacts générés',
-      description: `${selectedPersonas.length * contactCount} contact(s) ont été ajoutés pour ${selectedCompanies.size} entreprise(s).`,
-    });
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Erreur',
+          description: 'Vous devez être connecté.',
+          variant: 'destructive',
+        });
+        return;
+      }
 
-    // Réinitialiser
-    setShowPersonaDialog(false);
-    setSelectedPersonas([]);
-    setContactCount(3);
-    setSelectedCompanies(new Set());
+      // Récupérer les personas complètes
+      const selectedPersonaObjects = userPersonas.filter(p => 
+        selectedPersonas.includes(p.name)
+      );
+
+      let totalContactsCreated = 0;
+
+      // Pour chaque entreprise sélectionnée
+      for (const companyId of Array.from(selectedCompanies)) {
+        const company = companies.find(c => c.id === companyId);
+        if (!company) continue;
+
+        // Créer ou mettre à jour le lead
+        const { data: leadData, error: leadError } = await supabase
+          .from('leads')
+          .upsert({
+            user_id: user.id,
+            company_id: company.id,
+            company_name: company.name,
+            company_sector: company.sector,
+            company_department: company.department,
+            company_ca: company.ca,
+            company_headcount: company.headcount,
+            company_website: company.website,
+            company_linkedin: company.linkedin,
+            company_address: company.address,
+            company_siret: company.siret,
+            company_naf: company.naf,
+            status: 'Nouveau',
+          }, {
+            onConflict: 'user_id,company_id'
+          })
+          .select()
+          .single();
+
+        if (leadError) {
+          console.error('Error creating lead:', leadError);
+          continue;
+        }
+
+        // Générer les contacts
+        const newContacts = await contactsService.generateContacts({
+          companyId: company.id,
+          companyName: company.name,
+          personas: selectedPersonaObjects,
+          count: contactCount,
+        });
+
+        // Insérer les contacts dans la base de données
+        for (const contact of newContacts) {
+          const { error: contactError } = await supabase
+            .from('lead_contacts')
+            .insert({
+              user_id: user.id,
+              lead_id: leadData.id,
+              full_name: contact.fullName,
+              role: contact.role,
+              email: contact.email,
+              phone: contact.phone,
+              linkedin: '',
+              status: 'Nouveau',
+            });
+
+          if (!contactError) {
+            totalContactsCreated++;
+          }
+        }
+      }
+
+      toast({
+        title: 'Contacts générés',
+        description: `${totalContactsCreated} contact(s) ont été ajoutés pour ${selectedCompanies.size} entreprise(s).`,
+      });
+
+      // Réinitialiser
+      setShowPersonaDialog(false);
+      setSelectedPersonas([]);
+      setContactCount(3);
+      setSelectedCompanies(new Set());
+      
+      // Rediriger vers la page Prospects
+      navigate('/prospects');
+    } catch (error) {
+      console.error('Error generating contacts:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la génération des contacts.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const departments = Array.from(new Set(companies.map(c => c.department))).sort();
