@@ -394,7 +394,7 @@ const Prospects = () => {
                     </div>
 
                     {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
-                    <div className="flex-shrink-0 w-64">
+                    <div className="flex-shrink-0 w-48">
                       <h3 className="text-sm font-semibold truncate">
                         {company.name}
                       </h3>
