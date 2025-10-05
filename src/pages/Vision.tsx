@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { mockLeads, mockCompanies, mockContacts } from '@/lib/mockData';
 
-const Dashboard = () => {
+const Vision = () => {
   const navigate = useNavigate();
 
   // Calculer les données pour le dashboard
@@ -219,4 +219,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Vision;

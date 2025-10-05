@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TargetingProvider } from "@/contexts/TargetingContext";
-import Dashboard from "./pages/Dashboard";
+import Vision from "./pages/Vision";
 import Marche from "./pages/Marche";
 import Prospects from "./pages/Prospects";
 import Targeting from "./pages/Targeting";
@@ -30,7 +30,7 @@ const App = () => (
                 <Header />
                 <div className="flex-1 overflow-auto">
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/" element={<Vision />} />
                     <Route path="/marche" element={<Marche />} />
                     <Route path="/prospects" element={<Prospects />} />
                     <Route path="/targeting" element={<Targeting />} />
