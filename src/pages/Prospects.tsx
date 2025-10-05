@@ -567,7 +567,7 @@ const Prospects = () => {
           // En mode signal, affichage différent
           if (viewMode === 'signal') {
             return (
-              <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105 bg-gradient-to-br from-blue-950/50 to-blue-900/30 border-blue-800/50">
+              <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
                     {/* Checkbox */}
@@ -681,7 +681,7 @@ const Prospects = () => {
                         {leadContacts.map((contact) => (
                           <Card
                             key={contact.id}
-                            className="p-3 cursor-pointer hover:bg-blue-900/40 transition-colors bg-gradient-to-br from-blue-950/40 to-blue-900/20 border-blue-800/40"
+                            className="p-3 cursor-pointer hover:bg-card/80 transition-colors"
                             onClick={() => handleContactClick(contact)}
                           >
                           <div className="flex items-center gap-4">
@@ -815,7 +815,7 @@ const Prospects = () => {
 
           // Mode ciblage avec la même structure que signal mais avec synthèse entreprise
           return (
-            <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105 bg-gradient-to-br from-blue-950/50 to-blue-900/30 border-blue-800/50">
+            <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
@@ -928,7 +928,7 @@ const Prospects = () => {
                       {leadContacts.map((contact) => (
                         <Card
                           key={contact.id}
-                          className="p-3 cursor-pointer hover:bg-blue-900/40 transition-colors bg-gradient-to-br from-blue-950/40 to-blue-900/20 border-blue-800/40"
+                          className="p-3 cursor-pointer hover:bg-card/80 transition-colors"
                           onClick={() => handleContactClick(contact)}
                         >
                           <div className="flex items-center gap-4">
