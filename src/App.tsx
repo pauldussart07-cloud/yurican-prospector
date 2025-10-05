@@ -7,10 +7,10 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TargetingProvider } from "@/contexts/TargetingContext";
 import Dashboard from "./pages/Dashboard";
-import Companies from "./pages/Companies";
-import Leads from "./pages/Leads";
+import Marche from "./pages/Marche";
+import Prospects from "./pages/Prospects";
 import Targeting from "./pages/Targeting";
-import Setup from "./pages/Setup";
+import Parametrage from "./pages/Parametrage";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 
@@ -31,10 +31,10 @@ const App = () => (
                 <div className="flex-1 overflow-auto">
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
-                    <Route path="/companies" element={<Companies />} />
-                    <Route path="/leads" element={<Leads />} />
+                    <Route path="/marche" element={<Marche />} />
+                    <Route path="/prospects" element={<Prospects />} />
                     <Route path="/targeting" element={<Targeting />} />
-                    <Route path="/setup" element={<Setup />} />
+                    <Route path="/parametrage" element={<Parametrage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>

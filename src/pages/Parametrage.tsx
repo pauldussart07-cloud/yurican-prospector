@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
-const Setup = () => {
+const Parametrage = () => {
   const { toast } = useToast();
   const [hideNoGo, setHideNoGo] = useState(true);
   const [defaultContactCount, setDefaultContactCount] = useState(3);
@@ -22,7 +22,7 @@ const Setup = () => {
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Configuration</h1>
+        <h1 className="text-3xl font-bold mb-2">Paramétrage</h1>
         <p className="text-muted-foreground">Gérez les paramètres de votre application</p>
       </div>
 
@@ -177,4 +177,4 @@ const Setup = () => {
   );
 };
 
-export default Setup;
+export default Parametrage;

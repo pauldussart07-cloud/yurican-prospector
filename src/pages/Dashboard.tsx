@@ -48,7 +48,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Tâches du jour</CardTitle>
-              <Button variant="link" size="sm" onClick={() => navigate('/leads')}>
+              <Button variant="link" size="sm" onClick={() => navigate('/prospects')}>
                 Voir tout →
               </Button>
             </CardHeader>
@@ -78,7 +78,7 @@ const Dashboard = () => {
           </Card>
 
           {/* Current sequences */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/leads')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/prospects')}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Séquences en cours</CardTitle>
               <Button variant="link" size="sm">
@@ -145,7 +145,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Derniers leads</CardTitle>
-              <Button variant="link" size="sm" onClick={() => navigate('/leads')}>
+              <Button variant="link" size="sm" onClick={() => navigate('/prospects')}>
                 Voir tout →
               </Button>
             </CardHeader>
@@ -173,10 +173,10 @@ const Dashboard = () => {
                 <EmptyState
                   icon={Inbox}
                   title="Aucun lead"
-                  description="Commencez par ajouter des entreprises depuis la page Companies."
+                  description="Commencez par ajouter des entreprises depuis la page Marché."
                   action={{
                     label: 'Voir les entreprises',
-                    onClick: () => navigate('/companies')
+                    onClick: () => navigate('/marche')
                   }}
                 />
               )}
@@ -201,7 +201,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Nouvelles données</CardTitle>
-              <Button variant="link" size="sm" onClick={() => navigate('/companies')}>
+              <Button variant="link" size="sm" onClick={() => navigate('/marche')}>
                 Rechercher →
               </Button>
             </CardHeader>

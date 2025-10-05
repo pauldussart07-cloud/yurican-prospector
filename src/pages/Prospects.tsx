@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const Leads = () => {
+const Prospects = () => {
   const { toast } = useToast();
   const [leads] = useState<Lead[]>(mockLeads);
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
@@ -216,7 +216,7 @@ const Leads = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Leads</h1>
+        <h1 className="text-3xl font-bold">Prospects</h1>
         <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
           {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length > 1 ? 's' : ''}
         </Badge>
@@ -869,4 +869,4 @@ const Leads = () => {
   );
 };
 
-export default Leads;
+export default Prospects;
