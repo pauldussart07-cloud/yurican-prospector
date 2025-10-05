@@ -1387,9 +1387,9 @@ const Prospects = () => {
       }}>
         <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           {selectedContact && (() => {
-            const company = mockCompanies.find(c => c.id === selectedContact.companyId);
-            const lead = leads.find(l => l.companyId === selectedContact.companyId);
-            if (!company) return null;
+            const lead = leads.find(l => l.id === selectedContact.companyId);
+            const company = lead ? mockCompanies.find(c => c.id === lead.companyId) : null;
+            if (!company || !lead) return null;
 
             return (
               <div className="grid grid-cols-[320px_1fr] gap-6">
