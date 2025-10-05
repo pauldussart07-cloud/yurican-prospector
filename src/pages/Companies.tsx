@@ -391,22 +391,22 @@ const Companies = () => {
                     </div>
 
                     {/* Bloc 2 : Raison sociale, département, secteur (grisé) */}
-                    <div className="flex-shrink-0 w-40 blur-sm select-none pointer-events-none">
-                      <h3 className="text-sm font-semibold truncate">
+                    <div className="flex-shrink-0 w-32 blur-sm select-none pointer-events-none">
+                      <h3 className="text-xs font-semibold truncate">
                         {company.name}
                       </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <MapPin className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate">{company.department}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Briefcase className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate">{company.sector}</span>
                       </div>
                     </div>
 
-                    {/* Bloc 3 : Signal détecté (plus d'espace) */}
-                    <div className="flex-1 min-w-0 px-2">
+                    {/* Bloc 3 : Signal détecté (largeur augmentée) */}
+                    <div className="flex-[2] min-w-0 px-4">
                       <div className="flex items-start gap-2">
                         <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
@@ -435,7 +435,7 @@ const Companies = () => {
                     </div>
 
                     {/* Bloc 4 : CA et Effectif (grisé) */}
-                    <div className="flex-shrink-0 w-28 blur-sm select-none pointer-events-none">
+                    <div className="flex-shrink-0 w-24 blur-sm select-none pointer-events-none">
                       <div className="flex items-center gap-2 mb-1">
                         {getRevenueIcon(company.ca)}
                         <span className="text-xs font-medium">
@@ -462,7 +462,7 @@ const Companies = () => {
                       </Button>
                     </div>
 
-                    {/* Bloc 6 : Bouton Révéler l'entreprise */}
+                    {/* Bloc 6 : Bouton Découvrir */}
                     <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Button 
                         size="sm" 
@@ -470,7 +470,7 @@ const Companies = () => {
                         className="gap-2"
                       >
                         <Building2 className="h-4 w-4" />
-                        <span className="text-sm">Révéler l'entreprise</span>
+                        <span className="text-sm">Découvrir</span>
                       </Button>
                     </div>
                   </div>
