@@ -1113,7 +1113,7 @@ const Marche = () => {
                       }}
                     >
                       <ThumbsUp className="h-4 w-4 mr-2" />
-                      GO - Ajouter aux Leads
+                      GO - Ajouter aux Prospects
                     </Button>
                     <Button 
                       className="w-full bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground"
