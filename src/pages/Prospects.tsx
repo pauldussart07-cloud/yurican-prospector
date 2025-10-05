@@ -102,6 +102,7 @@ const Prospects = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
+  const [statusFilter, setStatusFilter] = useState<ContactStatus | 'all'>('all');
 
   // Charger les leads depuis Supabase
   useEffect(() => {
@@ -334,7 +335,15 @@ const Prospects = () => {
       });
     }
 
-    return searchFiltered.sort((a, b) => {
+    // Filtrer par statut
+    let statusFiltered = searchFiltered;
+    if (statusFilter !== 'all') {
+      statusFiltered = searchFiltered.filter(({ lead }) => {
+        return getLeadStatus(lead.id) === statusFilter;
+      });
+    }
+
+    return statusFiltered.sort((a, b) => {
       let comparison = 0;
       
       switch (sortCriteria) {
@@ -360,7 +369,7 @@ const Prospects = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts]);
+  }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts, statusFilter]);
 
   // Déplier automatiquement les leads lors de la recherche
   useEffect(() => {
@@ -684,21 +693,27 @@ const Prospects = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      Afficher {itemsPerPage}
+                      Statut: {statusFilter === 'all' ? 'Tous' : statusFilter}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-background">
-                    <DropdownMenuItem onClick={() => setItemsPerPage(10)}>
-                      10
+                    <DropdownMenuItem onClick={() => setStatusFilter('all')}>
+                      Tous
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setItemsPerPage(25)}>
-                      25
+                    <DropdownMenuItem onClick={() => setStatusFilter('Nouveau')}>
+                      Nouveau
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setItemsPerPage(50)}>
-                      50
+                    <DropdownMenuItem onClick={() => setStatusFilter('Engagé')}>
+                      Engagé
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setItemsPerPage(100)}>
-                      100
+                    <DropdownMenuItem onClick={() => setStatusFilter('Discussion')}>
+                      Discussion
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('RDV')}>
+                      RDV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter('Exclu')}>
+                      Exclu
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -1211,7 +1226,32 @@ const Prospects = () => {
 
       {/* Pagination */}
         {totalPages > 1 && (
-          <Pagination className="mt-6">
+          <div className="flex items-center justify-between pt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Afficher:</span>
+              <Select
+                value={itemsPerPage.toString()}
+                onValueChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">
+                par page
+              </span>
+            </div>
+
+            <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
@@ -1253,6 +1293,7 @@ const Prospects = () => {
               </PaginationItem>
             </PaginationContent>
           </Pagination>
+          </div>
         )}
       </div>
         </>
