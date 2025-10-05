@@ -41,6 +41,8 @@ const Prospects = () => {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [contactNote, setContactNote] = useState('');
+  const [followUpDate, setFollowUpDate] = useState('');
   
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
@@ -211,7 +213,28 @@ const Prospects = () => {
 
   const handleContactClick = (contact: Contact) => {
     setSelectedContact(contact);
+    setContactNote((contact as any).note || '');
+    setFollowUpDate((contact as any).followUpDate || '');
     setShowContactDialog(true);
+  };
+
+  const handleSaveContact = () => {
+    if (!selectedContact) return;
+
+    const updatedContacts = contacts.map(contact => 
+      contact.id === selectedContact.id 
+        ? { ...contact, note: contactNote, followUpDate }
+        : contact
+    );
+    
+    setContacts(updatedContacts);
+    
+    toast({
+      title: 'Modifications enregistrées',
+      description: 'Les modifications ont été enregistrées avec succès.',
+    });
+    
+    setShowContactDialog(false);
   };
 
   return (
@@ -700,7 +723,11 @@ const Prospects = () => {
       {/* Dialog fiche contact détaillée */}
       <Dialog open={showContactDialog} onOpenChange={(open) => {
         setShowContactDialog(open);
-        if (!open) setShowActions(false);
+        if (!open) {
+          setShowActions(false);
+          setContactNote('');
+          setFollowUpDate('');
+        }
       }}>
         <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           {selectedContact && (() => {
@@ -909,6 +936,8 @@ const Prospects = () => {
                           id="note"
                           placeholder="Ajoutez vos notes..."
                           className="min-h-[80px] resize-none text-xs"
+                          value={contactNote}
+                          onChange={(e) => setContactNote(e.target.value)}
                         />
                       </div>
                       
@@ -927,6 +956,8 @@ const Prospects = () => {
                             <Input 
                               type="date"
                               className="flex-1 h-8 text-xs"
+                              value={followUpDate}
+                              onChange={(e) => setFollowUpDate(e.target.value)}
                             />
                             <Button size="icon" variant="outline" className="h-8 w-8">
                               <Calendar className="h-3 w-3" />
@@ -941,15 +972,7 @@ const Prospects = () => {
             );
           })()}
           <DialogFooter className="mt-6">
-            <Button 
-              onClick={() => {
-                toast({
-                  title: 'Modifications enregistrées',
-                  description: 'Les modifications ont été enregistrées avec succès.',
-                });
-                setShowContactDialog(false);
-              }}
-            >
+            <Button onClick={handleSaveContact}>
               Enregistrer les modifications
             </Button>
           </DialogFooter>
