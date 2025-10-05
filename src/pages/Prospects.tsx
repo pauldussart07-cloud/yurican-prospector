@@ -405,7 +405,7 @@ const Prospects = () => {
       <>
         {parts.map((part, index) => 
           regex.test(part) ? (
-            <mark key={index} className="bg-yellow-200 text-foreground font-semibold">
+            <mark key={index} className="bg-primary/20 text-primary font-semibold rounded px-1 transition-colors">
               {part}
             </mark>
           ) : (
