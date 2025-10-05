@@ -81,13 +81,15 @@ const Prospects = () => {
     setGeneratingContacts(true);
     
     try {
-      // Convertir les noms des personas sélectionnées en PersonaType pour le service
-      const personaTypes = selectedPersonas.map(name => name as PersonaType);
+      // Récupérer les objets personas complets depuis les noms sélectionnés
+      const selectedPersonaObjects = userPersonas.filter(p => 
+        selectedPersonas.includes(p.name)
+      );
       
       const newContacts = await contactsService.generateContacts({
         companyId: company.id,
         companyName: company.name,
-        personas: personaTypes,
+        personas: selectedPersonaObjects,
         count: contactCount,
       });
 

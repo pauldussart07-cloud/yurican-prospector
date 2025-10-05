@@ -6,10 +6,17 @@ export type PersonaType =
   | 'Direction Générale'
   | 'Opérations';
 
+export interface UserPersona {
+  id: string;
+  name: string;
+  service: string;
+  decision_level: string;
+}
+
 interface GenerateContactsParams {
   companyId: string;
   companyName: string;
-  personas: PersonaType[];
+  personas: PersonaType[] | UserPersona[];
   count: number;
 }
 
@@ -25,42 +32,78 @@ const lastNames = [
   'Roux', 'Vincent', 'Fournier', 'Girard', 'Bonnet', 'Dupont'
 ];
 
-const rolesByPersona: Record<PersonaType, string[]> = {
-  'Décisionnaire Commercial': [
+const rolesByService: Record<string, string[]> = {
+  'Commerce': [
     'Directeur Commercial',
     'Directrice des Ventes',
+    'Responsable Commercial',
     'Responsable Business Development',
-    'VP Sales',
+    'Chef des Ventes',
     'Directeur Grands Comptes'
   ],
-  'Décisionnaire Marketing': [
+  'Marketing': [
     'Directeur Marketing',
     'Directrice de la Communication',
-    'CMO',
+    'Responsable Marketing',
+    'Chef de Produit',
     'Responsable Marketing Digital',
-    'VP Marketing'
+    'Community Manager'
   ],
-  'Direction Générale': [
+  'Direction': [
     'CEO',
     'Directeur Général',
     'Président',
     'Directrice Générale',
-    'COO'
+    'Directeur',
+    'DG Adjoint'
   ],
-  'Opérations': [
-    'Directeur des Opérations',
-    'COO',
+  'IT': [
+    'Directeur Informatique',
+    'CTO',
+    'Responsable IT',
+    'Chef de Projet IT',
+    'Architecte Technique'
+  ],
+  'RH': [
+    'Directeur RH',
+    'Responsable Recrutement',
+    'DRH',
+    'Chargé RH',
+    'Responsable Formation'
+  ],
+  'Finance': [
+    'Directeur Financier',
+    'CFO',
+    'Responsable Comptabilité',
+    'Contrôleur de Gestion',
+    'DAF'
+  ],
+  'Production': [
+    'Directeur de Production',
+    'Responsable Qualité',
+    'Chef d\'Atelier',
     'Responsable Production',
-    'Directrice Technique',
-    'VP Operations'
+    'Directeur Technique'
+  ],
+  'Logistique': [
+    'Directeur Logistique',
+    'Responsable Supply Chain',
+    'Chef de Quai',
+    'Responsable Entrepôt',
+    'Supply Chain Manager'
   ]
 };
 
-const seniorityByPersona: Record<PersonaType, string> = {
-  'Décisionnaire Commercial': 'Senior',
-  'Décisionnaire Marketing': 'Senior',
-  'Direction Générale': 'C-Level',
-  'Opérations': 'Senior'
+const seniorityByDecisionLevel: Record<string, string> = {
+  'Décisionnaire': 'Senior',
+  'Influenceur': 'Mid-Level',
+  'Utilisateur': 'Junior'
+};
+
+const getDefaultSeniority = (decisionLevel?: string): string => {
+  return decisionLevel && seniorityByDecisionLevel[decisionLevel] 
+    ? seniorityByDecisionLevel[decisionLevel] 
+    : 'Senior';
 };
 
 const domainByPersona: Record<PersonaType, string> = {
@@ -93,7 +136,25 @@ export const contactsService = {
       const persona = personas[i % personas.length];
       const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-      const roles = rolesByPersona[persona];
+      
+      // Déterminer le service et le niveau de décision
+      let service: string;
+      let decisionLevel: string | undefined;
+      let personaName: string;
+      
+      if (typeof persona === 'string') {
+        // Ancien format avec PersonaType
+        service = domainByPersona[persona as PersonaType] || 'Commerce';
+        personaName = persona;
+      } else {
+        // Nouveau format avec UserPersona
+        service = persona.service;
+        decisionLevel = persona.decision_level;
+        personaName = persona.name;
+      }
+      
+      // Obtenir les rôles possibles pour ce service
+      const roles = rolesByService[service] || rolesByService['Commerce'];
       const role = roles[Math.floor(Math.random() * roles.length)];
       
       const contact: Contact = {
@@ -103,8 +164,8 @@ export const contactsService = {
         role,
         email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${emailDomain}.fr`,
         phone: `+33 ${Math.floor(Math.random() * 9) + 1} ${Math.floor(Math.random() * 90) + 10} ${Math.floor(Math.random() * 90) + 10} ${Math.floor(Math.random() * 90) + 10} ${Math.floor(Math.random() * 90) + 10}`,
-        seniority: seniorityByPersona[persona],
-        domain: domainByPersona[persona],
+        seniority: getDefaultSeniority(decisionLevel),
+        domain: service,
         source: Math.random() > 0.5 ? 'LinkedIn' : 'Website',
         createdAt: new Date(),
       };
