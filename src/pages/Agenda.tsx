@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { fr } from 'date-fns/locale';
 import { format, isSameDay, startOfMonth, endOfMonth, parseISO } from 'date-fns';
-import { CalendarIcon, Building2, User, Clock } from 'lucide-react';
+import { CalendarIcon, Building2, User, Clock, Mail, Phone, Linkedin, MapPin, Globe } from 'lucide-react';
 
 interface Meeting {
   id: string;
@@ -16,6 +17,18 @@ interface Meeting {
   company_name: string;
   status: string;
   note: string | null;
+  email: string | null;
+  phone: string | null;
+  linkedin: string | null;
+  role: string | null;
+}
+
+interface ContactDetails extends Meeting {
+  company_address: string | null;
+  company_website: string | null;
+  company_linkedin: string | null;
+  company_sector: string | null;
+  company_headcount: number | null;
 }
 
 type ViewMode = 'month' | 'week' | 'day';
@@ -25,6 +38,8 @@ const Agenda = () => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [loading, setLoading] = useState(true);
+  const [selectedContact, setSelectedContact] = useState<ContactDetails | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchMeetings();
@@ -41,7 +56,7 @@ const Agenda = () => {
 
     const { data: contactsData } = await supabase
       .from('lead_contacts')
-      .select('id, follow_up_date, full_name, lead_id, status, note')
+      .select('id, follow_up_date, full_name, lead_id, status, note, email, phone, linkedin, role')
       .eq('user_id', user.id)
       .gte('follow_up_date', monthStart.toISOString().split('T')[0])
       .lte('follow_up_date', monthEnd.toISOString().split('T')[0])
@@ -49,24 +64,43 @@ const Agenda = () => {
       .order('follow_up_date', { ascending: true });
 
     if (contactsData) {
-      // Récupérer les noms des entreprises
+      // Récupérer les infos des entreprises
       const leadIds = [...new Set(contactsData.map(c => c.lead_id))];
       const { data: leadsData } = await supabase
         .from('leads')
-        .select('id, company_name')
+        .select('id, company_name, company_address, company_website, company_linkedin, company_sector, company_headcount')
         .in('id', leadIds);
 
-      const leadsMap = new Map(leadsData?.map(l => [l.id, l.company_name]) || []);
+      const leadsMap = new Map(leadsData?.map(l => [l.id, l]) || []);
 
       const meetingsWithCompanies: Meeting[] = contactsData.map(contact => ({
         ...contact,
-        company_name: leadsMap.get(contact.lead_id) || 'Entreprise inconnue'
+        company_name: leadsMap.get(contact.lead_id)?.company_name || 'Entreprise inconnue'
       }));
 
       setMeetings(meetingsWithCompanies);
     }
 
     setLoading(false);
+  };
+
+  const handleContactClick = async (meeting: Meeting) => {
+    // Récupérer les détails complets
+    const { data: leadData } = await supabase
+      .from('leads')
+      .select('company_address, company_website, company_linkedin, company_sector, company_headcount')
+      .eq('id', meeting.lead_id)
+      .single();
+
+    setSelectedContact({
+      ...meeting,
+      company_address: leadData?.company_address || null,
+      company_website: leadData?.company_website || null,
+      company_linkedin: leadData?.company_linkedin || null,
+      company_sector: leadData?.company_sector || null,
+      company_headcount: leadData?.company_headcount || null,
+    });
+    setIsDialogOpen(true);
   };
 
   const meetingsOnSelectedDate = meetings.filter(m =>
@@ -160,7 +194,8 @@ const Agenda = () => {
                 {meetingsOnSelectedDate.map((meeting) => (
                   <div
                     key={meeting.id}
-                    className="border rounded-lg p-4 space-y-2 hover:bg-accent/50 transition-colors"
+                    className="border rounded-lg p-4 space-y-2 hover:bg-accent/50 transition-colors cursor-pointer"
+                    onClick={() => handleContactClick(meeting)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
@@ -209,7 +244,8 @@ const Agenda = () => {
               {meetings.map((meeting) => (
                 <div
                   key={meeting.id}
-                  className="flex items-center justify-between border-b pb-3 last:border-0"
+                  className="flex items-center justify-between border-b pb-3 last:border-0 cursor-pointer hover:bg-accent/50 transition-colors p-2 -m-2 rounded"
+                  onClick={() => handleContactClick(meeting)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-center min-w-[60px]">
@@ -234,6 +270,168 @@ const Agenda = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog fiche contact */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Fiche Contact</DialogTitle>
+          </DialogHeader>
+
+          {selectedContact && (
+            <div className="space-y-6">
+              {/* Informations Contact */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Contact</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Nom</div>
+                    <div className="font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      {selectedContact.full_name}
+                    </div>
+                  </div>
+                  {selectedContact.role && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Fonction</div>
+                      <div className="font-medium">{selectedContact.role}</div>
+                    </div>
+                  )}
+                  {selectedContact.email && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Email</div>
+                      <a
+                        href={`mailto:${selectedContact.email}`}
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Mail className="h-4 w-4" />
+                        {selectedContact.email}
+                      </a>
+                    </div>
+                  )}
+                  {selectedContact.phone && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Téléphone</div>
+                      <a
+                        href={`tel:${selectedContact.phone}`}
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Phone className="h-4 w-4" />
+                        {selectedContact.phone}
+                      </a>
+                    </div>
+                  )}
+                  {selectedContact.linkedin && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">LinkedIn</div>
+                      <a
+                        href={selectedContact.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                        Profil LinkedIn
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Informations Entreprise */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Entreprise</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Nom</div>
+                    <div className="font-medium flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      {selectedContact.company_name}
+                    </div>
+                  </div>
+                  {selectedContact.company_sector && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Secteur</div>
+                      <div className="font-medium">{selectedContact.company_sector}</div>
+                    </div>
+                  )}
+                  {selectedContact.company_headcount && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Effectif</div>
+                      <div className="font-medium">{selectedContact.company_headcount} employés</div>
+                    </div>
+                  )}
+                  {selectedContact.company_address && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">Adresse</div>
+                      <div className="font-medium flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {selectedContact.company_address}
+                      </div>
+                    </div>
+                  )}
+                  {selectedContact.company_website && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Site web</div>
+                      <a
+                        href={selectedContact.company_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Globe className="h-4 w-4" />
+                        Site web
+                      </a>
+                    </div>
+                  )}
+                  {selectedContact.company_linkedin && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">LinkedIn Entreprise</div>
+                      <a
+                        href={selectedContact.company_linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                        Page LinkedIn
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* RDV et Statut */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Rendez-vous</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Date</div>
+                    <div className="font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      {format(parseISO(selectedContact.follow_up_date), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">Statut</div>
+                    <Badge className={getStatusColor(selectedContact.status)}>
+                      {selectedContact.status}
+                    </Badge>
+                  </div>
+                  {selectedContact.note && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">Notes</div>
+                      <div className="font-medium bg-muted p-3 rounded-md">
+                        {selectedContact.note}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
