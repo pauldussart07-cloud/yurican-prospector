@@ -223,21 +223,25 @@ const Parametrage = () => {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor={`email-body-${action.id}`}>Corps de l'email</Label>
-                        <div className="flex gap-1">
-                          {variables.map((variable) => (
-                            <Button
-                              key={variable.value}
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => insertVariable(variable.value)}
-                              className="h-7 text-xs"
-                              title={variable.label}
-                            >
-                              <Plus className="h-3 w-3 mr-1" />
-                              {variable.value}
-                            </Button>
-                          ))}
-                        </div>
+                        <Select
+                          value=""
+                          onValueChange={(value) => insertVariable(value)}
+                        >
+                          <SelectTrigger className="w-[280px]">
+                            <SelectValue placeholder="Insérer une variable" />
+                          </SelectTrigger>
+                          <SelectContent className="z-50 bg-popover">
+                            {variables.map((variable) => (
+                              <SelectItem key={variable.value} value={variable.value}>
+                                <div className="flex items-center gap-2">
+                                  <Plus className="h-3 w-3" />
+                                  <span>{variable.label}</span>
+                                  <span className="text-xs text-muted-foreground ml-2">{variable.value}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <Textarea
                         id={`email-body-${action.id}`}
