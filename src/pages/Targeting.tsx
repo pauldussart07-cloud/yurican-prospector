@@ -32,6 +32,38 @@ interface Persona {
 const SERVICES = ['Commerce', 'Marketing', 'IT', 'RH', 'Direction', 'Finance', 'Production', 'Logistique'];
 const DECISION_LEVELS = ['Décisionnaire', 'Influenceur', 'Utilisateur'];
 
+const SECTORS = [
+  'Technologie et Numérique',
+  'Services aux Entreprises',
+  'Industrie',
+  'Commerce et Distribution',
+  'Santé et Social',
+  'Finance et Assurance',
+  'BTP et Construction',
+  'Transport et Logistique',
+  'Agriculture et Agroalimentaire',
+  'Éducation et Formation',
+  'Tourisme et Hôtellerie',
+  'Énergie et Environnement',
+];
+
+const REGIONS = {
+  'France entière': [],
+  'Auvergne-Rhône-Alpes': ['01', '03', '07', '15', '26', '38', '42', '43', '63', '69', '73', '74'],
+  'Bourgogne-Franche-Comté': ['21', '25', '39', '58', '70', '71', '89', '90'],
+  'Bretagne': ['22', '29', '35', '56'],
+  'Centre-Val de Loire': ['18', '28', '36', '37', '41', '45'],
+  'Corse': ['2A', '2B'],
+  'Grand Est': ['08', '10', '51', '52', '54', '55', '57', '67', '68', '88'],
+  'Hauts-de-France': ['02', '59', '60', '62', '80'],
+  'Île-de-France': ['75', '77', '78', '91', '92', '93', '94', '95'],
+  'Normandie': ['14', '27', '50', '61', '76'],
+  'Nouvelle-Aquitaine': ['16', '17', '19', '23', '24', '33', '40', '47', '64', '79', '86', '87'],
+  'Occitanie': ['09', '11', '12', '30', '31', '32', '34', '46', '48', '65', '66', '81', '82'],
+  'Pays de la Loire': ['44', '49', '53', '72', '85'],
+  'Provence-Alpes-Côte d\'Azur': ['04', '05', '06', '13', '83', '84'],
+};
+
 const Targeting = () => {
   const { toast } = useToast();
   const { activeTargeting, setActiveTargeting } = useTargeting();
@@ -43,8 +75,10 @@ const Targeting = () => {
 
   // Targeting form state
   const [name, setName] = useState('');
-  const [departments, setDepartments] = useState('');
-  const [sectors, setSectors] = useState('');
+  const [locationType, setLocationType] = useState<'france' | 'region' | 'department'>('france');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [minHeadcount, setMinHeadcount] = useState('');
   const [maxHeadcount, setMaxHeadcount] = useState('');
   const [minRevenue, setMinRevenue] = useState('');
@@ -116,11 +150,21 @@ const Targeting = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Déterminer les départements selon le type de localisation
+    let departmentsToSave: string[] = [];
+    if (locationType === 'france') {
+      departmentsToSave = [];
+    } else if (locationType === 'region' && selectedRegion) {
+      departmentsToSave = REGIONS[selectedRegion as keyof typeof REGIONS] || [];
+    } else if (locationType === 'department') {
+      departmentsToSave = selectedDepartments;
+    }
+
     const { error } = await supabase.from('targetings').insert({
       user_id: user.id,
       name,
-      departments: departments.split(',').map(d => d.trim()).filter(d => d),
-      sectors: sectors.split(',').map(s => s.trim()).filter(s => s),
+      departments: departmentsToSave,
+      sectors: selectedSectors,
       min_headcount: minHeadcount ? parseInt(minHeadcount) : null,
       max_headcount: maxHeadcount ? parseInt(maxHeadcount) : null,
       min_revenue: minRevenue ? parseInt(minRevenue) * 1000000 : null,
@@ -186,8 +230,10 @@ const Targeting = () => {
 
   const resetTargetingForm = () => {
     setName('');
-    setDepartments('');
-    setSectors('');
+    setLocationType('france');
+    setSelectedRegion('');
+    setSelectedDepartments([]);
+    setSelectedSectors([]);
     setMinHeadcount('');
     setMaxHeadcount('');
     setMinRevenue('');
@@ -325,25 +371,85 @@ const Targeting = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="departments">Départements</Label>
-                    <Input
-                      id="departments"
-                      value={departments}
-                      onChange={(e) => setDepartments(e.target.value)}
-                      placeholder="75, 69, 33"
-                    />
-                  </div>
+                <div className="space-y-3">
+                  <Label>Localisation</Label>
+                  <Select value={locationType} onValueChange={(value: any) => {
+                    setLocationType(value);
+                    setSelectedRegion('');
+                    setSelectedDepartments([]);
+                  }}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="france">France entière</SelectItem>
+                      <SelectItem value="region">Région</SelectItem>
+                      <SelectItem value="department">Département</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                  <div>
-                    <Label htmlFor="sectors">Secteurs</Label>
-                    <Input
-                      id="sectors"
-                      value={sectors}
-                      onChange={(e) => setSectors(e.target.value)}
-                      placeholder="Tech, Conseil"
-                    />
+                  {locationType === 'region' && (
+                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Sélectionnez une région" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {Object.keys(REGIONS).filter(r => r !== 'France entière').map((region) => (
+                          <SelectItem key={region} value={region}>{region}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {locationType === 'department' && (
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Rechercher un département..."
+                        className="mb-2"
+                      />
+                      <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+                        {Object.entries(REGIONS).filter(([key]) => key !== 'France entière').flatMap(([_, depts]) => depts).sort().map((dept) => (
+                          <label key={dept} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedDepartments.includes(dept)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedDepartments([...selectedDepartments, dept]);
+                                } else {
+                                  setSelectedDepartments(selectedDepartments.filter(d => d !== dept));
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <span className="text-sm">{dept}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Secteurs d'activité</Label>
+                  <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+                    {SECTORS.map((sector) => (
+                      <label key={sector} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedSectors.includes(sector)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedSectors([...selectedSectors, sector]);
+                            } else {
+                              setSelectedSectors(selectedSectors.filter(s => s !== sector));
+                            }
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm">{sector}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
