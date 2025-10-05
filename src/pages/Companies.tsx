@@ -365,7 +365,23 @@ const Companies = () => {
                     </div>
                   </div>
 
-                  {/* Bloc 3 : CA et Effectif */}
+                  {/* Bloc 3 : Résumé */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
+                    </p>
+                    <button 
+                      className="text-xs text-primary hover:underline mt-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCompanyClick(company);
+                      }}
+                    >
+                      Afficher plus →
+                    </button>
+                  </div>
+
+                  {/* Bloc 4 : CA et Effectif */}
                   <div className="flex-shrink-0 w-32">
                     <div className="flex items-center gap-2 mb-1">
                       {getRevenueIcon(company.ca)}
@@ -381,7 +397,7 @@ const Companies = () => {
                     </div>
                   </div>
 
-                  {/* Bloc 4 : Liens */}
+                  {/* Bloc 5 : Liens */}
                   <div className="flex-shrink-0 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
                       <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
@@ -395,22 +411,6 @@ const Companies = () => {
                         <span className="text-xs">LinkedIn</span>
                       </a>
                     </Button>
-                  </div>
-
-                  {/* Bloc 5 : Résumé */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
-                    </p>
-                    <button 
-                      className="text-xs text-primary hover:underline mt-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCompanyClick(company);
-                      }}
-                    >
-                      Afficher plus →
-                    </button>
                   </div>
 
                   {/* Bloc 6 : Actions GO/NO GO */}
