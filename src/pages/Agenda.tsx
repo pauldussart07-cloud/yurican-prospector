@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { fr } from 'date-fns/locale';
-import { format, isSameDay, startOfMonth, endOfMonth, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, addDays } from 'date-fns';
-import { CalendarIcon, Building2, User, Clock, Mail, Phone, Linkedin, MapPin, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, isSameDay, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import { CalendarIcon, Building2, User, Clock, Mail, Phone, Linkedin, MapPin, Globe } from 'lucide-react';
 
 interface Meeting {
   id: string;
@@ -43,33 +43,23 @@ const Agenda = () => {
 
   useEffect(() => {
     fetchMeetings();
-  }, [selectedDate, viewMode]);
+  }, [selectedDate]);
 
   const fetchMeetings = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Récupérer les RDV selon la vue
-    let startDate, endDate;
-    
-    if (viewMode === 'month') {
-      startDate = startOfMonth(selectedDate);
-      endDate = endOfMonth(selectedDate);
-    } else if (viewMode === 'week') {
-      startDate = startOfWeek(selectedDate, { locale: fr, weekStartsOn: 1 });
-      endDate = endOfWeek(selectedDate, { locale: fr, weekStartsOn: 1 });
-    } else {
-      startDate = selectedDate;
-      endDate = selectedDate;
-    }
+    // Récupérer les RDV du mois
+    const monthStart = startOfMonth(selectedDate);
+    const monthEnd = endOfMonth(selectedDate);
 
     const { data: contactsData } = await supabase
       .from('lead_contacts')
       .select('id, follow_up_date, full_name, lead_id, status, note, email, phone, linkedin, role')
       .eq('user_id', user.id)
-      .gte('follow_up_date', startDate.toISOString().split('T')[0])
-      .lte('follow_up_date', endDate.toISOString().split('T')[0])
+      .gte('follow_up_date', monthStart.toISOString().split('T')[0])
+      .lte('follow_up_date', monthEnd.toISOString().split('T')[0])
       .not('follow_up_date', 'is', null)
       .order('follow_up_date', { ascending: true });
 
@@ -129,270 +119,120 @@ const Agenda = () => {
     }
   };
 
-  const renderWeekView = () => {
-    const weekStart = startOfWeek(selectedDate, { locale: fr, weekStartsOn: 1 });
-    const weekDays = eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) });
-
-    return (
-      <div className="space-y-2">
-        {weekDays.map((day) => {
-          const dayMeetings = meetings.filter(m => isSameDay(parseISO(m.follow_up_date), day));
-          return (
-            <div key={day.toISOString()} className="border rounded-lg p-3">
-              <div className="font-semibold mb-2 flex items-center gap-2">
-                <span className={isSameDay(day, new Date()) ? 'text-primary' : ''}>
-                  {format(day, 'EEEE d MMMM', { locale: fr })}
-                </span>
-                {dayMeetings.length > 0 && (
-                  <Badge variant="secondary">{dayMeetings.length}</Badge>
-                )}
-              </div>
-              {dayMeetings.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucun RDV</p>
-              ) : (
-                <div className="space-y-2">
-                  {dayMeetings.map(meeting => (
-                    <div
-                      key={meeting.id}
-                      className="text-sm p-2 bg-accent/50 rounded cursor-pointer hover:bg-accent transition-colors"
-                      onClick={() => handleContactClick(meeting)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{meeting.full_name}</span>
-                        <Badge className={`${getStatusColor(meeting.status)} text-xs`}>
-                          {meeting.status}
-                        </Badge>
-                      </div>
-                      <div className="text-muted-foreground">{meeting.company_name}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderDayView = () => {
-    const dayMeetings = meetingsOnSelectedDate;
-
-    return (
-      <div className="space-y-4">
-        <div className="text-center py-4 border-b">
-          <div className="text-3xl font-bold">{format(selectedDate, 'd')}</div>
-          <div className="text-muted-foreground">
-            {format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr })}
-          </div>
-        </div>
-        {dayMeetings.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">Aucun RDV ce jour</p>
-        ) : (
-          <div className="space-y-3">
-            {dayMeetings.map((meeting) => (
-              <div
-                key={meeting.id}
-                className="border rounded-lg p-4 space-y-2 hover:bg-accent/50 transition-colors cursor-pointer"
-                onClick={() => handleContactClick(meeting)}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">
-                      {format(parseISO(meeting.follow_up_date), 'HH:mm', { locale: fr })}
-                    </span>
-                  </div>
-                  <Badge className={getStatusColor(meeting.status)}>
-                    {meeting.status}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-semibold">{meeting.company_name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{meeting.full_name}</span>
-                </div>
-                {meeting.note && (
-                  <p className="text-sm text-muted-foreground mt-2 pl-6">
-                    {meeting.note}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const handlePrevious = () => {
-    if (viewMode === 'month') {
-      setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1));
-    } else if (viewMode === 'week') {
-      setSelectedDate(addDays(selectedDate, -7));
-    } else {
-      setSelectedDate(addDays(selectedDate, -1));
-    }
-  };
-
-  const handleNext = () => {
-    if (viewMode === 'month') {
-      setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1));
-    } else if (viewMode === 'week') {
-      setSelectedDate(addDays(selectedDate, 7));
-    } else {
-      setSelectedDate(addDays(selectedDate, 1));
-    }
-  };
-
-  const getViewTitle = () => {
-    if (viewMode === 'month') {
-      return format(selectedDate, 'MMMM yyyy', { locale: fr });
-    } else if (viewMode === 'week') {
-      const weekStart = startOfWeek(selectedDate, { locale: fr, weekStartsOn: 1 });
-      const weekEnd = endOfWeek(selectedDate, { locale: fr, weekStartsOn: 1 });
-      return `${format(weekStart, 'd MMM', { locale: fr })} - ${format(weekEnd, 'd MMM yyyy', { locale: fr })}`;
-    } else {
-      return format(selectedDate, 'EEEE d MMMM yyyy', { locale: fr });
-    }
-  };
-
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <CalendarIcon className="h-8 w-8" />
           Agenda
         </h1>
-        <Button onClick={() => setSelectedDate(new Date())} variant="outline">
-          Aujourd'hui
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant={viewMode === 'month' ? 'default' : 'outline'}
+            onClick={() => setViewMode('month')}
+          >
+            Mois
+          </Button>
+          <Button
+            variant={viewMode === 'week' ? 'default' : 'outline'}
+            onClick={() => setViewMode('week')}
+          >
+            Semaine
+          </Button>
+          <Button
+            variant={viewMode === 'day' ? 'default' : 'outline'}
+            onClick={() => setViewMode('day')}
+          >
+            Jour
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Calendrier principal */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Calendrier */}
         <Card className="lg:col-span-2">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={handlePrevious}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <CardTitle className="text-lg capitalize">{getViewTitle()}</CardTitle>
-                <Button variant="ghost" size="icon" onClick={handleNext}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant={viewMode === 'month' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('month')}
-                >
-                  Mois
-                </Button>
-                <Button
-                  variant={viewMode === 'week' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('week')}
-                >
-                  Semaine
-                </Button>
-                <Button
-                  variant={viewMode === 'day' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('day')}
-                >
-                  Jour
-                </Button>
-              </div>
-            </div>
+          <CardHeader>
+            <CardTitle>
+              {format(selectedDate, 'MMMM yyyy', { locale: fr })}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {viewMode === 'month' && (
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => date && setSelectedDate(date)}
-                locale={fr}
-                className="pointer-events-auto w-full"
-                modifiers={{
-                  meeting: datesWithMeetings,
-                }}
-                modifiersStyles={{
-                  meeting: {
-                    fontWeight: 'bold',
-                    textDecoration: 'underline',
-                    color: 'hsl(var(--primary))',
-                  },
-                }}
-              />
-            )}
-            {viewMode === 'week' && renderWeekView()}
-            {viewMode === 'day' && renderDayView()}
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              locale={fr}
+              className="pointer-events-auto w-full"
+              modifiers={{
+                meeting: datesWithMeetings,
+              }}
+              modifiersStyles={{
+                meeting: {
+                  fontWeight: 'bold',
+                  textDecoration: 'underline',
+                  color: 'hsl(var(--primary))',
+                },
+              }}
+            />
           </CardContent>
         </Card>
 
-        {/* RDV du jour sélectionné - uniquement en vue mois */}
-        {viewMode === 'month' && (
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
-                {format(selectedDate, 'dd MMMM yyyy', { locale: fr })}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <p className="text-sm text-muted-foreground">Chargement...</p>
-              ) : meetingsOnSelectedDate.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucun RDV ce jour</p>
-              ) : (
-                <div className="space-y-3">
-                  {meetingsOnSelectedDate.map((meeting) => (
-                    <div
-                      key={meeting.id}
-                      className="border rounded-lg p-3 space-y-2 hover:bg-accent/50 transition-colors cursor-pointer"
-                      onClick={() => handleContactClick(meeting)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs font-medium">
-                            {format(parseISO(meeting.follow_up_date), 'HH:mm', { locale: fr })}
-                          </span>
-                        </div>
-                        <Badge className={`${getStatusColor(meeting.status)} text-xs`}>
-                          {meeting.status}
-                        </Badge>
-                      </div>
+        {/* RDV du jour sélectionné */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              RDV du {format(selectedDate, 'dd MMMM yyyy', { locale: fr })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <p className="text-muted-foreground">Chargement...</p>
+            ) : meetingsOnSelectedDate.length === 0 ? (
+              <p className="text-muted-foreground">Aucun RDV ce jour</p>
+            ) : (
+              <div className="space-y-4">
+                {meetingsOnSelectedDate.map((meeting) => (
+                  <div
+                    key={meeting.id}
+                    className="border rounded-lg p-4 space-y-2 hover:bg-accent/50 transition-colors cursor-pointer"
+                    onClick={() => handleContactClick(meeting)}
+                  >
+                    <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
-                        <Building2 className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm font-semibold">{meeting.company_name}</span>
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                          {format(parseISO(meeting.follow_up_date), 'HH:mm', { locale: fr })}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs">{meeting.full_name}</span>
-                      </div>
+                      <Badge className={getStatusColor(meeting.status)}>
+                        {meeting.status}
+                      </Badge>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-semibold">{meeting.company_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{meeting.full_name}</span>
+                    </div>
+                    {meeting.note && (
+                      <p className="text-sm text-muted-foreground mt-2 pl-6">
+                        {meeting.note}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Liste tous les RDV de la période */}
+      {/* Liste de tous les RDV à venir */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">
-            {viewMode === 'month' && 'Tous les RDV du mois'}
-            {viewMode === 'week' && 'Tous les RDV de la semaine'}
-            {viewMode === 'day' && 'Tous les RDV du jour'}
-          </CardTitle>
+        <CardHeader>
+          <CardTitle>Prochains rendez-vous</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
