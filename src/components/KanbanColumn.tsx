@@ -53,7 +53,7 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
   const totalContacts = companies.reduce((sum, company) => sum + company.contacts.length, 0);
 
   return (
-    <div className="flex-shrink-0 w-48">
+    <div className="flex-shrink-0 w-52">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-semibold text-xs uppercase tracking-wide">
           {getStatusLabel(status)}
