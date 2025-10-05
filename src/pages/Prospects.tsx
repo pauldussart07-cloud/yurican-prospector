@@ -538,39 +538,40 @@ const Prospects = () => {
                                   <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
                                   <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
                                 </div>
-                                <div className="flex items-center gap-3 ml-4" onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex items-center gap-2">
-                                    <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                    <a 
-                                      href={`mailto:${contact.email}`}
-                                      className="text-xs text-primary hover:underline"
-                                    >
+                                <div className="flex flex-col gap-1.5 ml-4" onClick={(e) => e.stopPropagation()}>
+                                  <a 
+                                    href={`mailto:${contact.email}`}
+                                    className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                  >
+                                    <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                    <span className="text-xs text-primary font-medium">
                                       {contact.email}
-                                    </a>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                    {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                      <a 
-                                        href={`tel:${contact.phone}`}
-                                        className="text-xs text-primary hover:underline"
-                                      >
+                                    </span>
+                                  </a>
+                                  {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                    <a 
+                                      href={`tel:${contact.phone}`}
+                                      className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                    >
+                                      <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                      <span className="text-xs text-primary font-medium">
                                         {contact.phone}
-                                      </a>
-                                    ) : (
-                                      <>
-                                        <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                        <Button
-                                          variant="link"
-                                          size="sm"
-                                          className="h-auto p-0 text-xs"
-                                          onClick={() => handleDiscoverRequest(contact.id, 'phone')}
-                                        >
-                                          Découvrir
-                                        </Button>
-                                      </>
-                                    )}
-                                  </div>
+                                      </span>
+                                    </a>
+                                  ) : (
+                                    <div className="flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                      <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                      <span className="text-xs blur-sm select-none">{contact.phone}</span>
+                                      <Button
+                                        variant="link"
+                                        size="sm"
+                                        className="h-auto p-0 text-xs ml-1"
+                                        onClick={() => handleDiscoverRequest(contact.id, 'phone')}
+                                      >
+                                        Découvrir
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
