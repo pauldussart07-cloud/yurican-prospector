@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,9 +15,9 @@ import Setup from "./pages/Setup";
 import NotFound from "./pages/NotFound";
 import Header from "./components/Header";
 
-const queryClient = new QueryClient();
-
 const App = () => {
+  const [queryClient] = React.useState(() => new QueryClient());
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
