@@ -74,7 +74,15 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
                     onClick={() => onContactClick(contact)}
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-xs truncate">{contact.fullName}</div>
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <div className="font-medium text-xs truncate flex-1">{contact.fullName}</div>
+                        <Badge 
+                          variant={(contact as any).status === 'Exclu' ? 'destructive' : 'secondary'} 
+                          className="text-[9px] px-1 py-0 h-4"
+                        >
+                          {(contact as any).status || 'Nouveau'}
+                        </Badge>
+                      </div>
                       <div className="text-[10px] text-muted-foreground truncate">{contact.role}</div>
                     </div>
                   </Button>
