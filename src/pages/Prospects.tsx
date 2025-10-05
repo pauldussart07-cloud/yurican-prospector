@@ -1817,7 +1817,7 @@ const Prospects = () => {
                           onClick={() => setShowActions(!showActions)}
                           variant="default"
                         >
-                          <span className="flex-1">Call to Action</span>
+                          <span className="flex-1">Actions</span>
                           <ChevronDown className={`h-3 w-3 transition-transform ${showActions ? 'rotate-180' : ''}`} />
                         </Button>
                         
