@@ -293,7 +293,7 @@ const Companies = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold">Entreprises</h1>
-          <Badge variant="secondary" className="text-sm">
+          <Badge variant="outline" className="text-sm bg-background border-border">
             Votre Ciblage représente {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
           </Badge>
         </div>
