@@ -456,15 +456,17 @@ const Prospects = () => {
                             onClick={() => handleContactClick(contact)}
                           >
                             <div className="flex items-center gap-3">
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{contact.fullName}</p>
-                                <p className="text-xs text-muted-foreground">{contact.role}</p>
+                              <div className="flex-1 flex items-center gap-4">
+                                <div>
+                                  <p className="font-medium text-sm">{contact.fullName}</p>
+                                  <p className="text-xs text-muted-foreground">{contact.role}</p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                  <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                                </div>
                               </div>
-                              <div className="flex gap-2">
-                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                              </div>
-                              <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                                 <Button
                                   size="icon"
                                   variant="ghost"
