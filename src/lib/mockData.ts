@@ -36,6 +36,8 @@ export interface Lead {
   companyId: string;
   status: 'New' | 'A_TRAITER' | 'A_SUIVRE' | 'GO' | 'NO_GO';
   contactsCount: number;
+  isHotSignal?: boolean;
+  signalSummary?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -600,6 +602,8 @@ export const mockLeads: Lead[] = [
     companyId: '1',
     status: 'New',
     contactsCount: 3,
+    isHotSignal: true,
+    signalSummary: 'L\'entreprise a récemment annoncé un projet de transformation digitale de 2M€. Le directeur IT cherche activement des solutions cloud.',
     createdAt: new Date('2024-02-01'),
     updatedAt: new Date('2024-02-01'),
   },
@@ -608,6 +612,8 @@ export const mockLeads: Lead[] = [
     companyId: '2',
     status: 'A_TRAITER',
     contactsCount: 2,
+    isHotSignal: true,
+    signalSummary: 'Levée de fonds de 5M€ annoncée. Recrutement de 10 profils tech en cours. Budget marketing en forte hausse.',
     createdAt: new Date('2024-02-02'),
     updatedAt: new Date('2024-02-02'),
   },
@@ -624,6 +630,8 @@ export const mockLeads: Lead[] = [
     companyId: '6',
     status: 'GO',
     contactsCount: 0,
+    isHotSignal: true,
+    signalSummary: 'Ouverture d\'un nouveau site à Paris. L\'entreprise recherche des partenaires pour la sécurisation de ses infrastructures.',
     createdAt: new Date('2024-02-04'),
     updatedAt: new Date('2024-02-04'),
   },

@@ -126,8 +126,15 @@ const Leads = () => {
   };
 
   // Filtrer et trier les leads
-  const sortedLeads = useMemo(() => {
-    const leadsWithCompanies = leads
+  const filteredAndSortedLeads = useMemo(() => {
+    let filtered = leads;
+
+    // Filtrer par mode (signal = leads chauds uniquement)
+    if (viewMode === 'signal') {
+      filtered = filtered.filter(lead => lead.isHotSignal);
+    }
+
+    const leadsWithCompanies = filtered
       .map(lead => ({
         lead,
         company: mockCompanies.find(c => c.id === lead.companyId)
@@ -160,13 +167,13 @@ const Leads = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [leads, sortCriteria, sortDirection]);
+  }, [leads, viewMode, sortCriteria, sortDirection]);
 
   // Pagination
-  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAndSortedLeads.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedLeads = sortedLeads.slice(startIndex, endIndex);
+  const paginatedLeads = filteredAndSortedLeads.slice(startIndex, endIndex);
 
   const handleSelectAll = () => {
     if (selectedLeads.size === paginatedLeads.length) {
@@ -191,7 +198,7 @@ const Leads = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Leads</h1>
         <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
-          {sortedLeads.length} lead{sortedLeads.length > 1 ? 's' : ''}
+          {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length > 1 ? 's' : ''}
         </Badge>
       </div>
 
@@ -219,9 +226,16 @@ const Leads = () => {
                 checked={viewMode === 'signal'}
                 onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
               />
-              <Label htmlFor="view-mode-leads" className="text-sm font-medium">
-                Signal
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="view-mode-leads" className="text-sm font-medium">
+                  Signal
+                </Label>
+                {leads.filter(l => l.isHotSignal).length > 0 && (
+                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                    {leads.filter(l => l.isHotSignal).length}
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 
@@ -374,8 +388,21 @@ const Leads = () => {
                     </Button>
                   </div>
 
-                  {/* Spacer */}
-                  <div className="flex-1" />
+                  {/* Signal résumé (affiché uniquement en mode signal) */}
+                  {viewMode === 'signal' && lead.signalSummary && (
+                    <div className="flex-1 max-w-md px-4">
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                        <p className="text-xs text-orange-900 leading-relaxed">
+                          {lead.signalSummary}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Spacer (uniquement si pas de signal) */}
+                  {!(viewMode === 'signal' && lead.signalSummary) && (
+                    <div className="flex-1" />
+                  )}
 
                   {/* Contacts avec HoverCard */}
                   <HoverCard openDelay={200}>
