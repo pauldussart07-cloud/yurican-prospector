@@ -213,52 +213,6 @@ const Companies = () => {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Bandeau d'action quand des entreprises sont sélectionnées */}
-      {selectedCompanies.size > 0 && (
-        <Card className="bg-primary/5 border-primary">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="font-medium">
-                  {selectedCompanies.size} entreprise(s) sélectionnée(s)
-                </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button>
-                      <Contact className="h-4 w-4 mr-2" />
-                      Récupérer des contacts
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {personas.length === 0 ? (
-                      <DropdownMenuItem disabled>
-                        Aucun ciblage contact configuré
-                      </DropdownMenuItem>
-                    ) : (
-                      personas.map((persona) => (
-                        <DropdownMenuItem
-                          key={persona.id}
-                          onClick={() => handleGetContacts(persona.id)}
-                        >
-                          {persona.name} ({selectedCompanies.size} contacts)
-                        </DropdownMenuItem>
-                      ))
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedCompanies(new Set())}
-              >
-                Annuler
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Entreprises</h1>
         <div className="text-sm text-muted-foreground">
@@ -269,7 +223,7 @@ const Companies = () => {
       {/* Filtres */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 justify-end">
             <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Département" />
@@ -305,15 +259,57 @@ const Companies = () => {
 
       {/* Liste des entreprises */}
       <div className="space-y-3">
-        {/* Header avec checkbox select all */}
-        <div className="flex items-center gap-3 px-4">
-          <Checkbox
-            checked={selectedCompanies.size === paginatedCompanies.length && paginatedCompanies.length > 0}
-            onCheckedChange={handleSelectAll}
-          />
-          <span className="text-sm text-muted-foreground">
-            Tout sélectionner
-          </span>
+        {/* Header avec checkbox select all et actions */}
+        <div className="flex items-center justify-between px-4">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              checked={selectedCompanies.size === paginatedCompanies.length && paginatedCompanies.length > 0}
+              onCheckedChange={handleSelectAll}
+            />
+            <span className="text-sm text-muted-foreground">
+              Tout sélectionner
+            </span>
+          </div>
+
+          {/* Actions quand des entreprises sont sélectionnées */}
+          {selectedCompanies.size > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="font-medium text-sm">
+                {selectedCompanies.size} entreprise(s) sélectionnée(s)
+              </span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm">
+                    <Contact className="h-4 w-4 mr-2" />
+                    Récupérer des contacts
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {personas.length === 0 ? (
+                    <DropdownMenuItem disabled>
+                      Aucun ciblage contact configuré
+                    </DropdownMenuItem>
+                  ) : (
+                    personas.map((persona) => (
+                      <DropdownMenuItem
+                        key={persona.id}
+                        onClick={() => handleGetContacts(persona.id)}
+                      >
+                        {persona.name} ({selectedCompanies.size} contacts)
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedCompanies(new Set())}
+              >
+                Annuler
+              </Button>
+            </div>
+          )}
         </div>
 
         {paginatedCompanies.map((company) => (
