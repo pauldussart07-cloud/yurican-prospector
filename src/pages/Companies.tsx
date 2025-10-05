@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { mockCompanies, Company, mockLeads, Lead } from '@/lib/mockData';
 import { companySummaryService } from '@/services/companySummaryService';
 import { useNavigate } from 'react-router-dom';
+import { useTargeting } from '@/contexts/TargetingContext';
 
 const Companies = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { activeTargeting } = useTargeting();
   const [companies, setCompanies] = useState(mockCompanies);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [summary, setSummary] = useState<string>('');
@@ -80,17 +82,55 @@ const Companies = () => {
     setSelectedCompany(null);
   };
 
-  // Filtrer et trier les entreprises
-  const filteredCompanies = companies
-    .filter(c => !hideNoGo || !c.isHidden)
-    .filter(c => departmentFilter === 'all' || c.department === departmentFilter)
-    .sort((a, b) => {
+  // Filtrer et trier les entreprises avec le ciblage actif
+  const filteredCompanies = useMemo(() => {
+    let filtered = companies.filter(c => !hideNoGo || !c.isHidden);
+
+    // Apply targeting filter if active
+    if (activeTargeting) {
+      filtered = filtered.filter(c => {
+        // Filter by departments
+        if (activeTargeting.departments.length > 0 && !activeTargeting.departments.includes(c.department)) {
+          return false;
+        }
+        
+        // Filter by sectors
+        if (activeTargeting.sectors.length > 0 && !activeTargeting.sectors.some(s => c.sector.toLowerCase().includes(s.toLowerCase()))) {
+          return false;
+        }
+        
+        // Filter by headcount
+        if (activeTargeting.min_headcount && c.headcount < activeTargeting.min_headcount) {
+          return false;
+        }
+        if (activeTargeting.max_headcount && c.headcount > activeTargeting.max_headcount) {
+          return false;
+        }
+        
+        // Filter by revenue
+        if (activeTargeting.min_revenue && c.ca < activeTargeting.min_revenue) {
+          return false;
+        }
+        if (activeTargeting.max_revenue && c.ca > activeTargeting.max_revenue) {
+          return false;
+        }
+        
+        return true;
+      });
+    }
+
+    // Apply department filter
+    filtered = filtered.filter(c => departmentFilter === 'all' || c.department === departmentFilter);
+
+    // Sort
+    return filtered.sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.name.localeCompare(b.name);
       } else {
         return b.name.localeCompare(a.name);
       }
     });
+  }, [companies, hideNoGo, activeTargeting, departmentFilter, sortOrder]);
 
   const departments = Array.from(new Set(companies.map(c => c.department))).sort();
 

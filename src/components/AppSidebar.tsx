@@ -1,4 +1,4 @@
-import { Home, Building2, Users, Settings } from 'lucide-react';
+import { Home, Building2, Users, Settings, Target } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
@@ -16,6 +16,7 @@ const navItems = [
   { title: 'Board', url: '/', icon: Home },
   { title: 'Companies', url: '/companies', icon: Building2 },
   { title: 'Leads', url: '/leads', icon: Users },
+  { title: 'Ciblage', url: '/targeting', icon: Target },
   { title: 'Set-up', url: '/setup', icon: Settings },
 ];
 

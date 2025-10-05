@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      personas: {
+        Row: {
+          created_at: string | null
+          decision_level: Database["public"]["Enums"]["decision_level"]
+          id: string
+          name: string
+          service: Database["public"]["Enums"]["persona_service"]
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          decision_level: Database["public"]["Enums"]["decision_level"]
+          id?: string
+          name: string
+          service: Database["public"]["Enums"]["persona_service"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          decision_level?: Database["public"]["Enums"]["decision_level"]
+          id?: string
+          name?: string
+          service?: Database["public"]["Enums"]["persona_service"]
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      targetings: {
+        Row: {
+          created_at: string | null
+          departments: string[] | null
+          id: string
+          is_active: boolean | null
+          max_headcount: number | null
+          max_revenue: number | null
+          min_headcount: number | null
+          min_revenue: number | null
+          name: string
+          sectors: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          departments?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          max_headcount?: number | null
+          max_revenue?: number | null
+          min_headcount?: number | null
+          min_revenue?: number | null
+          name: string
+          sectors?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          departments?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          max_headcount?: number | null
+          max_revenue?: number | null
+          min_headcount?: number | null
+          min_revenue?: number | null
+          name?: string
+          sectors?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          credits: number | null
+          id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          credits?: number | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          credits?: number | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +118,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      decision_level: "Décisionnaire" | "Influenceur" | "Utilisateur"
+      persona_service:
+        | "Commerce"
+        | "Marketing"
+        | "IT"
+        | "RH"
+        | "Direction"
+        | "Finance"
+        | "Production"
+        | "Logistique"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +254,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      decision_level: ["Décisionnaire", "Influenceur", "Utilisateur"],
+      persona_service: [
+        "Commerce",
+        "Marketing",
+        "IT",
+        "RH",
+        "Direction",
+        "Finance",
+        "Production",
+        "Logistique",
+      ],
+    },
   },
 } as const
