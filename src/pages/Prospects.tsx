@@ -16,6 +16,40 @@ import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
+
+// Types et hiérarchie des statuts
+type ContactStatus = 'Nouveau' | 'Engager' | 'Discussion' | 'RDV / Exclu';
+
+const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engager', 'Discussion', 'RDV / Exclu'];
+
+// Fonction pour obtenir le statut le plus avancé
+const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
+  if (statuses.length === 0) return 'Nouveau';
+  
+  let maxIndex = 0;
+  statuses.forEach(status => {
+    const index = STATUS_HIERARCHY.indexOf(status);
+    if (index > maxIndex) maxIndex = index;
+  });
+  
+  return STATUS_HIERARCHY[maxIndex];
+};
+
+// Fonction pour obtenir la couleur du badge selon le statut
+const getStatusBadgeVariant = (status: ContactStatus): "default" | "secondary" | "outline" => {
+  switch (status) {
+    case 'Nouveau':
+      return 'outline';
+    case 'Engager':
+      return 'secondary';
+    case 'Discussion':
+      return 'default';
+    case 'RDV / Exclu':
+      return 'default';
+    default:
+      return 'outline';
+  }
+};
 import {
   Pagination,
   PaginationContent,
@@ -34,7 +68,9 @@ import {
 const Prospects = () => {
   const { toast } = useToast();
   const [leads] = useState<Lead[]>(mockLeads);
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+  const [contacts, setContacts] = useState<Contact[]>(
+    mockContacts.map(c => ({ ...c, status: 'Nouveau' as ContactStatus }))
+  );
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [generatingContacts, setGeneratingContacts] = useState(false);
@@ -254,6 +290,21 @@ const Prospects = () => {
     setContactNote((contact as any).note || '');
     setFollowUpDate((contact as any).followUpDate || '');
     setShowContactDialog(true);
+  };
+
+  const handleStatusChange = (contactId: string, newStatus: ContactStatus) => {
+    setContacts(contacts.map(c => 
+      c.id === contactId ? { ...c, status: newStatus } : c
+    ));
+  };
+
+  // Calculer le statut du lead basé sur ses contacts
+  const getLeadStatus = (leadCompanyId: string): ContactStatus => {
+    const leadContacts = contacts.filter(c => c.companyId === leadCompanyId);
+    if (leadContacts.length === 0) return 'Nouveau';
+    
+    const statuses = leadContacts.map(c => (c as any).status || 'Nouveau' as ContactStatus);
+    return getMostAdvancedStatus(statuses);
   };
 
   const handleSaveContact = () => {
@@ -528,18 +579,9 @@ const Prospects = () => {
                     )}
 
                     {/* Statut */}
-                    <Select defaultValue={lead.status}>
-                      <SelectTrigger className="w-36">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="New">Nouveau</SelectItem>
-                        <SelectItem value="A_TRAITER">À traiter</SelectItem>
-                        <SelectItem value="A_SUIVRE">À suivre</SelectItem>
-                        <SelectItem value="GO">GO</SelectItem>
-                        <SelectItem value="NO_GO">NO GO</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
+                      {getLeadStatus(lead.companyId)}
+                    </Badge>
                   </div>
 
                   {/* Section contacts dépliable */}
@@ -650,16 +692,18 @@ const Prospects = () => {
                             </div>
 
                             {/* Statut */}
-                            <Select defaultValue="New">
+                            <Select 
+                              value={(contact as any).status || 'Nouveau'} 
+                              onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
+                            >
                               <SelectTrigger className="w-36">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="New">Nouveau</SelectItem>
-                                <SelectItem value="A_TRAITER">À traiter</SelectItem>
-                                <SelectItem value="A_SUIVRE">À suivre</SelectItem>
-                                <SelectItem value="GO">GO</SelectItem>
-                                <SelectItem value="NO_GO">NO GO</SelectItem>
+                                <SelectItem value="Nouveau">Nouveau</SelectItem>
+                                <SelectItem value="Engager">Engager</SelectItem>
+                                <SelectItem value="Discussion">Discussion</SelectItem>
+                                <SelectItem value="RDV / Exclu">RDV / Exclu</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -781,18 +825,9 @@ const Prospects = () => {
                   </div>
 
                   {/* Statut */}
-                  <Select defaultValue={lead.status}>
-                    <SelectTrigger className="w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="New">Nouveau</SelectItem>
-                      <SelectItem value="A_TRAITER">À traiter</SelectItem>
-                      <SelectItem value="A_SUIVRE">À suivre</SelectItem>
-                      <SelectItem value="GO">GO</SelectItem>
-                      <SelectItem value="NO_GO">NO GO</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
+                    {getLeadStatus(lead.companyId)}
+                  </Badge>
                 </div>
 
                 {/* Section contacts dépliable */}
@@ -903,16 +938,18 @@ const Prospects = () => {
                             </div>
 
                             {/* Statut */}
-                            <Select defaultValue="New">
+                            <Select 
+                              value={(contact as any).status || 'Nouveau'} 
+                              onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
+                            >
                               <SelectTrigger className="w-36">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="New">Nouveau</SelectItem>
-                                <SelectItem value="A_TRAITER">À traiter</SelectItem>
-                                <SelectItem value="A_SUIVRE">À suivre</SelectItem>
-                                <SelectItem value="GO">GO</SelectItem>
-                                <SelectItem value="NO_GO">NO GO</SelectItem>
+                                <SelectItem value="Nouveau">Nouveau</SelectItem>
+                                <SelectItem value="Engager">Engager</SelectItem>
+                                <SelectItem value="Discussion">Discussion</SelectItem>
+                                <SelectItem value="RDV / Exclu">RDV / Exclu</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
