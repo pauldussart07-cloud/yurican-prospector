@@ -564,16 +564,19 @@ const Prospects = () => {
                             onClick={() => handleContactClick(contact)}
                           >
                             <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-4">
-                                <div>
-                                  <p className="font-medium text-sm">{contact.fullName}</p>
-                                  <p className="text-xs text-muted-foreground">{contact.role}</p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                  <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                                </div>
+                            <div className="flex items-center gap-4">
+                              <div>
+                                <Badge variant="outline" className="text-xs mb-1 bg-primary/5 border-primary/20">
+                                  Top {(leadContacts.indexOf(contact) % 3) + 1} ciblage de contact
+                                </Badge>
+                                <p className="font-medium text-sm">{contact.fullName}</p>
+                                <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
+                              <div className="flex gap-2">
+                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
+                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
+                              </div>
+                            </div>
                               
                             {/* Note et date de suivi */}
                             <div className="flex-1 flex flex-col gap-1 px-4">
@@ -801,6 +804,9 @@ const Prospects = () => {
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-4">
                               <div>
+                                <Badge variant="outline" className="text-xs mb-1 bg-primary/5 border-primary/20">
+                                  Top {(leadContacts.indexOf(contact) % 3) + 1} ciblage de contact
+                                </Badge>
                                 <p className="font-medium text-sm">{contact.fullName}</p>
                                 <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
