@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Pagination,
   PaginationContent,
@@ -50,6 +51,8 @@ const Prospects = () => {
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
   const [contactCount, setContactCount] = useState(3);
+  const [userPersonas, setUserPersonas] = useState<any[]>([]);
+  const [loadingPersonas, setLoadingPersonas] = useState(false);
 
   // Pagination et filtres
   const [currentPage, setCurrentPage] = useState(1);
@@ -121,6 +124,33 @@ const Prospects = () => {
     'Direction Générale',
     'Opérations',
   ];
+
+  // Charger les personas de l'utilisateur depuis Supabase
+  useEffect(() => {
+    const loadUserPersonas = async () => {
+      setLoadingPersonas(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoadingPersonas(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('personas')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('position', { ascending: true });
+
+      if (!error && data) {
+        setUserPersonas(data);
+      }
+      setLoadingPersonas(false);
+    };
+
+    if (showPersonaDialog) {
+      loadUserPersonas();
+    }
+  }, [showPersonaDialog]);
 
   // Déterminer la taille de l'icône CA
   const getRevenueIcon = (ca: number) => {
@@ -924,49 +954,94 @@ const Prospects = () => {
           <DialogHeader>
             <DialogTitle>Générer des contacts</DialogTitle>
             <DialogDescription>
-              Sélectionnez les types de contacts que vous souhaitez générer pour cette entreprise.
+              Sélectionnez les ciblages de contacts que vous souhaitez générer pour cette entreprise.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="space-y-3">
-              <Label>Personas</Label>
-              {personas.map((persona) => (
-                <div key={persona} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={persona}
-                    checked={selectedPersonas.includes(persona)}
-                    onCheckedChange={() => handlePersonaToggle(persona)}
-                  />
-                  <label
-                    htmlFor={persona}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    {persona}
-                  </label>
+            {loadingPersonas ? (
+              <div className="text-center text-sm text-muted-foreground py-8">
+                Chargement des ciblages...
+              </div>
+            ) : userPersonas.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Vous devez créer 3 ciblages de contacts pour continuer.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPersonaDialog(false);
+                    window.location.href = '/targeting';
+                  }}
+                >
+                  <Target className="h-4 w-4 mr-2" />
+                  Créer mes ciblages
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Ciblages de contacts
+                  </Label>
+                  {userPersonas.map((persona, index) => (
+                    <div key={persona.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Checkbox
+                            id={persona.id}
+                            checked={selectedPersonas.includes(persona.name as PersonaType)}
+                            onCheckedChange={() => handlePersonaToggle(persona.name as PersonaType)}
+                          />
+                          <label
+                            htmlFor={persona.id}
+                            className="text-sm font-medium leading-none cursor-pointer"
+                          >
+                            {persona.name}
+                          </label>
+                        </div>
+                        <div className="flex gap-2 ml-6">
+                          <Badge variant="outline" className="text-xs">
+                            {persona.service}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {persona.decision_level}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="count">Nombre de contacts</Label>
-              <Input
-                id="count"
-                type="number"
-                min={1}
-                max={10}
-                value={contactCount}
-                onChange={(e) => setContactCount(parseInt(e.target.value) || 1)}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="count">Nombre de contacts par ciblage</Label>
+                  <Input
+                    id="count"
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={contactCount}
+                    onChange={(e) => setContactCount(parseInt(e.target.value) || 1)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Total : {selectedPersonas.length * contactCount} contact{selectedPersonas.length * contactCount > 1 ? 's' : ''}
+                  </p>
+                </div>
 
-            <Button
-              className="w-full"
-              onClick={handleGenerateContacts}
-              disabled={generatingContacts || selectedPersonas.length === 0}
-            >
-              {generatingContacts ? 'Génération...' : 'Générer les contacts'}
-            </Button>
+                <Button
+                  className="w-full"
+                  onClick={handleGenerateContacts}
+                  disabled={generatingContacts || selectedPersonas.length === 0}
+                >
+                  {generatingContacts ? 'Génération...' : 'Générer les contacts'}
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
