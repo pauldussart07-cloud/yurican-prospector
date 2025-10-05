@@ -39,7 +39,7 @@ interface Persona {
 const Companies = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { activeTargeting } = useTargeting();
+  const { activeTargeting, deductCredits, credits } = useTargeting();
   const [companies, setCompanies] = useState(mockCompanies);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [summary, setSummary] = useState<string>('');
@@ -59,7 +59,6 @@ const Companies = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
   const [discoveredCompanies, setDiscoveredCompanies] = useState<Set<string>>(new Set());
-  const [userCredits, setUserCredits] = useState<number>(500000);
   const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
 
@@ -78,36 +77,7 @@ const Companies = () => {
       }
     };
 
-    const loadCredits = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        // Mode maquette : utiliser 500000 crédits par défaut
-        setUserCredits(500000);
-        return;
-      }
-
-      const { data } = await supabase
-        .from('user_credits')
-        .select('credits')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (data) {
-        setUserCredits(data.credits);
-      } else {
-        // Créer les crédits si l'utilisateur n'en a pas encore
-        const { error } = await supabase
-          .from('user_credits')
-          .insert({ user_id: user.id, credits: 500000 });
-        
-        if (!error) {
-          setUserCredits(500000);
-        }
-      }
-    };
-
     loadPersonas();
-    loadCredits();
   }, []);
 
   const handleCompanyClick = async (company: Company) => {
@@ -141,7 +111,7 @@ const Companies = () => {
     if (!companyToDiscover) return;
 
     // Vérifier si l'utilisateur a assez de crédits
-    if (userCredits < 8) {
+    if (credits < 8) {
       toast({
         title: 'Crédits insuffisants',
         description: 'Vous n\'avez pas assez de crédits pour découvrir cette entreprise.',
@@ -153,21 +123,8 @@ const Companies = () => {
     }
 
     try {
-      // Déduire les crédits
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Si connecté, mettre à jour la base de données
-        const { error } = await supabase
-          .from('user_credits')
-          .update({ credits: userCredits - 8 })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-      }
-
-      // Mettre à jour le solde local (fonctionne aussi en mode maquette)
-      setUserCredits(userCredits - 8);
+      // Déduire les crédits via le contexte
+      await deductCredits(8);
 
       // Marquer comme découverte
       setDiscoveredCompanies(prev => new Set(prev).add(companyToDiscover.id));
@@ -335,13 +292,8 @@ const Companies = () => {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Entreprises</h1>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-muted-foreground">
-            {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
-          </div>
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            {userCredits.toLocaleString()} crédits
-          </Badge>
+        <div className="text-sm text-muted-foreground">
+          {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
         </div>
       </div>
 
@@ -973,7 +925,7 @@ const Companies = () => {
               <br />
               <span className="font-semibold text-foreground">8 crédits</span> seront déduits de votre solde total.
               <br />
-              <span className="text-muted-foreground">Solde actuel : {userCredits} crédits</span>
+              <span className="text-muted-foreground">Solde actuel : {credits} crédits</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

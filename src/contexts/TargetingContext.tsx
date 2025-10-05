@@ -18,17 +18,22 @@ interface TargetingContextType {
   setActiveTargeting: (targeting: Targeting | null) => void;
   credits: number;
   refreshCredits: () => Promise<void>;
+  deductCredits: (amount: number) => Promise<void>;
 }
 
 const TargetingContext = createContext<TargetingContextType | undefined>(undefined);
 
 export const TargetingProvider = ({ children }: { children: ReactNode }) => {
   const [activeTargeting, setActiveTargeting] = useState<Targeting | null>(null);
-  const [credits, setCredits] = useState(0);
+  const [credits, setCredits] = useState(500000);
 
   const refreshCredits = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      // Mode maquette : utiliser 500000 crédits par défaut
+      setCredits(500000);
+      return;
+    }
 
     const { data } = await supabase
       .from('user_credits')
@@ -39,16 +44,32 @@ export const TargetingProvider = ({ children }: { children: ReactNode }) => {
     if (data) {
       setCredits(data.credits);
     } else {
-      // Create initial credits entry
+      // Create initial credits entry with 500000
       const { data: newCredits } = await supabase
         .from('user_credits')
-        .insert({ user_id: user.id, credits: 100 })
+        .insert({ user_id: user.id, credits: 500000 })
         .select('credits')
         .single();
       
       if (newCredits) {
         setCredits(newCredits.credits);
+      } else {
+        setCredits(500000);
       }
+    }
+  };
+
+  const deductCredits = async (amount: number) => {
+    const newCredits = credits - amount;
+    setCredits(newCredits);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Si connecté, mettre à jour la base de données
+      await supabase
+        .from('user_credits')
+        .update({ credits: newCredits })
+        .eq('user_id', user.id);
     }
   };
 
@@ -89,7 +110,7 @@ export const TargetingProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <TargetingContext.Provider value={{ activeTargeting, setActiveTargeting, credits, refreshCredits }}>
+    <TargetingContext.Provider value={{ activeTargeting, setActiveTargeting, credits, refreshCredits, deductCredits }}>
       {children}
     </TargetingContext.Provider>
   );
