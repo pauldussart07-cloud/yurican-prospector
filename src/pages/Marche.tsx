@@ -1117,7 +1117,7 @@ const Marche = () => {
                   Annuler
                 </Button>
                 <Button onClick={handleConfirmGetContacts}>
-                  Générer les contacts
+                  Chercher les contacts
                 </Button>
               </DialogFooter>
             </>
