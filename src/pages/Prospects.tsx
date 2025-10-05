@@ -634,19 +634,17 @@ const Prospects = () => {
                                     </span>
                                   </a>
                                 ) : (
-                                  <div className="flex flex-col gap-1 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                  <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                    <span className="text-xs blur-sm select-none">{contact.phone}</span>
                                     <Button
                                       variant="link"
                                       size="sm"
-                                      className="h-auto p-0 text-xs self-start"
+                                      className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
                                       onClick={() => handleDiscoverRequest(contact.id, 'phone')}
                                     >
                                       Découvrir
                                     </Button>
-                                    <div className="flex items-center gap-2">
-                                      <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                      <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -875,19 +873,17 @@ const Prospects = () => {
                                   </span>
                                 </a>
                               ) : (
-                                <div className="flex flex-col gap-1 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
+                                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                                  <span className="text-xs blur-sm select-none">{contact.phone}</span>
                                   <Button
                                     variant="link"
                                     size="sm"
-                                    className="h-auto p-0 text-xs self-start"
+                                    className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
                                     onClick={() => handleDiscoverRequest(contact.id, 'phone')}
                                   >
                                     Découvrir
                                   </Button>
-                                  <div className="flex items-center gap-2">
-                                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                    <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                  </div>
                                 </div>
                               )}
                             </div>
