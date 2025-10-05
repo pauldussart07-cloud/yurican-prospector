@@ -536,19 +536,23 @@ const Companies = () => {
                     </div>
 
                     {/* Bloc 5 : Liens */}
-                    <div className={`flex-shrink-0 flex flex-col gap-1 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`}>
-                      <Button size="sm" variant="ghost" className="h-7 justify-start">
-                        <ExternalLink className="h-3 w-3 mr-1.5" />
-                        <span className="text-xs">Site web</span>
+                    <div className={`flex-shrink-0 flex flex-col gap-1 transition-all duration-500 ${!isDiscovered ? 'blur-sm select-none pointer-events-none' : ''}`} onClick={(e) => e.stopPropagation()}>
+                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="text-xs">Site web</span>
+                        </a>
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-7 justify-start">
-                        <Linkedin className="h-3 w-3 mr-1.5" />
-                        <span className="text-xs">LinkedIn</span>
+                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                        <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                          <Linkedin className="h-3 w-3" />
+                          <span className="text-xs">LinkedIn</span>
+                        </a>
                       </Button>
                     </div>
 
-                    {/* Bloc 6 : Bouton Découvrir */}
-                    {!isDiscovered && (
+                    {/* Bloc 6 : Actions GO/NO GO ou Bouton Découvrir */}
+                    {!isDiscovered ? (
                       <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                         <Button 
                           size="sm" 
@@ -557,6 +561,26 @@ const Companies = () => {
                         >
                           <Building2 className="h-4 w-4" />
                           <span className="text-sm">Découvrir</span>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <Button 
+                          size="sm" 
+                          onClick={() => handleGo(company)}
+                          className="gap-1.5 bg-green-600 hover:bg-green-700"
+                        >
+                          <ThumbsUp className="h-3.5 w-3.5" />
+                          <span className="text-xs">GO</span>
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => handleNoGo(company)}
+                          className="gap-1.5"
+                        >
+                          <ThumbsDown className="h-3.5 w-3.5" />
+                          <span className="text-xs">NO GO</span>
                         </Button>
                       </div>
                     )}
