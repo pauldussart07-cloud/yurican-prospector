@@ -410,26 +410,35 @@ const Companies = () => {
                       <div className="flex items-start gap-2">
                         <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-base font-semibold mb-2">Signal détecté</h4>
+                          <h4 className="text-base font-semibold mb-3">Signal détecté</h4>
                           
-                          <div className="flex items-center gap-4 mb-2">
+                          <div className="flex items-center gap-6 mb-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-muted-foreground">Famille :</span>
+                              <span className="text-sm text-muted-foreground whitespace-nowrap">Famille :</span>
                               <Badge variant="secondary" className="text-sm">
                                 Appel d'offre
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-muted-foreground">Secteur :</span>
+                              <span className="text-sm text-muted-foreground whitespace-nowrap">Secteur :</span>
                               <Badge variant="outline" className="text-sm">
                                 {company.sector}
                               </Badge>
                             </div>
                           </div>
                           
-                          <p className="text-sm text-muted-foreground line-clamp-3">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
                             Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn. Opportunité à saisir rapidement pour proposer nos services.
                           </p>
+                          <button 
+                            className="text-xs text-primary hover:underline mt-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCompanyClick(company);
+                            }}
+                          >
+                            Afficher plus →
+                          </button>
                         </div>
                       </div>
                     </div>
