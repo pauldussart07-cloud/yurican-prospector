@@ -1406,15 +1406,26 @@ const Prospects = () => {
 
                     {/* Informations détaillées condensées */}
                     <div className="space-y-3 text-xs">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Département</Label>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <MapPin className="h-3 w-3 text-muted-foreground" />
-                          <p className="text-xs">{company.department}</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Département</Label>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            <p className="text-xs">{company.department}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">SIRET</Label>
+                          <p className="text-xs mt-1">{company.siret}</p>
                         </div>
                       </div>
 
                       <div>
+                        <Label className="text-xs text-muted-foreground">Adresse</Label>
+                        <p className="text-xs mt-1 leading-tight">{company.address}</p>
+                      </div>
+
+                      <div className="pt-2 border-t">
                         <Label className="text-xs text-muted-foreground">Secteur</Label>
                         <div className="flex items-center gap-1.5 mt-1">
                           <Briefcase className="h-3 w-3 text-muted-foreground" />
@@ -1442,16 +1453,6 @@ const Prospects = () => {
                             <p className="text-xs font-semibold">{company.headcount}</p>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="pt-2 border-t">
-                        <Label className="text-xs text-muted-foreground">SIRET</Label>
-                        <p className="text-xs mt-1">{company.siret}</p>
-                      </div>
-
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Adresse</Label>
-                        <p className="text-xs mt-1 leading-tight">{company.address}</p>
                       </div>
 
                       <div className="flex gap-2 pt-2">
