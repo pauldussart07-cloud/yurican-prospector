@@ -464,6 +464,24 @@ const Prospects = () => {
                                 <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
                                 <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
                               </div>
+                              <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8"
+                                  onClick={() => window.open(`tel:${contact.phone}`)}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8"
+                                  onClick={() => window.open(`mailto:${contact.email}`)}
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
                           </Card>
                         ))}
