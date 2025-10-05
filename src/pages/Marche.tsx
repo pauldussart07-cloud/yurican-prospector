@@ -578,22 +578,21 @@ const Marche = () => {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleGo(company)}
-                          className="gap-1.5 bg-green-600 hover:bg-green-700"
-                        >
-                          <ThumbsUp className="h-3.5 w-3.5" />
-                          <span className="text-xs">GO</span>
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          onClick={() => handleNoGo(company)}
-                          className="gap-1.5"
-                        >
-                          <ThumbsDown className="h-3.5 w-3.5" />
-                          <span className="text-xs">NO GO</span>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleGo(company)}
+                        className="gap-1.5 bg-success hover:bg-success/80 text-success-foreground"
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" />
+                        <span className="text-xs">GO</span>
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleNoGo(company)}
+                        className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
+                      >
+                        <ThumbsDown className="h-3.5 w-3.5" />
+                        <span className="text-xs">NO GO</span>
                         </Button>
                       </div>
                     )}
@@ -694,16 +693,15 @@ const Marche = () => {
                     <Button 
                       size="sm" 
                       onClick={() => handleGo(company)}
-                      className="gap-1.5 bg-green-600 hover:bg-green-700"
+                      className="gap-1.5 bg-success hover:bg-success/80 text-success-foreground"
                     >
                       <ThumbsUp className="h-3.5 w-3.5" />
                       <span className="text-xs">GO</span>
                     </Button>
                     <Button 
                       size="sm" 
-                      variant="destructive"
                       onClick={() => handleNoGo(company)}
-                      className="gap-1.5"
+                      className="gap-1.5 bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
                     >
                       <ThumbsDown className="h-3.5 w-3.5" />
                       <span className="text-xs">NO GO</span>
@@ -932,15 +930,14 @@ const Marche = () => {
                   {/* Actions */}
                   <div className="space-y-3">
                     <Button 
-                      className="w-full bg-green-600 hover:bg-green-700"
+                      className="w-full bg-success hover:bg-success/80 text-success-foreground"
                       onClick={() => handleGo(selectedCompany)}
                     >
                       <ThumbsUp className="h-4 w-4 mr-2" />
                       GO - Ajouter aux Leads
                     </Button>
                     <Button 
-                      variant="destructive"
-                      className="w-full"
+                      className="w-full bg-destructive/30 hover:bg-destructive/40 text-destructive-foreground border-destructive/50 border"
                       onClick={() => handleNoGo(selectedCompany)}
                     >
                       <ThumbsDown className="h-4 w-4 mr-2" />
