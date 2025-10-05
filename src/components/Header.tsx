@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Target, Coins } from "lucide-react";
 import { useTargeting } from "@/contexts/TargetingContext";
-import { PersonaDialog } from "./PersonaDialog";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -30,7 +29,6 @@ const Header = () => {
           <Target className="h-4 w-4 mr-2" />
           Ciblage
         </Button>
-        <PersonaDialog />
         <Badge variant="secondary" className="flex items-center gap-1">
           <Coins className="h-3 w-3" />
           {credits} crédits
