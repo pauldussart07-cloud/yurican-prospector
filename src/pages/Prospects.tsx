@@ -49,7 +49,7 @@ const Prospects = () => {
   const [contactToDiscover, setContactToDiscover] = useState<{ id: string; type: 'phone' | 'email' } | null>(null);
   
   // Persona selector state
-  const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
   const [contactCount, setContactCount] = useState(3);
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
   const [loadingPersonas, setLoadingPersonas] = useState(false);
@@ -67,7 +67,7 @@ const Prospects = () => {
     if (!selectedLead || selectedPersonas.length === 0) {
       toast({
         title: 'Erreur',
-        description: 'Veuillez sélectionner au moins un persona.',
+        description: 'Veuillez sélectionner au moins un ciblage.',
         variant: 'destructive',
       });
       return;
@@ -81,17 +81,20 @@ const Prospects = () => {
     setGeneratingContacts(true);
     
     try {
+      // Convertir les noms des personas sélectionnées en PersonaType pour le service
+      const personaTypes = selectedPersonas.map(name => name as PersonaType);
+      
       const newContacts = await contactsService.generateContacts({
         companyId: company.id,
         companyName: company.name,
-        personas: selectedPersonas,
+        personas: personaTypes,
         count: contactCount,
       });
 
       setContacts([...contacts, ...newContacts]);
       
       toast({
-        title: 'Contacts générés',
+        title: 'Contacts trouvés',
         description: `${newContacts.length} contact${newContacts.length > 1 ? 's ont' : ' a'} été ajouté${newContacts.length > 1 ? 's' : ''}.`,
       });
 
@@ -102,7 +105,7 @@ const Prospects = () => {
       console.error('Error generating contacts:', error);
       toast({
         title: 'Erreur',
-        description: 'Une erreur est survenue lors de la génération des contacts.',
+        description: 'Une erreur est survenue lors de la recherche des contacts.',
         variant: 'destructive',
       });
     } finally {
@@ -110,11 +113,11 @@ const Prospects = () => {
     }
   };
 
-  const handlePersonaToggle = (persona: PersonaType) => {
+  const handlePersonaToggle = (personaName: string) => {
     setSelectedPersonas(prev =>
-      prev.includes(persona)
-        ? prev.filter(p => p !== persona)
-        : [...prev, persona]
+      prev.includes(personaName)
+        ? prev.filter(p => p !== personaName)
+        : [...prev, personaName]
     );
   };
 
@@ -995,8 +998,8 @@ const Prospects = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <Checkbox
                             id={persona.id}
-                            checked={selectedPersonas.includes(persona.name as PersonaType)}
-                            onCheckedChange={() => handlePersonaToggle(persona.name as PersonaType)}
+                            checked={selectedPersonas.includes(persona.name)}
+                            onCheckedChange={() => handlePersonaToggle(persona.name)}
                           />
                           <label
                             htmlFor={persona.id}
@@ -1038,7 +1041,7 @@ const Prospects = () => {
                   onClick={handleGenerateContacts}
                   disabled={generatingContacts || selectedPersonas.length === 0}
                 >
-                  {generatingContacts ? 'Génération...' : 'Générer les contacts'}
+                  {generatingContacts ? 'Recherche...' : 'Chercher les contacts'}
                 </Button>
               </>
             )}
