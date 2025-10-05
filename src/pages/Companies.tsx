@@ -659,179 +659,178 @@ const Companies = () => {
         </Pagination>
       </div>
 
-      {/* Modal avec entreprise en intercalaire */}
+      {/* Modal centré pour les détails */}
       <Dialog open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
-        <DialogOverlay className="backdrop-blur-lg" />
-        <DialogContent className="max-w-7xl max-h-[80vh] overflow-hidden p-0">
+        <DialogOverlay className="backdrop-blur-md bg-transparent" />
+        <DialogContent className="max-w-7xl max-h-[70vh] overflow-y-auto p-6">
           {selectedCompany && (
-            <div className="w-full flex flex-col h-full">
-              {/* Intercalaire : Carte entreprise en haut */}
-              <div className="bg-card border-b px-6 py-4 flex-shrink-0">
-                <Card className="bg-muted/30">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      {/* Logo */}
-                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                        <Building2 className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      
-                      {/* Nom et infos */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold truncate">
-                          {selectedCompany.name}
-                        </h3>
-                        <div className="flex items-center gap-4 mt-1">
-                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            <span>{selectedCompany.department}</span>
+            <div className="w-full">
+              {/* Disposition en 3 colonnes */}
+              <div className="grid grid-cols-12 gap-6">
+                {/* Colonne gauche : Carte entreprise comme dans la liste */}
+                <div className="col-span-3">
+                  <Card className="bg-card">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col gap-3">
+                        {/* Logo */}
+                        <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mx-auto">
+                          <Building2 className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        
+                        {/* Nom et localisation */}
+                        <div className="text-center space-y-2">
+                          <h3 className="text-base font-semibold">
+                            {selectedCompany.name}
+                          </h3>
+                          <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="h-3 w-3" />
+                              <span>{selectedCompany.department}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Briefcase className="h-3 w-3" />
+                              <span>{selectedCompany.sector}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <Briefcase className="h-3 w-3" />
-                            <span>{selectedCompany.sector}</span>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          <Badge className="text-xs">{selectedCompany.naf}</Badge>
+                        </div>
+
+                        {/* KPI rapides */}
+                        <div className="pt-3 border-t space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <TrendingUp className="h-3 w-3" />
+                              CA
+                            </span>
+                            <span className="font-semibold">{(selectedCompany.ca / 1000000).toFixed(1)}M€</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              Effectif
+                            </span>
+                            <span className="font-semibold">{selectedCompany.headcount} emp.</span>
                           </div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                      {/* KPI rapides */}
-                      <div className="flex items-center gap-6 flex-shrink-0">
-                        <div className="text-right">
-                          <div className="flex items-center gap-2 justify-end">
-                            <TrendingUp className="h-4 w-4 text-green-600" />
-                            <span className="text-sm font-semibold">{(selectedCompany.ca / 1000000).toFixed(1)}M€</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">Chiffre d'affaires</span>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-2 justify-end">
-                            <Users className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-semibold">{selectedCompany.headcount} emp.</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">Effectif</span>
-                        </div>
-                      </div>
-
-                      {/* Badge NAF */}
-                      <Badge className="flex-shrink-0">{selectedCompany.naf}</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Contenu : 3 colonnes en dessous */}
-              <div className="flex-1 overflow-y-auto px-6 py-6">
-                <div className="grid grid-cols-12 gap-6">
-                  {/* Colonne gauche : Liens et infos secondaires */}
-                  <div className="col-span-3 space-y-4">
+                {/* Colonne centrale : KPI en 2 colonnes */}
+                <div className="col-span-5">
+                  <h3 className="text-lg font-semibold mb-4">Informations détaillées</h3>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div>
-                      <h4 className="text-sm font-semibold mb-3">Liens</h4>
-                      <div className="space-y-2">
-                        <a 
-                          href={selectedCompany.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-primary hover:underline"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                          Site web
-                        </a>
-                        <a 
-                          href={selectedCompany.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-primary hover:underline"
-                        >
-                          <Linkedin className="h-4 w-4" />
-                          LinkedIn
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Colonne centrale : KPI détaillés en 2 colonnes */}
-                  <div className="col-span-5">
-                    <h4 className="text-sm font-semibold mb-4">Informations détaillées</h4>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Adresse</span>
-                        <p className="text-sm font-medium">{selectedCompany.address}</p>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">SIRET</span>
-                        <p className="text-sm font-medium">{selectedCompany.siret}</p>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Code NAF</span>
-                        <p className="text-sm font-medium">{selectedCompany.naf}</p>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Secteur</span>
-                        <p className="text-sm font-medium">{selectedCompany.sector}</p>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Chiffre d'affaires</span>
-                        <div className="flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-green-600" />
-                          <p className="text-sm font-medium">{(selectedCompany.ca / 1000000).toFixed(1)}M€</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Effectif</span>
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-blue-600" />
-                          <p className="text-sm font-medium">{selectedCompany.headcount} employés</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Département</span>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          <p className="text-sm font-medium">{selectedCompany.department}</p>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <span className="text-xs text-muted-foreground block mb-1">Activité</span>
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          <p className="text-sm font-medium">{selectedCompany.sector}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Colonne droite : Synthèse et actions */}
-                  <div className="col-span-4">
-                    <h4 className="text-sm font-semibold mb-3">Synthèse</h4>
-                    <div className="bg-muted/20 rounded-lg p-4 border border-border mb-4">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {loadingSummary ? 'Génération de la synthèse en cours...' : summary || 'Aucune synthèse disponible'}
-                      </p>
+                      <span className="text-xs text-muted-foreground block mb-1">Adresse</span>
+                      <p className="text-sm font-medium">{selectedCompany.address}</p>
                     </div>
                     
-                    {/* Actions */}
-                    <div className="space-y-3">
-                      <Button 
-                        className="w-full bg-green-600 hover:bg-green-700"
-                        onClick={() => handleGo(selectedCompany)}
-                      >
-                        <ThumbsUp className="h-4 w-4 mr-2" />
-                        GO
-                      </Button>
-                      <Button 
-                        variant="destructive"
-                        className="w-full"
-                        onClick={() => handleNoGo(selectedCompany)}
-                      >
-                        <ThumbsDown className="h-4 w-4 mr-2" />
-                        NO GO
-                      </Button>
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">SIRET</span>
+                      <p className="text-sm font-medium">{selectedCompany.siret}</p>
                     </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Code NAF</span>
+                      <p className="text-sm font-medium">{selectedCompany.naf}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur</span>
+                      <p className="text-sm font-medium">{selectedCompany.sector}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Chiffre d'affaires</span>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                        <p className="text-sm font-medium">{(selectedCompany.ca / 1000000).toFixed(1)}M€</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Effectif</span>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-blue-600" />
+                        <p className="text-sm font-medium">{selectedCompany.headcount} employés</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Département</span>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        <p className="text-sm font-medium">{selectedCompany.department}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur d'activité</span>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        <p className="text-sm font-medium">{selectedCompany.sector}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="col-span-2">
+                      <span className="text-xs text-muted-foreground block mb-1">Site web</span>
+                      <a 
+                        href={selectedCompany.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Visiter le site →
+                      </a>
+                    </div>
+                    
+                    <div className="col-span-2">
+                      <span className="text-xs text-muted-foreground block mb-1">LinkedIn</span>
+                      <a 
+                        href={selectedCompany.linkedin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Linkedin className="h-3 w-3" />
+                        Voir le profil →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Colonne droite : Synthèse et actions */}
+                <div className="col-span-4">
+                  <h3 className="text-lg font-semibold mb-4">Synthèse</h3>
+                  <div className="bg-muted/20 rounded-lg p-4 border border-border mb-4">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {loadingSummary ? 'Génération de la synthèse en cours...' : summary || 'Aucune synthèse disponible'}
+                    </p>
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="space-y-3">
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => handleGo(selectedCompany)}
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      GO - Ajouter aux Leads
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => handleNoGo(selectedCompany)}
+                    >
+                      <ThumbsDown className="h-4 w-4 mr-2" />
+                      NO GO - Masquer
+                    </Button>
                   </div>
                 </div>
               </div>
