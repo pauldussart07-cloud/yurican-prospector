@@ -45,7 +45,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, searchQuery = '' }
       if (!company) return;
 
       // Récupérer les contacts de cette entreprise
-      const companyContacts = contacts.filter(c => c.companyId === lead.companyId);
+      const companyContacts = contacts.filter(c => c.companyId === lead.id);
       
       // Si pas de contacts, ne pas afficher l'entreprise
       if (companyContacts.length === 0) return;
@@ -67,7 +67,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, searchQuery = '' }
       const companyStatus = getMostAdvancedStatus(statuses);
 
       grouped[companyStatus].push({
-        companyId: lead.companyId,
+        companyId: lead.id,
         companyName: company.name,
         contacts: companyContacts,
       });
