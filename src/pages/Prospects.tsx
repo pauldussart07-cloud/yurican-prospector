@@ -18,9 +18,9 @@ import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
 
 // Types et hiérarchie des statuts
-type ContactStatus = 'Nouveau' | 'Engager' | 'Discussion' | 'RDV / Exclu';
+type ContactStatus = 'Nouveau' | 'Engager' | 'Discussion' | 'RDV' | 'Exclu';
 
-const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engager', 'Discussion', 'RDV / Exclu'];
+const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engager', 'Discussion', 'RDV', 'Exclu'];
 
 // Fonction pour obtenir le statut le plus avancé
 const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
@@ -44,8 +44,10 @@ const getStatusBadgeVariant = (status: ContactStatus): "default" | "secondary" |
       return 'secondary';
     case 'Discussion':
       return 'default';
-    case 'RDV / Exclu':
+    case 'RDV':
       return 'default';
+    case 'Exclu':
+      return 'destructive' as any;
     default:
       return 'outline';
   }
@@ -703,7 +705,8 @@ const Prospects = () => {
                                 <SelectItem value="Nouveau">Nouveau</SelectItem>
                                 <SelectItem value="Engager">Engager</SelectItem>
                                 <SelectItem value="Discussion">Discussion</SelectItem>
-                                <SelectItem value="RDV / Exclu">RDV / Exclu</SelectItem>
+                                <SelectItem value="RDV">RDV</SelectItem>
+                                <SelectItem value="Exclu">Exclu</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -949,7 +952,8 @@ const Prospects = () => {
                                 <SelectItem value="Nouveau">Nouveau</SelectItem>
                                 <SelectItem value="Engager">Engager</SelectItem>
                                 <SelectItem value="Discussion">Discussion</SelectItem>
-                                <SelectItem value="RDV / Exclu">RDV / Exclu</SelectItem>
+                                <SelectItem value="RDV">RDV</SelectItem>
+                                <SelectItem value="Exclu">Exclu</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
