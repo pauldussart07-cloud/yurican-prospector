@@ -1759,9 +1759,9 @@ const Prospects = () => {
                           {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ CA.
                         </p>
                         
-                        {viewMode === 'signal' && lead?.signalSummary && (
+                        {lead?.signalSummary && (
                           <div className="pt-3 border-t">
-                            <Label className="text-xs text-muted-foreground mb-1.5 block">Signal</Label>
+                            <Label className="text-xs text-muted-foreground mb-1.5 block">Signal détecté</Label>
                             <div className="bg-orange-50 border border-orange-200 rounded p-2">
                               <p className="text-xs text-orange-900 leading-relaxed">
                                 {lead.signalSummary}
