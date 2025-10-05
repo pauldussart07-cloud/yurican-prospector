@@ -53,25 +53,25 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
   const totalContacts = companies.reduce((sum, company) => sum + company.contacts.length, 0);
 
   return (
-    <div className="flex-shrink-0 w-80">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-semibold text-sm uppercase tracking-wide">
+    <div className="flex-shrink-0 w-56">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-semibold text-xs uppercase tracking-wide">
           {getStatusLabel(status)}
         </h3>
-        <Badge variant="outline" className={`${getStatusColor(status)} border-0`}>
+        <Badge variant="outline" className={`${getStatusColor(status)} border-0 text-xs`}>
           {companies.length}
         </Badge>
       </div>
       
-      <div className="space-y-3 max-h-[calc(100vh-250px)] overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-2">
         {companies.length === 0 ? (
-          <Card className="p-6">
-            <p className="text-sm text-muted-foreground text-center">
+          <Card className="p-4">
+            <p className="text-xs text-muted-foreground text-center">
               Aucune entreprise
             </p>
           </Card>
         ) : (
-          companies.map(company => (
+          companies.slice(0, 50).map(company => (
             <KanbanCompanyCard
               key={company.companyId}
               companyName={company.companyName}

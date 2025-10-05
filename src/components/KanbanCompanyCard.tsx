@@ -30,54 +30,52 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
   const nextFollowUp = getNextFollowUpDate();
 
   return (
-    <Card className="mb-3 hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+    <Card className="mb-2 hover:shadow-md transition-shadow">
+      <CardContent className="p-2">
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <CollapsibleTrigger asChild>
-              <div className="flex items-start justify-between cursor-pointer group">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    )}
-                    <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
-                    <h4 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
-                      {companyName}
-                    </h4>
+              <div className="flex items-center justify-between cursor-pointer group gap-2">
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  {isExpanded ? (
+                    <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  )}
+                  <Building2 className="h-3 w-3 text-primary flex-shrink-0" />
+                  <h4 className="font-semibold text-xs group-hover:text-primary transition-colors truncate">
+                    {companyName}
+                  </h4>
+                </div>
+                
+                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    <span>{contacts.length}</span>
                   </div>
                   
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
+                  {nextFollowUp && (
                     <div className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      <span>{contacts.length} contact{contacts.length > 1 ? 's' : ''}</span>
+                      <Calendar className="h-3 w-3" />
+                      <span>{new Date(nextFollowUp).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
                     </div>
-                    
-                    {nextFollowUp && (
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{new Date(nextFollowUp).toLocaleDateString('fr-FR')}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </CollapsibleTrigger>
 
             <CollapsibleContent>
-              <div className="space-y-2 ml-6 pt-2 border-t">
+              <div className="space-y-1 ml-5 pt-1 border-t">
                 {contacts.map(contact => (
                   <Button
                     key={contact.id}
                     variant="ghost"
-                    className="w-full justify-start text-left h-auto py-2 px-3 hover:bg-accent"
+                    className="w-full justify-start text-left h-auto py-1 px-2 hover:bg-accent"
                     onClick={() => onContactClick(contact)}
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{contact.fullName}</div>
-                      <div className="text-xs text-muted-foreground truncate">{contact.role}</div>
+                      <div className="font-medium text-xs truncate">{contact.fullName}</div>
+                      <div className="text-[10px] text-muted-foreground truncate">{contact.role}</div>
                     </div>
                   </Button>
                 ))}
