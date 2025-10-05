@@ -661,7 +661,7 @@ const Companies = () => {
 
       {/* Modal avec entreprise en intercalaire */}
       <Dialog open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
-        <DialogOverlay className="backdrop-blur-xl bg-background/5" />
+        <DialogOverlay className="backdrop-blur-lg" />
         <DialogContent className="max-w-7xl max-h-[80vh] overflow-hidden p-0">
           {selectedCompany && (
             <div className="w-full flex flex-col h-full">
