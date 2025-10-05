@@ -1054,8 +1054,8 @@ const Prospects = () => {
                   </div>
 
                   {/* Statut */}
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
-                    {getLeadStatus(lead.companyId)}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
+                    {getLeadStatus(lead.id)}
                   </Badge>
                 </div>
 
