@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -566,9 +566,10 @@ const Prospects = () => {
                             <div className="flex items-center gap-4">
                             <div className="flex items-center gap-4">
                               <div>
-                                <Badge variant="outline" className="text-xs mb-1 bg-primary/5 border-primary/20">
-                                  Top {(leadContacts.indexOf(contact) % 3) + 1} ciblage de contact
-                                </Badge>
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Medal className="h-3.5 w-3.5 text-primary" />
+                                  <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
+                                </div>
                                 <p className="font-medium text-sm">{contact.fullName}</p>
                                 <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
@@ -804,9 +805,10 @@ const Prospects = () => {
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-4">
                               <div>
-                                <Badge variant="outline" className="text-xs mb-1 bg-primary/5 border-primary/20">
-                                  Top {(leadContacts.indexOf(contact) % 3) + 1} ciblage de contact
-                                </Badge>
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Medal className="h-3.5 w-3.5 text-primary" />
+                                  <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
+                                </div>
                                 <p className="font-medium text-sm">{contact.fullName}</p>
                                 <p className="text-xs text-muted-foreground">{contact.role}</p>
                               </div>
