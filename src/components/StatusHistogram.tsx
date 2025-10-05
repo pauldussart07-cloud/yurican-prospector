@@ -6,9 +6,10 @@ interface StatusHistogramProps {
     status: string;
     count: number;
   }[];
+  onStatusClick?: (status: string) => void;
 }
 
-export function StatusHistogram({ data }: StatusHistogramProps) {
+export function StatusHistogram({ data, onStatusClick }: StatusHistogramProps) {
   return (
     <Card>
       <CardHeader>
@@ -34,7 +35,17 @@ export function StatusHistogram({ data }: StatusHistogramProps) {
                 borderRadius: '0.5rem'
               }}
             />
-            <Bar dataKey="count" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+            <Bar 
+              dataKey="count" 
+              fill="hsl(var(--primary))" 
+              radius={[8, 8, 0, 0]}
+              cursor={onStatusClick ? 'pointer' : 'default'}
+              onClick={(data) => {
+                if (onStatusClick && data?.status) {
+                  onStatusClick(data.status);
+                }
+              }}
+            />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

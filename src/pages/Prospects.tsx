@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,7 @@ import {
 
 const Prospects = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
@@ -103,6 +105,20 @@ const Prospects = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | 'all'>('all');
+
+  // Appliquer les filtres depuis l'URL
+  useEffect(() => {
+    const view = searchParams.get('view');
+    const status = searchParams.get('status');
+    
+    if (view === 'signal') {
+      setViewMode('signal');
+    }
+    
+    if (status) {
+      setStatusFilter(status as ContactStatus);
+    }
+  }, [searchParams]);
 
   // Charger les leads depuis Supabase
   useEffect(() => {
@@ -322,11 +338,29 @@ const Prospects = () => {
         return { lead, company };
       });
 
+    // Rechercher dans l'URL les filtres additionnels
+    const noContactsFilter = searchParams.get('noContacts') === 'true';
+    const hasContactsFilter = searchParams.get('hasContacts') === 'true';
+
+    // Filtrer par contacts
+    let contactsFiltered = leadsWithCompanies;
+    if (noContactsFilter) {
+      contactsFiltered = leadsWithCompanies.filter(({ lead }) => {
+        const leadContacts = contacts.filter(c => c.companyId === lead.id);
+        return leadContacts.length === 0;
+      });
+    } else if (hasContactsFilter) {
+      contactsFiltered = leadsWithCompanies.filter(({ lead }) => {
+        const leadContacts = contacts.filter(c => c.companyId === lead.id);
+        return leadContacts.length > 0;
+      });
+    }
+
     // Filtrer par recherche sémantique
-    let searchFiltered = leadsWithCompanies;
+    let searchFiltered = contactsFiltered;
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      searchFiltered = leadsWithCompanies.filter(({ lead, company }) => {
+      searchFiltered = contactsFiltered.filter(({ lead, company }) => {
         // Recherche dans le nom de l'entreprise
         if (company?.name.toLowerCase().includes(query)) return true;
         
@@ -378,7 +412,7 @@ const Prospects = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts, statusFilter]);
+  }, [leads, viewMode, sortCriteria, sortDirection, searchQuery, contacts, statusFilter, searchParams]);
 
   // Déplier automatiquement les leads lors de la recherche
   useEffect(() => {
