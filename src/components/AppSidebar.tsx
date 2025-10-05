@@ -23,7 +23,7 @@ const navItems = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="border-r border-border w-56">
+    <Sidebar className="border-r border-border w-44">
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
