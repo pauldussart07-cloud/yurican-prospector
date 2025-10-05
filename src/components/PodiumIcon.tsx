@@ -1,4 +1,4 @@
-const PodiumIcon = ({ className = "h-7 w-7" }: { className?: string }) => {
+const PodiumIcon = ({ className = "h-9 w-9" }: { className?: string }) => {
   return (
     <svg
       viewBox="0 0 24 24"

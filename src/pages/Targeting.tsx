@@ -753,7 +753,7 @@ const Targeting = () => {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Users className="h-5 w-5" />
               Ciblages Contacts
-              <PodiumIcon className="h-7 w-7" />
+              <PodiumIcon className="h-9 w-9" />
             </h2>
             <Button
               size="sm"
