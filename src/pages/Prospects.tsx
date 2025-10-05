@@ -1373,6 +1373,29 @@ const Prospects = () => {
                                 <SelectItem value="Exclu">Exclu</SelectItem>
                               </SelectContent>
                             </Select>
+
+                            {/* Action */}
+                            <Select 
+                              value="" 
+                              onValueChange={(value) => {
+                                toast({
+                                  title: "Action sélectionnée",
+                                  description: `${getActionName(Number(value))} pour ${contact.fullName}`,
+                                });
+                              }}
+                            >
+                              <SelectTrigger className="w-36">
+                                <SelectValue placeholder="Action" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1">{getActionName(1)}</SelectItem>
+                                <SelectItem value="2">{getActionName(2)}</SelectItem>
+                                <SelectItem value="3">{getActionName(3)}</SelectItem>
+                                <SelectItem value="4">{getActionName(4)}</SelectItem>
+                                <SelectItem value="5">{getActionName(5)}</SelectItem>
+                                <SelectItem value="6">{getActionName(6)}</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                         </Card>
                       ))}
