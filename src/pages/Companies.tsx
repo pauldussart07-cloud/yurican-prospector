@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase } from 'lucide-react';
+import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -336,7 +336,7 @@ const Companies = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      {sortCriteria === 'name' && 'Nom de l\'entreprise'}
+                      Trier par {sortCriteria === 'name' && 'Nom de l\'entreprise'}
                       {sortCriteria === 'sector' && 'Secteur d\'activité'}
                       {sortCriteria === 'revenue' && 'Chiffre d\'affaires'}
                       {sortCriteria === 'headcount' && 'Effectif'}
@@ -367,7 +367,7 @@ const Companies = () => {
                   size="sm"
                   onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
                 >
-                  {sortDirection === 'asc' ? 'Croissant' : 'Décroissant'}
+                  {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                 </Button>
 
                 <Button
