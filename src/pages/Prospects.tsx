@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -698,187 +698,165 @@ const Prospects = () => {
 
       {/* Dialog fiche contact détaillée */}
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
-        <DialogContent className="max-w-6xl">
+        <DialogContent className="max-w-7xl">
           {selectedContact && (() => {
             const company = mockCompanies.find(c => c.id === selectedContact.companyId);
             if (!company) return null;
 
             return (
-              <div className="space-y-6">
-                <div className="grid grid-cols-3 gap-6">
-                  {/* Colonne gauche : Logo et infos entreprise */}
-                  <Card className="p-6">
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="h-24 w-24 rounded-lg bg-muted flex items-center justify-center">
-                        <Building2 className="h-12 w-12 text-muted-foreground" />
+              <div className="grid grid-cols-[380px_1fr_420px] gap-6">
+                {/* Colonne gauche : Logo et infos entreprise */}
+                <Card className="p-6">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Building2 className="h-12 w-12 text-blue-600" />
+                    </div>
+
+                    <div className="text-center w-full">
+                      <h3 className="text-xl font-semibold">{company.name}</h3>
+                      <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-2">
+                        <MapPin className="h-4 w-4" />
+                        {company.department}
+                      </div>
+                      <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-1">
+                        <Briefcase className="h-4 w-4" />
+                        {company.sector}
+                      </div>
+                      <Badge variant="secondary" className="mt-3 bg-green-100 text-green-800 border-green-200">
+                        {company.naf}
+                      </Badge>
+                    </div>
+
+                    <div className="w-full space-y-2 pt-4 border-t">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">CA</span>
+                        </div>
+                        <span className="text-sm font-semibold">
+                          {(company.ca / 1000000).toFixed(1)}M€
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">Effectif</span>
+                        </div>
+                        <span className="text-sm font-semibold">
+                          {company.headcount} emp.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Colonne centrale : Informations détaillées */}
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-6">Informations détaillées</h2>
+
+                    <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Adresse</Label>
+                        <p className="text-sm font-medium mt-1">{company.address}</p>
                       </div>
 
-                      <div className="text-center w-full">
-                        <h3 className="text-lg font-semibold">{company.name}</h3>
-                        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-1">
+                      <div>
+                        <Label className="text-sm text-muted-foreground">SIRET</Label>
+                        <p className="text-sm font-medium mt-1">{company.siret}</p>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Code NAF</Label>
+                        <p className="text-sm font-semibold mt-1">{company.naf}</p>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Secteur</Label>
+                        <p className="text-sm font-semibold mt-1">{company.sector}</p>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Chiffre d'affaires</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                          <p className="text-sm font-semibold">{(company.ca / 1000000).toFixed(1)}M€</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Effectif</Label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Users className="h-4 w-4 text-blue-600" />
+                          <p className="text-sm font-semibold">{company.headcount} employés</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Département</Label>
+                        <div className="flex items-center gap-2 mt-1">
                           <MapPin className="h-4 w-4" />
-                          {company.department}
+                          <p className="text-sm font-semibold">{company.department}</p>
                         </div>
-                        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Secteur d'activité</Label>
+                        <div className="flex items-center gap-2 mt-1">
                           <Briefcase className="h-4 w-4" />
-                          {company.sector}
+                          <p className="text-sm font-semibold">{company.sector}</p>
                         </div>
-                        <Badge variant="secondary" className="mt-2">
-                          {company.naf}
-                        </Badge>
                       </div>
 
-                      <div className="w-full space-y-2 pt-4 border-t">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">CA</span>
-                          </div>
-                          <span className="text-sm font-medium">
-                            {(company.ca / 1000000).toFixed(1)}M€
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Effectif</span>
-                          </div>
-                          <span className="text-sm font-medium">
-                            {company.headcount} emp.
-                          </span>
-                        </div>
+                      <div className="col-span-2">
+                        <Label className="text-sm text-muted-foreground">Site web</Label>
+                        <a 
+                          href={company.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-500 hover:underline flex items-center gap-2 mt-1"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Visiter le site →
+                        </a>
+                      </div>
+
+                      <div className="col-span-2">
+                        <Label className="text-sm text-muted-foreground">LinkedIn</Label>
+                        <a 
+                          href={company.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-500 hover:underline flex items-center gap-2 mt-1"
+                        >
+                          <Linkedin className="h-4 w-4" />
+                          Voir le profil →
+                        </a>
                       </div>
                     </div>
-                  </Card>
+                  </div>
+                </div>
 
-                  {/* Colonne centrale : Informations contact */}
-                  <div className="space-y-4">
-                    <div>
-                      <h2 className="text-xl font-semibold mb-1">{selectedContact.fullName}</h2>
-                      <p className="text-muted-foreground">{selectedContact.role}</p>
-                    </div>
-
-                    <Card className="p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Intitulé du poste</Label>
-                          <p className="text-sm font-medium">{selectedContact.role}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Niveau de décision</Label>
-                          <p className="text-sm font-medium">{selectedContact.seniority}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Secteur</Label>
-                          <p className="text-sm font-medium">{selectedContact.domain}</p>
-                        </div>
-
-                        <div className="pt-2 border-t">
-                          <Label className="text-xs text-muted-foreground mb-2 block">Site web</Label>
-                          <a 
-                            href={company.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline flex items-center gap-2"
-                          >
-                            <Globe className="h-4 w-4" />
-                            Visiter le site →
-                          </a>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground mb-2 block">LinkedIn</Label>
-                          <a 
-                            href={company.linkedin} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-600 hover:underline flex items-center gap-2"
-                          >
-                            <Linkedin className="h-4 w-4" />
-                            Voir le profil →
-                          </a>
-                        </div>
-                      </div>
-                    </Card>
+                {/* Colonne droite : Synthèse */}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-4">Synthèse</h2>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {company.name} est une entreprise spécialisée dans {company.sector.toLowerCase()}, située dans le département {company.department}. 
+                      Avec un effectif de {company.headcount} employés et un chiffre d'affaires de {(company.ca / 1000000).toFixed(1)}M€, l'entreprise se positionne comme un acteur dynamique de son secteur. 
+                      Leur expertise en {company.sector.toLowerCase()} leur permet d'accompagner leurs clients dans leur transformation digitale.
+                    </p>
                   </div>
 
-                  {/* Colonne droite : Synthèse et actions */}
-                  <div className="space-y-4">
-                    <Card className="p-4 bg-muted/50">
-                      <h3 className="font-semibold mb-2">Synthèse</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {company.sector} est une entreprise spécialisée dans {company.sector.toLowerCase()}, située dans le département {company.department}. 
-                        Avec un effectif de {company.headcount} employés et un chiffre d'affaires de {(company.ca / 1000000).toFixed(1)}M€, l'entreprise se positionne comme un acteur dynamique de son secteur.
-                      </p>
-                    </Card>
-
-                    <Card className="p-4">
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Date de création</Label>
-                          <p className="text-sm font-medium">{selectedContact.createdAt.toLocaleDateString('fr-FR')}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Date de suivi</Label>
-                          <p className="text-sm font-medium">{new Date().toLocaleDateString('fr-FR')}</p>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Statut</Label>
-                          <Select defaultValue="a_rappeler">
-                            <SelectTrigger className="w-full mt-1">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="a_rappeler">À rappeler</SelectItem>
-                              <SelectItem value="en_cours">En cours</SelectItem>
-                              <SelectItem value="contacte">Contacté</SelectItem>
-                              <SelectItem value="qualifie">Qualifié</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Email</Label>
-                          <a href={`mailto:${selectedContact.email}`} className="text-sm text-blue-600 hover:underline block">
-                            {selectedContact.email}
-                          </a>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Tel standard</Label>
-                            <p className="text-sm">{selectedContact.phone}</p>
-                          </div>
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Tel mobile</Label>
-                            <p className="text-sm">{selectedContact.phone}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Card className="p-4">
-                      <div className="space-y-2">
-                        <Label className="font-semibold">BRIEF</Label>
-                        <p className="text-xs text-muted-foreground">
-                          Lecture du Site Web + LinkedIn par Perplexity pour récupérer une synthèse concise de l'entreprise
-                        </p>
-                      </div>
-                    </Card>
-
-                    <Card className="p-4">
-                      <div className="space-y-2">
-                        <Label className="font-semibold">Commentaires</Label>
-                        <Textarea 
-                          placeholder="Notes du commercial..."
-                          className="min-h-[80px]"
-                        />
-                      </div>
-                    </Card>
+                  <div className="space-y-3 pt-4">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white" size="lg">
+                      <ThumbsUp className="h-5 w-5 mr-2" />
+                      GO - Ajouter aux Leads
+                    </Button>
+                    <Button variant="destructive" className="w-full" size="lg">
+                      <ThumbsDown className="h-5 w-5 mr-2" />
+                      NO GO - Masquer
+                    </Button>
                   </div>
                 </div>
               </div>
