@@ -3,7 +3,7 @@ import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, External
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -940,6 +940,19 @@ const Prospects = () => {
               </div>
             );
           })()}
+          <DialogFooter className="mt-6">
+            <Button 
+              onClick={() => {
+                toast({
+                  title: 'Modifications enregistrées',
+                  description: 'Les modifications ont été enregistrées avec succès.',
+                });
+                setShowContactDialog(false);
+              }}
+            >
+              Enregistrer les modifications
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
