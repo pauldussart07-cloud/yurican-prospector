@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact } from 'lucide-react';
+import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -312,101 +312,132 @@ const Companies = () => {
           )}
         </div>
 
-        {paginatedCompanies.map((company) => (
-          <Card 
-            key={company.id} 
-            className="hover:shadow-md transition-shadow"
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-4">
-                {/* Checkbox */}
-                <Checkbox
-                  checked={selectedCompanies.has(company.id)}
-                  onCheckedChange={() => handleSelectCompany(company.id)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="mt-1"
-                />
+        {paginatedCompanies.map((company) => {
+          // Déterminer la taille de l'icône CA
+          const getRevenueIcon = (ca: number) => {
+            if (ca >= 50000000) return <TrendingUp className="h-5 w-5 text-green-600" />;
+            if (ca >= 10000000) return <TrendingUp className="h-4 w-4 text-green-500" />;
+            return <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />;
+          };
 
-                {/* Partie gauche - Informations entreprise */}
-                <div className="flex-shrink-0 w-64">
-                  <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+          // Déterminer la taille de l'icône effectif
+          const getHeadcountIcon = (headcount: number) => {
+            if (headcount >= 250) return <Users className="h-5 w-5 text-blue-600" />;
+            if (headcount >= 50) return <Users className="h-4 w-4 text-blue-500" />;
+            return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
+          };
+
+          return (
+            <Card 
+              key={company.id} 
+              className="hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleCompanyClick(company)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  {/* Checkbox */}
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedCompanies.has(company.id)}
+                      onCheckedChange={() => handleSelectCompany(company.id)}
+                    />
+                  </div>
+
+                  {/* Bloc 1 : Logo entreprise */}
+                  <div className="flex-shrink-0">
+                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 
-                        className="text-base font-semibold hover:text-primary cursor-pointer truncate"
-                        onClick={() => handleCompanyClick(company)}
-                      >
-                        {company.name}
-                      </h3>
-                      <div className="space-y-1 mt-2">
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          <span>{company.department}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Building2 className="h-3 w-3" />
-                          <span>{company.sector}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Users className="h-3 w-3" />
-                          <span>{company.headcount} employés</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <TrendingUp className="h-3 w-3" />
-                          <span>{(company.ca / 1000000).toFixed(1)}M€ CA</span>
-                        </div>
-                      </div>
+                  </div>
+
+                  {/* Bloc 2 : Raison sociale, département, secteur */}
+                  <div className="flex-shrink-0 w-48">
+                    <h3 className="text-sm font-semibold truncate hover:text-primary">
+                      {company.name}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                      <MapPin className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{company.department}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Briefcase className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate">{company.sector}</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Partie centre - Résumé et liens */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {company.summary || "Cliquez sur l'entreprise pour voir le résumé détaillé..."}
-                  </p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Button size="sm" variant="ghost" asChild className="h-8">
+                  {/* Bloc 3 : CA et Effectif */}
+                  <div className="flex-shrink-0 w-32">
+                    <div className="flex items-center gap-2 mb-1">
+                      {getRevenueIcon(company.ca)}
+                      <span className="text-xs font-medium">
+                        {(company.ca / 1000000).toFixed(1)}M€
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getHeadcountIcon(company.headcount)}
+                      <span className="text-xs font-medium">
+                        {company.headcount} emp.
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bloc 4 : Liens */}
+                  <div className="flex-shrink-0 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
                       <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3 w-3" />
                         <span className="text-xs">Site web</span>
                       </a>
                     </Button>
-                    <Button size="sm" variant="ghost" asChild className="h-8">
+                    <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
                       <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                        <Linkedin className="h-3.5 w-3.5" />
+                        <Linkedin className="h-3 w-3" />
                         <span className="text-xs">LinkedIn</span>
                       </a>
                     </Button>
                   </div>
-                </div>
 
-                {/* Partie droite - Actions */}
-                <div className="flex gap-2 flex-shrink-0">
-                  <Button 
-                    size="sm" 
-                    onClick={() => handleGo(company)}
-                    className="gap-1.5"
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                    <span className="text-xs">GO</span>
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="destructive"
-                    onClick={() => handleNoGo(company)}
-                    className="gap-1.5"
-                  >
-                    <ThumbsDown className="h-4 w-4" />
-                    <span className="text-xs">NO GO</span>
-                  </Button>
+                  {/* Bloc 5 : Résumé */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
+                    </p>
+                    <button 
+                      className="text-xs text-primary hover:underline mt-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCompanyClick(company);
+                      }}
+                    >
+                      Afficher plus →
+                    </button>
+                  </div>
+
+                  {/* Bloc 6 : Actions GO/NO GO */}
+                  <div className="flex flex-col gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleGo(company)}
+                      className="gap-1.5 bg-green-600 hover:bg-green-700"
+                    >
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                      <span className="text-xs">GO</span>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="destructive"
+                      onClick={() => handleNoGo(company)}
+                      className="gap-1.5"
+                    >
+                      <ThumbsDown className="h-3.5 w-3.5" />
+                      <span className="text-xs">NO GO</span>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Pagination */}
