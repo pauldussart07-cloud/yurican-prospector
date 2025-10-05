@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -58,6 +59,9 @@ const Companies = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
   const [discoveredCompanies, setDiscoveredCompanies] = useState<Set<string>>(new Set());
+  const [userCredits, setUserCredits] = useState<number>(0);
+  const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
+  const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -74,7 +78,23 @@ const Companies = () => {
       }
     };
 
+    const loadCredits = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('user_credits')
+        .select('credits')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        setUserCredits(data.credits);
+      }
+    };
+
     loadPersonas();
+    loadCredits();
   }, []);
 
   const handleCompanyClick = async (company: Company) => {
@@ -98,11 +118,63 @@ const Companies = () => {
     }
   };
 
-  const handleDiscover = async (company: Company) => {
-    // Marquer comme découverte
-    setDiscoveredCompanies(prev => new Set(prev).add(company.id));
-    // Ouvrir la fiche
-    await handleCompanyClick(company);
+  const handleDiscover = (company: Company) => {
+    // Afficher l'alerte de confirmation
+    setCompanyToDiscover(company);
+    setShowDiscoverAlert(true);
+  };
+
+  const confirmDiscover = async () => {
+    if (!companyToDiscover) return;
+
+    // Vérifier si l'utilisateur a assez de crédits
+    if (userCredits < 8) {
+      toast({
+        title: 'Crédits insuffisants',
+        description: 'Vous n\'avez pas assez de crédits pour découvrir cette entreprise.',
+        variant: 'destructive',
+      });
+      setShowDiscoverAlert(false);
+      setCompanyToDiscover(null);
+      return;
+    }
+
+    try {
+      // Déduire les crédits
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('user_credits')
+        .update({ credits: userCredits - 8 })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      // Mettre à jour le solde local
+      setUserCredits(userCredits - 8);
+
+      // Marquer comme découverte
+      setDiscoveredCompanies(prev => new Set(prev).add(companyToDiscover.id));
+      
+      // Ouvrir la fiche
+      await handleCompanyClick(companyToDiscover);
+
+      toast({
+        title: 'Entreprise découverte',
+        description: '8 crédits ont été déduits de votre solde.',
+      });
+    } catch (error) {
+      console.error('Error deducting credits:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la déduction des crédits.',
+        variant: 'destructive',
+      });
+    } finally {
+      setShowDiscoverAlert(false);
+      setCompanyToDiscover(null);
+    }
   };
 
   const handleGo = (company: Company) => {
@@ -248,8 +320,13 @@ const Companies = () => {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Entreprises</h1>
-        <div className="text-sm text-muted-foreground">
-          {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
+          </div>
+          <Badge variant="secondary" className="text-base px-4 py-2">
+            {userCredits.toLocaleString()} crédits
+          </Badge>
         </div>
       </div>
 
@@ -870,6 +947,33 @@ const Companies = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Alert Dialog pour confirmer la découverte */}
+      <AlertDialog open={showDiscoverAlert} onOpenChange={setShowDiscoverAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Découvrir cette entreprise</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir découvrir cette entreprise ?
+              <br />
+              <span className="font-semibold text-foreground">8 crédits</span> seront déduits de votre solde total.
+              <br />
+              <span className="text-muted-foreground">Solde actuel : {userCredits} crédits</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowDiscoverAlert(false);
+              setCompanyToDiscover(null);
+            }}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDiscover}>
+              Confirmer (8 crédits)
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
