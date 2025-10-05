@@ -440,13 +440,27 @@ const Prospects = () => {
                       </div>
                     </div>
 
-                    {/* Signal résumé - plus large */}
+                    {/* Signal résumé - élargi avec 3 lignes max */}
                     {lead.signalSummary && (
-                      <div className="flex-1 px-4">
+                      <div className="flex-1 px-2">
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                          <p className="text-sm text-orange-900 leading-relaxed">
+                          <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
                             {lead.signalSummary}
                           </p>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const firstContact = leadContacts[0];
+                              if (firstContact) {
+                                handleContactClick(firstContact);
+                              }
+                            }}
+                          >
+                            Voir plus →
+                          </Button>
                         </div>
                       </div>
                     )}
