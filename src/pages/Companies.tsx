@@ -277,13 +277,23 @@ const Companies = () => {
             
             <div className="flex items-center gap-3 border-l pl-4">
               <Label htmlFor="view-mode" className="text-sm font-medium">
-                {viewMode === 'ciblage' ? 'Ciblage' : 'Signal'}
+                Ciblage
               </Label>
               <Switch
                 id="view-mode"
                 checked={viewMode === 'signal'}
                 onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
               />
+              <div className="flex items-center gap-2">
+                <Label htmlFor="view-mode" className="text-sm font-medium">
+                  Signal
+                </Label>
+                {filteredCompanies.length > 0 && (
+                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                    {filteredCompanies.length}
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 
