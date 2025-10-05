@@ -245,46 +245,6 @@ const Companies = () => {
         </div>
       </div>
 
-      {/* Filtres */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4 justify-end">
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Département" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les départements</SelectItem>
-                {departments.map(dept => (
-                  <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">A → Z</SelectItem>
-                <SelectItem value="desc">Z → A</SelectItem>
-                <SelectItem value="headcount-asc">Effectif croissant</SelectItem>
-                <SelectItem value="headcount-desc">Effectif décroissant</SelectItem>
-                <SelectItem value="revenue-asc">CA croissant</SelectItem>
-                <SelectItem value="revenue-desc">CA décroissant</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant={hideNoGo ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setHideNoGo(!hideNoGo)}
-            >
-              {hideNoGo ? 'NO GO masqués' : 'Afficher NO GO'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Liste des entreprises */}
       <div className="space-y-3">
@@ -323,45 +283,98 @@ const Companies = () => {
             </div>
           </div>
 
-          {/* Actions quand des entreprises sont sélectionnées */}
-          {selectedCompanies.size > 0 && (
-            <div className="flex items-center gap-3">
-              <span className="font-medium text-sm">
-                {selectedCompanies.size} entreprise(s) sélectionnée(s)
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm">
-                    <Contact className="h-4 w-4 mr-2" />
-                    Récupérer des contacts
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {personas.length === 0 ? (
-                    <DropdownMenuItem disabled>
-                      Aucun ciblage contact configuré
-                    </DropdownMenuItem>
-                  ) : (
-                    personas.map((persona) => (
-                      <DropdownMenuItem
-                        key={persona.id}
-                        onClick={() => handleGetContacts(persona.id)}
-                      >
-                        {persona.name} ({selectedCompanies.size} contacts)
+          <div className="flex items-center gap-3">
+            {/* Actions quand des entreprises sont sélectionnées */}
+            {selectedCompanies.size > 0 ? (
+              <>
+                <span className="font-medium text-sm">
+                  {selectedCompanies.size} entreprise(s) sélectionnée(s)
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm">
+                      <Contact className="h-4 w-4 mr-2" />
+                      Récupérer des contacts
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {personas.length === 0 ? (
+                      <DropdownMenuItem disabled>
+                        Aucun ciblage contact configuré
                       </DropdownMenuItem>
-                    ))
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedCompanies(new Set())}
-              >
-                Annuler
-              </Button>
-            </div>
-          )}
+                    ) : (
+                      personas.map((persona) => (
+                        <DropdownMenuItem
+                          key={persona.id}
+                          onClick={() => handleGetContacts(persona.id)}
+                        >
+                          {persona.name} ({selectedCompanies.size} contacts)
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedCompanies(new Set())}
+                >
+                  Annuler
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* Filtres et tris */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Trier par
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setSortOrder('asc')}>
+                      Nom (A → Z)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder('desc')}>
+                      Nom (Z → A)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder('headcount-asc')}>
+                      Effectif croissant
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder('headcount-desc')}>
+                      Effectif décroissant
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder('revenue-asc')}>
+                      CA croissant
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortOrder('revenue-desc')}>
+                      CA décroissant
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Département" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les départements</SelectItem>
+                    {departments.map(dept => (
+                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  variant={hideNoGo ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setHideNoGo(!hideNoGo)}
+                >
+                  {hideNoGo ? 'NO GO masqués' : 'Afficher NO GO'}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {paginatedCompanies.map((company) => {
