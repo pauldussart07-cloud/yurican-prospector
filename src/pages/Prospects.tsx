@@ -698,171 +698,192 @@ const Prospects = () => {
 
       {/* Dialog fiche contact détaillée */}
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
-        <DialogContent className="max-w-4xl">
-          {selectedContact && (
-            <div className="space-y-6">
-              <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedContact.fullName}</DialogTitle>
-                <DialogDescription>{selectedContact.role}</DialogDescription>
-              </DialogHeader>
+        <DialogContent className="max-w-6xl">
+          {selectedContact && (() => {
+            const company = mockCompanies.find(c => c.id === selectedContact.companyId);
+            if (!company) return null;
 
-              <div className="grid grid-cols-2 gap-6">
-                {/* Colonne gauche : Infos contact */}
-                <div className="space-y-4">
-                  <Card className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Linkedin className="h-5 w-5 text-blue-600" />
-                        <a 
-                          href={`https://linkedin.com/in/${selectedContact.fullName.toLowerCase().replace(' ', '-')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          LinkedIn
-                        </a>
+            return (
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-6">
+                  {/* Colonne gauche : Logo et infos entreprise */}
+                  <Card className="p-6">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="h-24 w-24 rounded-lg bg-muted flex items-center justify-center">
+                        <Building2 className="h-12 w-12 text-muted-foreground" />
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Fonction:</span>
-                          <span className="text-sm">{selectedContact.role}</span>
+                      <div className="text-center w-full">
+                        <h3 className="text-lg font-semibold">{company.name}</h3>
+                        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mt-1">
+                          <MapPin className="h-4 w-4" />
+                          {company.department}
                         </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Email:</span>
-                          <a href={`mailto:${selectedContact.email}`} className="text-sm text-blue-600 hover:underline">
-                            {selectedContact.email}
-                          </a>
+                        <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                          <Briefcase className="h-4 w-4" />
+                          {company.sector}
                         </div>
+                        <Badge variant="secondary" className="mt-2">
+                          {company.naf}
+                        </Badge>
+                      </div>
 
+                      <div className="w-full space-y-2 pt-4 border-t">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Téléphone:</span>
-                          <span className="text-sm text-muted-foreground">{selectedContact.phone}</span>
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">CA</span>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {(company.ca / 1000000).toFixed(1)}M€
+                          </span>
                         </div>
-
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Séniorité:</span>
-                          <Badge variant="secondary">{selectedContact.seniority}</Badge>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Domaine:</span>
-                          <Badge variant="secondary">{selectedContact.domain}</Badge>
-                        </div>
-
-                        <div className="flex justify-center pt-2">
-                          <Badge variant="outline" className="text-xs">5 crédits</Badge>
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">Effectif</span>
+                          </div>
+                          <span className="text-sm font-medium">
+                            {company.headcount} emp.
+                          </span>
                         </div>
                       </div>
                     </div>
                   </Card>
-                </div>
 
-                {/* Colonne droite : Infos entreprise et suivi */}
-                <div className="space-y-4">
-                  {(() => {
-                    const company = mockCompanies.find(c => c.id === selectedContact.companyId);
-                    return company ? (
-                      <>
-                        <Card className="p-4">
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <Globe className="h-5 w-5" />
-                              <a 
-                                href={company.website} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:underline truncate"
-                              >
-                                {company.website}
-                              </a>
-                            </div>
+                  {/* Colonne centrale : Informations contact */}
+                  <div className="space-y-4">
+                    <div>
+                      <h2 className="text-xl font-semibold mb-1">{selectedContact.fullName}</h2>
+                      <p className="text-muted-foreground">{selectedContact.role}</p>
+                    </div>
 
-                            <div className="flex items-center gap-2">
-                              <Linkedin className="h-5 w-5 text-blue-600" />
-                              <a 
-                                href={company.linkedin} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-sm text-blue-600 hover:underline truncate"
-                              >
-                                LinkedIn Entreprise
-                              </a>
-                            </div>
+                    <Card className="p-4">
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Intitulé du poste</Label>
+                          <p className="text-sm font-medium">{selectedContact.role}</p>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Niveau de décision</Label>
+                          <p className="text-sm font-medium">{selectedContact.seniority}</p>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Secteur</Label>
+                          <p className="text-sm font-medium">{selectedContact.domain}</p>
+                        </div>
+
+                        <div className="pt-2 border-t">
+                          <Label className="text-xs text-muted-foreground mb-2 block">Site web</Label>
+                          <a 
+                            href={company.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline flex items-center gap-2"
+                          >
+                            <Globe className="h-4 w-4" />
+                            Visiter le site →
+                          </a>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-2 block">LinkedIn</Label>
+                          <a 
+                            href={company.linkedin} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:underline flex items-center gap-2"
+                          >
+                            <Linkedin className="h-4 w-4" />
+                            Voir le profil →
+                          </a>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Colonne droite : Synthèse et actions */}
+                  <div className="space-y-4">
+                    <Card className="p-4 bg-muted/50">
+                      <h3 className="font-semibold mb-2">Synthèse</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {company.sector} est une entreprise spécialisée dans {company.sector.toLowerCase()}, située dans le département {company.department}. 
+                        Avec un effectif de {company.headcount} employés et un chiffre d'affaires de {(company.ca / 1000000).toFixed(1)}M€, l'entreprise se positionne comme un acteur dynamique de son secteur.
+                      </p>
+                    </Card>
+
+                    <Card className="p-4">
+                      <div className="space-y-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Date de création</Label>
+                          <p className="text-sm font-medium">{selectedContact.createdAt.toLocaleDateString('fr-FR')}</p>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Date de suivi</Label>
+                          <p className="text-sm font-medium">{new Date().toLocaleDateString('fr-FR')}</p>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Statut</Label>
+                          <Select defaultValue="a_rappeler">
+                            <SelectTrigger className="w-full mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="a_rappeler">À rappeler</SelectItem>
+                              <SelectItem value="en_cours">En cours</SelectItem>
+                              <SelectItem value="contacte">Contacté</SelectItem>
+                              <SelectItem value="qualifie">Qualifié</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Email</Label>
+                          <a href={`mailto:${selectedContact.email}`} className="text-sm text-blue-600 hover:underline block">
+                            {selectedContact.email}
+                          </a>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Tel standard</Label>
+                            <p className="text-sm">{selectedContact.phone}</p>
                           </div>
-                        </Card>
-
-                        <Card className="p-4">
-                          <div className="space-y-3">
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Date de création</Label>
-                              <p className="text-sm font-medium">{selectedContact.createdAt.toLocaleDateString('fr-FR')}</p>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Date de suivi</Label>
-                              <p className="text-sm font-medium">{new Date().toLocaleDateString('fr-FR')}</p>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Statut</Label>
-                              <Select defaultValue="a_rappeler">
-                                <SelectTrigger className="w-full mt-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="a_rappeler">À rappeler</SelectItem>
-                                  <SelectItem value="en_cours">En cours</SelectItem>
-                                  <SelectItem value="contacte">Contacté</SelectItem>
-                                  <SelectItem value="qualifie">Qualifié</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Email</Label>
-                              <p className="text-sm">{selectedContact.email}</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Tel standard</Label>
-                                <p className="text-sm">Tel standard</p>
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Tel mobile</Label>
-                                <p className="text-sm">Tel standard</p>
-                              </div>
-                            </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Tel mobile</Label>
+                            <p className="text-sm">{selectedContact.phone}</p>
                           </div>
-                        </Card>
+                        </div>
+                      </div>
+                    </Card>
 
-                        <Card className="p-4">
-                          <div className="space-y-2">
-                            <Label className="font-semibold">BRIEF</Label>
-                            <p className="text-sm text-muted-foreground">
-                              Lecture du Site Web + LinkedIn par Perplexity pour récupérer une synthèse concise de l'entreprise
-                            </p>
-                          </div>
-                        </Card>
+                    <Card className="p-4">
+                      <div className="space-y-2">
+                        <Label className="font-semibold">BRIEF</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Lecture du Site Web + LinkedIn par Perplexity pour récupérer une synthèse concise de l'entreprise
+                        </p>
+                      </div>
+                    </Card>
 
-                        <Card className="p-4">
-                          <div className="space-y-2">
-                            <Label className="font-semibold">Commentaires</Label>
-                            <Textarea 
-                              placeholder="Notes du commercial..."
-                              className="min-h-[100px]"
-                            />
-                          </div>
-                        </Card>
-                      </>
-                    ) : null;
-                  })()}
+                    <Card className="p-4">
+                      <div className="space-y-2">
+                        <Label className="font-semibold">Commentaires</Label>
+                        <Textarea 
+                          placeholder="Notes du commercial..."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    </Card>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
