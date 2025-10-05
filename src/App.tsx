@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Vision from "./pages/Vision";
 import Marche from "./pages/Marche";
 import Prospects from "./pages/Prospects";
+import Agenda from "./pages/Agenda";
 import Targeting from "./pages/Targeting";
 import Parametrage from "./pages/Parametrage";
 import Login from "./pages/Login";
@@ -43,6 +44,7 @@ const App = () => (
                             <Route path="/" element={<Vision />} />
                             <Route path="/marche" element={<Marche />} />
                             <Route path="/prospects" element={<Prospects />} />
+                            <Route path="/agenda" element={<Agenda />} />
                             <Route path="/targeting" element={<Targeting />} />
                             <Route path="/parametrage" element={<Parametrage />} />
                             <Route path="*" element={<NotFound />} />

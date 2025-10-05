@@ -1,4 +1,4 @@
-import { Home, Building2, Users, Settings, Target } from 'lucide-react';
+import { Home, Building2, Users, Settings, Target, Calendar } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -17,6 +17,7 @@ const navItems = [
   { title: 'Vision', url: '/', icon: Home },
   { title: 'Marché', url: '/marche', icon: Building2 },
   { title: 'Prospects', url: '/prospects', icon: Users },
+  { title: 'Agenda', url: '/agenda', icon: Calendar },
   { title: 'Ciblage', url: '/targeting', icon: Target },
   { title: 'Paramétrage', url: '/parametrage', icon: Settings },
 ];
