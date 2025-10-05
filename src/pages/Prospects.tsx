@@ -19,6 +19,7 @@ import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
 import { KanbanView } from '@/components/KanbanView';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useActions } from '@/contexts/ActionsContext';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -72,6 +73,7 @@ import {
 
 const Prospects = () => {
   const { toast } = useToast();
+  const { getActionName } = useActions();
   const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -1822,22 +1824,22 @@ const Prospects = () => {
                         {showActions && (
                           <div className="space-y-1.5">
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 1
+                              {getActionName(1)}
                             </Button>
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 2
+                              {getActionName(2)}
                             </Button>
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 3
+                              {getActionName(3)}
                             </Button>
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 4
+                              {getActionName(4)}
                             </Button>
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 5
+                              {getActionName(5)}
                             </Button>
                             <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                              Action 6
+                              {getActionName(6)}
                             </Button>
                           </div>
                         )}

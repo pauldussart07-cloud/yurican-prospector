@@ -10,29 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Calendar, Plus } from 'lucide-react';
-
-interface ActionConfig {
-  id: number;
-  name: string;
-  type: 'email' | 'meeting';
-  emailSubject?: string;
-  emailBody?: string;
-  emailAttachment?: string;
-  meetingPlatform?: 'teams' | 'google-meet';
-}
+import { useActions } from '@/contexts/ActionsContext';
 
 const Parametrage = () => {
   const { toast } = useToast();
+  const { actions, updateAction } = useActions();
   const [hideNoGo, setHideNoGo] = useState(true);
   const [defaultContactCount, setDefaultContactCount] = useState(3);
-  const [actions, setActions] = useState<ActionConfig[]>([
-    { id: 1, name: 'Action 1', type: 'email', emailSubject: '', emailBody: '' },
-    { id: 2, name: 'Action 2', type: 'email', emailSubject: '', emailBody: '' },
-    { id: 3, name: 'Action 3', type: 'email', emailSubject: '', emailBody: '' },
-    { id: 4, name: 'Action 4', type: 'meeting', meetingPlatform: 'teams' },
-    { id: 5, name: 'Action 5', type: 'meeting', meetingPlatform: 'google-meet' },
-    { id: 6, name: 'Action 6', type: 'email', emailSubject: '', emailBody: '' },
-  ]);
   const [selectedAction, setSelectedAction] = useState<number>(1);
 
   const variables = [
@@ -51,12 +35,6 @@ const Parametrage = () => {
       title: 'Réinitialisation des données',
       description: 'Les données ont été réinitialisées avec succès.',
     });
-  };
-
-  const updateAction = (id: number, updates: Partial<ActionConfig>) => {
-    setActions(actions.map(action => 
-      action.id === id ? { ...action, ...updates } : action
-    ));
   };
 
   const insertVariable = (variable: string) => {
