@@ -1,15 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase, ArrowUp, ArrowDown } from 'lucide-react';
+import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase, ArrowUp, ArrowDown, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogOverlay } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogOverlay, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { mockCompanies, Company, mockLeads, Lead } from '@/lib/mockData';
 import { companySummaryService } from '@/services/companySummaryService';
@@ -62,6 +63,11 @@ const Marche = () => {
   const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
+  const [showPersonaDialog, setShowPersonaDialog] = useState(false);
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
+  const [contactCount, setContactCount] = useState(3);
+  const [userPersonas, setUserPersonas] = useState<any[]>([]);
+  const [loadingPersonas, setLoadingPersonas] = useState(false);
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -80,6 +86,33 @@ const Marche = () => {
 
     loadPersonas();
   }, []);
+
+  // Charger les personas détaillées pour le dialog
+  useEffect(() => {
+    const loadDetailedPersonas = async () => {
+      setLoadingPersonas(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoadingPersonas(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('personas')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('position', { ascending: true });
+
+      if (!error && data) {
+        setUserPersonas(data);
+      }
+      setLoadingPersonas(false);
+    };
+
+    if (showPersonaDialog) {
+      loadDetailedPersonas();
+    }
+  }, [showPersonaDialog]);
 
   const handleCompanyClick = async (company: Company) => {
     // En mode signal, vérifier si l'entreprise a été découverte
@@ -278,12 +311,38 @@ const Marche = () => {
     setSelectedCompanies(newSelected);
   };
 
-  const handleGetContacts = (personaId: string) => {
-    const personaName = personas.find(p => p.id === personaId)?.name;
+  const handleGetContacts = () => {
+    if (selectedCompanies.size === 0) return;
+    setShowPersonaDialog(true);
+  };
+
+  const handlePersonaToggle = (personaName: string) => {
+    setSelectedPersonas(prev =>
+      prev.includes(personaName)
+        ? prev.filter(p => p !== personaName)
+        : [...prev, personaName]
+    );
+  };
+
+  const handleConfirmGetContacts = () => {
+    if (selectedPersonas.length === 0) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez sélectionner au moins un ciblage.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({
-      title: 'Récupération des contacts',
-      description: `Récupération des contacts "${personaName}" pour ${selectedCompanies.size} entreprise(s)...`,
+      title: 'Contacts générés',
+      description: `${selectedPersonas.length * contactCount} contact(s) ont été ajoutés pour ${selectedCompanies.size} entreprise(s).`,
     });
+
+    // Réinitialiser
+    setShowPersonaDialog(false);
+    setSelectedPersonas([]);
+    setContactCount(3);
     setSelectedCompanies(new Set());
   };
 
@@ -343,30 +402,10 @@ const Marche = () => {
                 <span className="font-medium text-sm">
                   {selectedCompanies.size} entreprise(s) sélectionnée(s)
                 </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="sm">
-                      <Contact className="h-4 w-4 mr-2" />
-                      Récupérer des contacts
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {personas.length === 0 ? (
-                      <DropdownMenuItem disabled>
-                        Aucun ciblage contact configuré
-                      </DropdownMenuItem>
-                    ) : (
-                      personas.map((persona) => (
-                        <DropdownMenuItem
-                          key={persona.id}
-                          onClick={() => handleGetContacts(persona.id)}
-                        >
-                          {persona.name} ({selectedCompanies.size} contacts)
-                        </DropdownMenuItem>
-                      ))
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button size="sm" onClick={handleGetContacts}>
+                  <Contact className="h-4 w-4 mr-2" />
+                  Récupérer des contacts
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -931,7 +970,10 @@ const Marche = () => {
                   <div className="space-y-3">
                     <Button 
                       className="w-full bg-success hover:bg-success/80 text-success-foreground"
-                      onClick={() => handleGo(selectedCompany)}
+                      onClick={() => {
+                        handleGo(selectedCompany);
+                        navigate('/prospects');
+                      }}
                     >
                       <ThumbsUp className="h-4 w-4 mr-2" />
                       GO - Ajouter aux Leads
@@ -947,6 +989,103 @@ const Marche = () => {
                 </div>
               </div>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog pour sélectionner les personas */}
+      <Dialog open={showPersonaDialog} onOpenChange={setShowPersonaDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Générer des contacts</DialogTitle>
+            <DialogDescription>
+              Sélectionnez les ciblages et le nombre de contacts à générer pour {selectedCompanies.size} entreprise(s)
+            </DialogDescription>
+          </DialogHeader>
+
+          {loadingPersonas ? (
+            <div className="flex items-center justify-center py-8">
+              <p className="text-sm text-muted-foreground">Chargement des ciblages...</p>
+            </div>
+          ) : userPersonas.length === 0 ? (
+            <div className="py-6 text-center">
+              <p className="text-sm text-muted-foreground mb-4">
+                Vous n'avez pas encore créé de ciblages de contacts.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowPersonaDialog(false);
+                  navigate('/targeting');
+                }}
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Créer mes ciblages
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Ciblages de contacts
+                </Label>
+                {userPersonas.map((persona, index) => (
+                  <div key={persona.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Checkbox
+                          id={persona.id}
+                          checked={selectedPersonas.includes(persona.name)}
+                          onCheckedChange={() => handlePersonaToggle(persona.name)}
+                        />
+                        <label
+                          htmlFor={persona.id}
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          {persona.name}
+                        </label>
+                      </div>
+                      <div className="flex gap-2 ml-6">
+                        <Badge variant="outline" className="text-xs">
+                          {persona.service}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {persona.decision_level}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="count">Nombre de contacts par ciblage</Label>
+                <Input
+                  id="count"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={contactCount}
+                  onChange={(e) => setContactCount(parseInt(e.target.value) || 1)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Total : {selectedPersonas.length * contactCount} contact{selectedPersonas.length * contactCount > 1 ? 's' : ''} par entreprise
+                </p>
+              </div>
+
+              <DialogFooter className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowPersonaDialog(false)}>
+                  Annuler
+                </Button>
+                <Button onClick={handleConfirmGetContacts}>
+                  Générer les contacts
+                </Button>
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>
