@@ -18,9 +18,9 @@ import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
 
 // Types et hiérarchie des statuts
-type ContactStatus = 'Nouveau' | 'Engager' | 'Discussion' | 'RDV' | 'Exclu';
+type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
-const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engager', 'Discussion', 'RDV', 'Exclu'];
+const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engagé', 'Discussion', 'RDV', 'Exclu'];
 
 // Fonction pour obtenir le statut le plus avancé
 const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
@@ -40,7 +40,7 @@ const getStatusBadgeVariant = (status: ContactStatus): "default" | "secondary" |
   switch (status) {
     case 'Nouveau':
       return 'outline';
-    case 'Engager':
+    case 'Engagé':
       return 'secondary';
     case 'Discussion':
       return 'default';
@@ -703,7 +703,7 @@ const Prospects = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                <SelectItem value="Engager">Engager</SelectItem>
+                                <SelectItem value="Engagé">Engagé</SelectItem>
                                 <SelectItem value="Discussion">Discussion</SelectItem>
                                 <SelectItem value="RDV">RDV</SelectItem>
                                 <SelectItem value="Exclu">Exclu</SelectItem>
@@ -950,7 +950,7 @@ const Prospects = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                <SelectItem value="Engager">Engager</SelectItem>
+                                <SelectItem value="Engagé">Engagé</SelectItem>
                                 <SelectItem value="Discussion">Discussion</SelectItem>
                                 <SelectItem value="RDV">RDV</SelectItem>
                                 <SelectItem value="Exclu">Exclu</SelectItem>
