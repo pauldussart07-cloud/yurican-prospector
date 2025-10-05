@@ -393,8 +393,8 @@ const Prospects = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 2 : Raison sociale, département, secteur */}
-                    <div className="flex-shrink-0 w-48">
+                    {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
+                    <div className="flex-shrink-0 w-64">
                       <h3 className="text-sm font-semibold truncate">
                         {company.name}
                       </h3>
@@ -405,6 +405,38 @@ const Prospects = () => {
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Briefcase className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate">{company.sector}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-1">
+                          {getHeadcountIcon(company.headcount)}
+                          <span className="text-xs font-medium">{company.headcount}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {getRevenueIcon(company.ca)}
+                          <span className="text-xs font-medium">{(company.ca / 1000000).toFixed(1)}M€</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <a 
+                          href={company.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Globe className="h-3 w-3" />
+                          Site
+                        </a>
+                        <a 
+                          href={company.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Linkedin className="h-3 w-3" />
+                          LinkedIn
+                        </a>
                       </div>
                     </div>
 
