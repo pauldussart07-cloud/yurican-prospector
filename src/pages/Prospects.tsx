@@ -19,7 +19,6 @@ import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
 import { KanbanView } from '@/components/KanbanView';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -561,6 +560,11 @@ const Prospects = () => {
     setContacts(contacts.map(c => 
       c.id === contactId ? { ...c, status: newStatus } : c
     ));
+
+    // Mise à jour du contact sélectionné si c'est celui qu'on modifie
+    if (selectedContact?.id === contactId) {
+      setSelectedContact({ ...selectedContact, status: newStatus });
+    }
 
     toast({
       title: 'Statut mis à jour',
@@ -1784,30 +1788,30 @@ const Prospects = () => {
                       {/* Statut du contact */}
                       <div className="mb-4">
                         <Label className="text-xs font-medium mb-2 block">Statut</Label>
-                        <RadioGroup
+                        <Select
                           value={selectedContact?.status || 'Nouveau'}
                           onValueChange={(value) => {
                             if (selectedContact) {
                               handleStatusChange(selectedContact.id, value as ContactStatus);
                             }
                           }}
-                          className="space-y-2"
                         >
-                          {STATUS_HIERARCHY.map((status) => (
-                            <div key={status} className="flex items-center space-x-2">
-                              <RadioGroupItem value={status} id={`status-${status}`} />
-                              <Label 
-                                htmlFor={`status-${status}`} 
-                                className="text-xs cursor-pointer flex-1 font-normal"
-                              >
-                                {status}
-                              </Label>
-                              <Badge variant={getStatusBadgeVariant(status)} className="text-xs">
-                                {status}
-                              </Badge>
-                            </div>
-                          ))}
-                        </RadioGroup>
+                          <SelectTrigger className="w-full h-9 text-xs bg-background">
+                            <SelectValue placeholder="Sélectionner un statut" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover z-50">
+                            {STATUS_HIERARCHY.map((status) => (
+                              <SelectItem key={status} value={status} className="text-xs">
+                                <div className="flex items-center justify-between w-full gap-2">
+                                  <span>{status}</span>
+                                  <Badge variant={getStatusBadgeVariant(status)} className="text-xs">
+                                    {status}
+                                  </Badge>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="border-t pt-3">
