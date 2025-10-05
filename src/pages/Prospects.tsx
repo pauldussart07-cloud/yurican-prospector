@@ -369,7 +369,7 @@ const Prospects = () => {
       const leadsToExpand = new Set(
         filteredAndSortedLeads
           .filter(({ lead }) => {
-            const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+            const leadContacts = contacts.filter(c => c.companyId === lead.id);
             return leadContacts.length > 0;
           })
           .map(({ lead }) => lead.id)
@@ -429,8 +429,8 @@ const Prospects = () => {
   };
 
   // Calculer le statut du lead basé sur ses contacts
-  const getLeadStatus = (leadCompanyId: string): ContactStatus => {
-    const leadContacts = contacts.filter(c => c.companyId === leadCompanyId);
+  const getLeadStatus = (leadId: string): ContactStatus => {
+    const leadContacts = contacts.filter(c => c.companyId === leadId);
     if (leadContacts.length === 0) return 'Nouveau';
     
     const statuses = leadContacts.map(c => (c as any).status || 'Nouveau' as ContactStatus);
@@ -708,7 +708,7 @@ const Prospects = () => {
         </div>
 
         {paginatedLeads.map(({ lead, company }) => {
-          const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+          const leadContacts = contacts.filter(c => c.companyId === lead.id);
           const isExpanded = expandedLeads.has(lead.id);
 
           if (!company) return null;
