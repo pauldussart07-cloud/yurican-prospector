@@ -693,7 +693,7 @@ const Prospects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/40 to-orange-50/30">
+    <div className="min-h-screen" style={{ backgroundColor: 'hsl(40 25% 95%)' }}>
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
