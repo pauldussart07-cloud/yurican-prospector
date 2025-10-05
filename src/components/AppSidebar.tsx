@@ -14,7 +14,7 @@ import {
 
 const navItems = [
   { title: 'Board', url: '/', icon: Home },
-  { title: 'Companies', url: '/companies', icon: Building2 },
+  { title: 'Entreprises', url: '/companies', icon: Building2 },
   { title: 'Leads', url: '/leads', icon: Users },
   { title: 'Ciblage', url: '/targeting', icon: Target },
   { title: 'Set-up', url: '/setup', icon: Settings },
