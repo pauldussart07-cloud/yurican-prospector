@@ -542,30 +542,33 @@ const Prospects = () => {
                               
                               {/* Note et date de suivi */}
                               <div className="flex-1 flex flex-col gap-1 px-4">
-                                {(contact as any).note && (
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
-                                      {(contact as any).note}
-                                    </p>
-                                    {(contact as any).note.length > 50 && (
-                                      <Button
-                                        variant="link"
-                                        size="sm"
-                                        className="h-auto p-0 text-xs"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleContactClick(contact);
-                                        }}
-                                      >
-                                        Afficher plus
-                                      </Button>
-                                    )}
-                                  </div>
-                                )}
                                 {(contact as any).followUpDate && (
                                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                     <Calendar className="h-3 w-3" />
                                     <span>Suivi: {new Date((contact as any).followUpDate).toLocaleDateString('fr-FR')}</span>
+                                  </div>
+                                )}
+                                {(contact as any).note && (
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-xs font-medium text-muted-foreground">Note :</span>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
+                                        {(contact as any).note}
+                                      </p>
+                                      {(contact as any).note.length > 50 && (
+                                        <Button
+                                          variant="link"
+                                          size="sm"
+                                          className="h-auto p-0 text-xs"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleContactClick(contact);
+                                          }}
+                                        >
+                                          Afficher plus
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
