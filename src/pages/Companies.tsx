@@ -370,7 +370,8 @@ const Companies = () => {
             return (
               <Card 
                 key={company.id} 
-                className="hover:shadow-md transition-shadow"
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleCompanyClick(company)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
@@ -382,42 +383,43 @@ const Companies = () => {
                       />
                     </div>
 
-                    {/* Partie gauche floutée - réduite */}
-                    <div className="w-80 flex items-center gap-3 blur-sm select-none pointer-events-none">
-                      {/* Logo entreprise */}
-                      <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      </div>
-
-                      {/* Info compacte */}
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-xs font-semibold truncate">
-                          {company.name}
-                        </h3>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{company.department}</span>
-                        </div>
+                    {/* Bloc 1 : Logo entreprise */}
+                    <div className="flex-shrink-0">
+                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-muted-foreground" />
                       </div>
                     </div>
 
-                    {/* Informations du signal (non flouté) */}
-                    <div className="flex-1 min-w-0 px-4 space-y-3">
+                    {/* Bloc 2 : Raison sociale, département, secteur */}
+                    <div className="flex-shrink-0 w-48">
+                      <h3 className="text-sm font-semibold truncate hover:text-primary">
+                        {company.name}
+                      </h3>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{company.department}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Briefcase className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{company.sector}</span>
+                      </div>
+                    </div>
+
+                    {/* Bloc 3 : Signal détecté (remplace le résumé) */}
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-2">
                         <FileText className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-semibold mb-1">Signal détecté</h4>
                           
-                          <div className="space-y-2 mb-2">
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="flex items-center gap-1.5">
                               <span className="text-xs font-medium text-muted-foreground">Famille :</span>
                               <Badge variant="secondary" className="text-xs">
                                 Appel d'offre
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5">
                               <span className="text-xs font-medium text-muted-foreground">Secteur :</span>
                               <Badge variant="outline" className="text-xs">
                                 {company.sector}
@@ -432,7 +434,39 @@ const Companies = () => {
                       </div>
                     </div>
 
-                    {/* Bouton Révéler */}
+                    {/* Bloc 4 : CA et Effectif */}
+                    <div className="flex-shrink-0 w-32">
+                      <div className="flex items-center gap-2 mb-1">
+                        {getRevenueIcon(company.ca)}
+                        <span className="text-xs font-medium">
+                          {(company.ca / 1000000).toFixed(1)}M€
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getHeadcountIcon(company.headcount)}
+                        <span className="text-xs font-medium">
+                          {company.headcount} emp.
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bloc 5 : Liens */}
+                    <div className="flex-shrink-0 flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="text-xs">Site web</span>
+                        </a>
+                      </Button>
+                      <Button size="sm" variant="ghost" asChild className="h-7 justify-start">
+                        <a href={company.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
+                          <Linkedin className="h-3 w-3" />
+                          <span className="text-xs">LinkedIn</span>
+                        </a>
+                      </Button>
+                    </div>
+
+                    {/* Bloc 6 : Bouton Révéler l'entreprise */}
                     <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Button 
                         size="sm" 
