@@ -76,7 +76,7 @@ const Targeting = () => {
   // Targeting form state
   const [name, setName] = useState('');
   const [locationType, setLocationType] = useState<'france' | 'region' | 'department'>('france');
-  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [minHeadcount, setMinHeadcount] = useState('');
@@ -154,8 +154,12 @@ const Targeting = () => {
     let departmentsToSave: string[] = [];
     if (locationType === 'france') {
       departmentsToSave = [];
-    } else if (locationType === 'region' && selectedRegion) {
-      departmentsToSave = REGIONS[selectedRegion as keyof typeof REGIONS] || [];
+    } else if (locationType === 'region' && selectedRegions.length > 0) {
+      // Combiner les départements de toutes les régions sélectionnées
+      const allDepts = selectedRegions.flatMap(region => 
+        REGIONS[region as keyof typeof REGIONS] || []
+      );
+      departmentsToSave = [...new Set(allDepts)]; // Supprimer les doublons
     } else if (locationType === 'department') {
       departmentsToSave = selectedDepartments;
     }
@@ -231,7 +235,7 @@ const Targeting = () => {
   const resetTargetingForm = () => {
     setName('');
     setLocationType('france');
-    setSelectedRegion('');
+    setSelectedRegions([]);
     setSelectedDepartments([]);
     setSelectedSectors([]);
     setMinHeadcount('');
@@ -375,7 +379,7 @@ const Targeting = () => {
                   <Label>Localisation</Label>
                   <Select value={locationType} onValueChange={(value: any) => {
                     setLocationType(value);
-                    setSelectedRegion('');
+                    setSelectedRegions([]);
                     setSelectedDepartments([]);
                   }}>
                     <SelectTrigger className="bg-background">
@@ -389,16 +393,27 @@ const Targeting = () => {
                   </Select>
 
                   {locationType === 'region' && (
-                    <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Sélectionnez une région" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background z-50">
+                    <div className="space-y-2">
+                      <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
                         {Object.keys(REGIONS).filter(r => r !== 'France entière').map((region) => (
-                          <SelectItem key={region} value={region}>{region}</SelectItem>
+                          <label key={region} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedRegions.includes(region)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedRegions([...selectedRegions, region]);
+                                } else {
+                                  setSelectedRegions(selectedRegions.filter(r => r !== region));
+                                }
+                              }}
+                              className="rounded"
+                            />
+                            <span className="text-sm">{region}</span>
+                          </label>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </div>
+                    </div>
                   )}
 
                   {locationType === 'department' && (
