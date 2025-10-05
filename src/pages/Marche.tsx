@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { GenerateCompaniesButton } from '@/components/GenerateCompaniesButton';
 import { Building2, ExternalLink, Linkedin, FileText, ThumbsUp, ThumbsDown, Users, TrendingUp, MapPin, Contact, DollarSign, Briefcase, ArrowUp, ArrowDown, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -479,8 +480,11 @@ const Marche = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Marché</h1>
-        <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold">Marché</h1>
+          <GenerateCompaniesButton />
+        </div>
+        <Badge variant="outline" className="text-sm bg-white border-border flex items-center">
           Votre Ciblage représente {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
         </Badge>
       </div>
