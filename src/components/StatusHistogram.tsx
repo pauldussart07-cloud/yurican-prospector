@@ -16,17 +16,21 @@ export function StatusHistogram({ data, onStatusClick }: StatusHistogramProps) {
         <CardTitle className="text-base">Statuts</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={data}>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 30 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
             <XAxis 
               dataKey="status" 
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
-              fontSize={12}
+              fontSize={11}
+              angle={-20}
+              textAnchor="end"
+              height={60}
             />
             <YAxis 
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
-              fontSize={12}
+              fontSize={11}
+              width={40}
             />
             <Tooltip 
               contentStyle={{ 
