@@ -56,6 +56,7 @@ const Companies = () => {
   const [selectedCompanies, setSelectedCompanies] = useState<Set<string>>(new Set());
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
+  const [discoveredCompanies, setDiscoveredCompanies] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -76,6 +77,11 @@ const Companies = () => {
   }, []);
 
   const handleCompanyClick = async (company: Company) => {
+    // En mode signal, vérifier si l'entreprise a été découverte
+    if (viewMode === 'signal' && !discoveredCompanies.has(company.id)) {
+      return;
+    }
+    
     setSelectedCompany(company);
     setSummary('');
     setLoadingSummary(true);
@@ -89,6 +95,13 @@ const Companies = () => {
     } finally {
       setLoadingSummary(false);
     }
+  };
+
+  const handleDiscover = async (company: Company) => {
+    // Marquer comme découverte
+    setDiscoveredCompanies(prev => new Set(prev).add(company.id));
+    // Ouvrir la fiche
+    await handleCompanyClick(company);
   };
 
   const handleGo = (company: Company) => {
@@ -367,11 +380,12 @@ const Companies = () => {
           };
 
           if (viewMode === 'signal') {
+            const isDiscovered = discoveredCompanies.has(company.id);
             return (
               <Card 
                 key={company.id} 
-                className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => handleCompanyClick(company)}
+                className={isDiscovered ? "hover:shadow-md transition-shadow cursor-pointer" : "transition-shadow"}
+                onClick={isDiscovered ? () => handleCompanyClick(company) : undefined}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
@@ -475,7 +489,7 @@ const Companies = () => {
                     <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Button 
                         size="sm" 
-                        onClick={() => handleCompanyClick(company)}
+                        onClick={() => handleDiscover(company)}
                         className="gap-2"
                       >
                         <Building2 className="h-4 w-4" />
