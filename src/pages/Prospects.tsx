@@ -71,10 +71,8 @@ import {
 
 const Prospects = () => {
   const { toast } = useToast();
-  const [leads] = useState<Lead[]>(mockLeads);
-  const [contacts, setContacts] = useState<Contact[]>(
-    mockContacts.map(c => ({ ...c, status: 'Nouveau' as ContactStatus }))
-  );
+  const [leads, setLeads] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [generatingContacts, setGeneratingContacts] = useState(false);
@@ -87,6 +85,7 @@ const Prospects = () => {
   const [discoveredContacts, setDiscoveredContacts] = useState<Set<string>>(new Set());
   const [showDiscoverDialog, setShowDiscoverDialog] = useState(false);
   const [contactToDiscover, setContactToDiscover] = useState<{ id: string; type: 'phone' | 'email' } | null>(null);
+  const [loadingLeads, setLoadingLeads] = useState(true);
   
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
@@ -103,6 +102,76 @@ const Prospects = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
+
+  // Charger les leads depuis Supabase
+  useEffect(() => {
+    const loadLeads = async () => {
+      setLoadingLeads(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoadingLeads(false);
+        return;
+      }
+
+      const { data: leadsData, error: leadsError } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (leadsError) {
+        console.error('Error loading leads:', leadsError);
+        setLoadingLeads(false);
+        return;
+      }
+
+      // Charger les contacts associés
+      const { data: contactsData, error: contactsError } = await supabase
+        .from('lead_contacts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (contactsError) {
+        console.error('Error loading contacts:', contactsError);
+      }
+
+      // Transformer les leads pour correspondre au format attendu
+      const transformedLeads = (leadsData || []).map(lead => ({
+        id: lead.id,
+        companyId: lead.company_id,
+        status: lead.status,
+        contactsCount: (contactsData || []).filter(c => c.lead_id === lead.id).length,
+        createdAt: new Date(lead.created_at),
+        updatedAt: new Date(lead.updated_at),
+        isHotSignal: lead.is_hot_signal,
+        signalSummary: lead.signal_summary,
+      }));
+
+      // Transformer les contacts
+      const transformedContacts = (contactsData || []).map(contact => ({
+        id: contact.id,
+        companyId: contact.lead_id,
+        fullName: contact.full_name,
+        role: contact.role,
+        email: contact.email || '',
+        phone: contact.phone || '',
+        linkedin: contact.linkedin || '',
+        status: contact.status as ContactStatus,
+        note: contact.note || '',
+        followUpDate: contact.follow_up_date || '',
+        seniority: 'Senior',
+        domain: 'General',
+        source: 'Manual',
+        createdAt: new Date(contact.created_at),
+      }));
+
+      setLeads(transformedLeads);
+      setContacts(transformedContacts);
+      setLoadingLeads(false);
+    };
+
+    loadLeads();
+  }, []);
 
 
   const handleGenerateContacts = async () => {
@@ -223,11 +292,25 @@ const Prospects = () => {
     }
 
     const leadsWithCompanies = filtered
-      .map(lead => ({
-        lead,
-        company: mockCompanies.find(c => c.id === lead.companyId)
-      }))
-      .filter(item => item.company);
+      .map(lead => {
+        // Récupérer l'entreprise complète depuis mockCompanies ou utiliser un objet par défaut
+        const company = mockCompanies.find(c => c.id === lead.companyId) || {
+          id: lead.companyId,
+          name: 'Entreprise inconnue',
+          sector: '',
+          department: '',
+          ca: 0,
+          headcount: 0,
+          website: '',
+          linkedin: '',
+          address: '',
+          siret: '',
+          naf: '',
+          revenue: 0,
+          isHidden: false,
+        };
+        return { lead, company };
+      });
 
     // Filtrer par recherche sémantique
     let searchFiltered = leadsWithCompanies;
@@ -238,7 +321,7 @@ const Prospects = () => {
         if (company?.name.toLowerCase().includes(query)) return true;
         
         // Recherche dans les contacts associés
-        const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
+        const leadContacts = contacts.filter(c => c.companyId === lead.id);
         return leadContacts.some(contact => {
           const fullName = contact.fullName.toLowerCase();
           const [firstName, ...lastNameParts] = fullName.split(' ');

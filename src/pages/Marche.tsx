@@ -183,28 +183,63 @@ const Marche = () => {
     }
   };
 
-  const handleGo = (company: Company) => {
-    // Créer ou mettre à jour un lead
-    const existingLead = leads.find(l => l.companyId === company.id);
-    
-    if (!existingLead) {
-      const newLead: Lead = {
-        id: `l-${Date.now()}`,
-        companyId: company.id,
-        status: 'New',
-        contactsCount: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      setLeads([...leads, newLead]);
+  const handleGo = async (company: Company) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Erreur',
+          description: 'Vous devez être connecté pour ajouter un lead.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Créer ou mettre à jour un lead dans Supabase
+      const { error } = await supabase
+        .from('leads')
+        .upsert({
+          user_id: user.id,
+          company_id: company.id,
+          company_name: company.name,
+          company_sector: company.sector,
+          company_department: company.department,
+          company_ca: company.ca,
+          company_headcount: company.headcount,
+          company_website: company.website,
+          company_linkedin: company.linkedin,
+          company_address: company.address,
+          company_siret: company.siret,
+          company_naf: company.naf,
+          status: 'Nouveau',
+        }, {
+          onConflict: 'user_id,company_id'
+        });
+
+      if (error) {
+        console.error('Error saving lead:', error);
+        toast({
+          title: 'Erreur',
+          description: 'Impossible d\'ajouter le lead.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      toast({
+        title: 'Entreprise ajoutée',
+        description: `${company.name} a été ajouté à vos prospects.`,
+      });
+      
+      setSelectedCompany(null);
+    } catch (error) {
+      console.error('Error in handleGo:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue.',
+        variant: 'destructive',
+      });
     }
-    
-    toast({
-      title: 'Entreprise ajoutée aux leads',
-      description: `${company.name} a été ajouté à votre pipeline.`,
-    });
-    
-    setSelectedCompany(null);
   };
 
   const handleNoGo = (company: Company) => {

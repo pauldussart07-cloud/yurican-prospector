@@ -14,6 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
+      lead_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          follow_up_date: string | null
+          full_name: string
+          id: string
+          is_email_discovered: boolean | null
+          is_phone_discovered: boolean | null
+          lead_id: string
+          linkedin: string | null
+          note: string | null
+          phone: string | null
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          follow_up_date?: string | null
+          full_name: string
+          id?: string
+          is_email_discovered?: boolean | null
+          is_phone_discovered?: boolean | null
+          lead_id: string
+          linkedin?: string | null
+          note?: string | null
+          phone?: string | null
+          role: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          follow_up_date?: string | null
+          full_name?: string
+          id?: string
+          is_email_discovered?: boolean | null
+          is_phone_discovered?: boolean | null
+          lead_id?: string
+          linkedin?: string | null
+          note?: string | null
+          phone?: string | null
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_contacts_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          company_address: string | null
+          company_ca: number | null
+          company_department: string | null
+          company_headcount: number | null
+          company_id: string
+          company_linkedin: string | null
+          company_naf: string | null
+          company_name: string
+          company_sector: string | null
+          company_siret: string | null
+          company_website: string | null
+          created_at: string
+          id: string
+          is_hot_signal: boolean | null
+          signal_summary: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_address?: string | null
+          company_ca?: number | null
+          company_department?: string | null
+          company_headcount?: number | null
+          company_id: string
+          company_linkedin?: string | null
+          company_naf?: string | null
+          company_name: string
+          company_sector?: string | null
+          company_siret?: string | null
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          is_hot_signal?: boolean | null
+          signal_summary?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_address?: string | null
+          company_ca?: number | null
+          company_department?: string | null
+          company_headcount?: number | null
+          company_id?: string
+          company_linkedin?: string | null
+          company_naf?: string | null
+          company_name?: string
+          company_sector?: string | null
+          company_siret?: string | null
+          company_website?: string | null
+          created_at?: string
+          id?: string
+          is_hot_signal?: boolean | null
+          signal_summary?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       personas: {
         Row: {
           created_at: string | null
