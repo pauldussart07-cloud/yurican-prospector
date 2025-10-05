@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,10 +8,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useToast } from '@/hooks/use-toast';
 import { mockLeads, mockCompanies, mockContacts, Lead, Contact } from '@/lib/mockData';
 import { contactsService, PersonaType } from '@/services/contactsService';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Leads = () => {
   const { toast } = useToast();
@@ -24,6 +39,14 @@ const Leads = () => {
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<PersonaType[]>([]);
   const [contactCount, setContactCount] = useState(3);
+
+  // Pagination et filtres
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
+  const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department' | 'status'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
 
   const handleGenerateContacts = async () => {
@@ -102,19 +125,190 @@ const Leads = () => {
     return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
   };
 
+  // Filtrer et trier les leads
+  const sortedLeads = useMemo(() => {
+    const leadsWithCompanies = leads
+      .map(lead => ({
+        lead,
+        company: mockCompanies.find(c => c.id === lead.companyId)
+      }))
+      .filter(item => item.company);
+
+    return leadsWithCompanies.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortCriteria) {
+        case 'name':
+          comparison = (a.company?.name || '').localeCompare(b.company?.name || '');
+          break;
+        case 'sector':
+          comparison = (a.company?.sector || '').localeCompare(b.company?.sector || '');
+          break;
+        case 'revenue':
+          comparison = (a.company?.ca || 0) - (b.company?.ca || 0);
+          break;
+        case 'headcount':
+          comparison = (a.company?.headcount || 0) - (b.company?.headcount || 0);
+          break;
+        case 'department':
+          comparison = (a.company?.department || '').localeCompare(b.company?.department || '');
+          break;
+        case 'status':
+          comparison = a.lead.status.localeCompare(b.lead.status);
+          break;
+      }
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [leads, sortCriteria, sortDirection]);
+
+  // Pagination
+  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedLeads = sortedLeads.slice(startIndex, endIndex);
+
+  const handleSelectAll = () => {
+    if (selectedLeads.size === paginatedLeads.length) {
+      setSelectedLeads(new Set());
+    } else {
+      setSelectedLeads(new Set(paginatedLeads.map(item => item.lead.id)));
+    }
+  };
+
+  const handleSelectLead = (leadId: string) => {
+    const newSelected = new Set(selectedLeads);
+    if (newSelected.has(leadId)) {
+      newSelected.delete(leadId);
+    } else {
+      newSelected.add(leadId);
+    }
+    setSelectedLeads(newSelected);
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Leads</h1>
-        <div className="text-sm text-muted-foreground">
-          {leads.length} lead{leads.length > 1 ? 's' : ''}
-        </div>
+        <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
+          {sortedLeads.length} lead{sortedLeads.length > 1 ? 's' : ''}
+        </Badge>
       </div>
 
       {/* Liste des leads */}
       <div className="space-y-3">
-        {leads.map((lead) => {
-          const company = mockCompanies.find(c => c.id === lead.companyId);
+        {/* Header avec checkbox select all et actions */}
+        <div className="flex items-center justify-between px-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={selectedLeads.size === paginatedLeads.length && paginatedLeads.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-muted-foreground">
+                Tout sélectionner
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-3 border-l pl-4">
+              <Label htmlFor="view-mode-leads" className="text-sm font-medium">
+                Ciblage
+              </Label>
+              <Switch
+                id="view-mode-leads"
+                checked={viewMode === 'signal'}
+                onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
+              />
+              <Label htmlFor="view-mode-leads" className="text-sm font-medium">
+                Signal
+              </Label>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {selectedLeads.size > 0 ? (
+              <>
+                <span className="font-medium text-sm">
+                  {selectedLeads.size} lead{selectedLeads.size > 1 ? 's' : ''} sélectionné{selectedLeads.size > 1 ? 's' : ''}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedLeads(new Set())}
+                >
+                  Annuler
+                </Button>
+              </>
+            ) : (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Trier par {sortCriteria === 'name' && 'Nom'}
+                      {sortCriteria === 'sector' && 'Secteur'}
+                      {sortCriteria === 'revenue' && 'CA'}
+                      {sortCriteria === 'headcount' && 'Effectif'}
+                      {sortCriteria === 'department' && 'Département'}
+                      {sortCriteria === 'status' && 'Statut'}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-background">
+                    <DropdownMenuItem onClick={() => setSortCriteria('name')}>
+                      Nom de l'entreprise
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('sector')}>
+                      Secteur d'activité
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('revenue')}>
+                      Chiffre d'affaires
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('headcount')}>
+                      Effectif
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('department')}>
+                      Département
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('status')}>
+                      Statut
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Afficher {itemsPerPage}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-background">
+                    <DropdownMenuItem onClick={() => setItemsPerPage(10)}>
+                      10
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setItemsPerPage(25)}>
+                      25
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setItemsPerPage(50)}>
+                      50
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setItemsPerPage(100)}>
+                      100
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
+        </div>
+
+        {paginatedLeads.map(({ lead, company }) => {
           const leadContacts = contacts.filter(c => c.companyId === lead.companyId);
 
           if (!company) return null;
@@ -246,6 +440,52 @@ const Leads = () => {
             </Card>
           );
         })}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination className="mt-6">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(pageNum)}
+                      isActive={currentPage === pageNum}
+                      className="cursor-pointer"
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
 
       {/* Dialog pour sélectionner les personas */}
