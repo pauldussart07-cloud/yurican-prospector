@@ -1207,7 +1207,21 @@ const Prospects = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <Phone className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs blur-sm select-none">{selectedContact.phone}</span>
+                            {isContactInfoDiscovered(selectedContact.id, 'phone') ? (
+                              <span className="text-xs">{selectedContact.phone}</span>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs blur-sm select-none">{selectedContact.phone}</span>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="h-auto p-0 text-xs"
+                                  onClick={() => handleDiscoverRequest(selectedContact.id, 'phone')}
+                                >
+                                  Découvrir
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
