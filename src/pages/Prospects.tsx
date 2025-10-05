@@ -543,26 +543,12 @@ const Prospects = () => {
                                 <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
                                   <div className="flex items-center gap-2">
                                     <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                    {isContactInfoDiscovered(contact.id, 'email') ? (
-                                      <a 
-                                        href={`mailto:${contact.email}`}
-                                        className="text-xs text-primary hover:underline"
-                                      >
-                                        {contact.email}
-                                      </a>
-                                    ) : (
-                                      <>
-                                        <span className="text-xs blur-sm select-none">{contact.email}</span>
-                                        <Button
-                                          variant="link"
-                                          size="sm"
-                                          className="h-auto p-0 text-xs"
-                                          onClick={() => handleDiscoverRequest(contact.id, 'email')}
-                                        >
-                                          Découvrir
-                                        </Button>
-                                      </>
-                                    )}
+                                    <a 
+                                      href={`mailto:${contact.email}`}
+                                      className="text-xs text-primary hover:underline"
+                                    >
+                                      {contact.email}
+                                    </a>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
