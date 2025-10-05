@@ -605,7 +605,7 @@ const Marche = () => {
           return (
             <Card 
               key={company.id} 
-              className="hover:shadow-md transition-shadow cursor-pointer"
+              className="hover:shadow-md transition-all duration-200 hover:scale-105 cursor-pointer"
               onClick={() => handleCompanyClick(company)}
             >
               <CardContent className="p-4">

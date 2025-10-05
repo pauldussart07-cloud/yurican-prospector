@@ -567,7 +567,7 @@ const Prospects = () => {
           // En mode signal, affichage différent
           if (viewMode === 'signal') {
             return (
-              <Card key={lead.id} className="hover:shadow-md transition-shadow">
+              <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
                     {/* Checkbox */}
@@ -815,7 +815,7 @@ const Prospects = () => {
 
           // Mode ciblage avec la même structure que signal mais avec synthèse entreprise
           return (
-            <Card key={lead.id} className="hover:shadow-md transition-shadow">
+            <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
