@@ -336,7 +336,11 @@ const Companies = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      Trier par
+                      {sortCriteria === 'name' && 'Nom de l\'entreprise'}
+                      {sortCriteria === 'sector' && 'Secteur d\'activité'}
+                      {sortCriteria === 'revenue' && 'Chiffre d\'affaires'}
+                      {sortCriteria === 'headcount' && 'Effectif'}
+                      {sortCriteria === 'department' && 'Département'}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-background">
@@ -358,15 +362,13 @@ const Companies = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Select value={sortDirection} onValueChange={(v) => setSortDirection(v as 'asc' | 'desc')}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="asc">Croissant</SelectItem>
-                    <SelectItem value="desc">Décroissant</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortDirection === 'asc' ? 'Croissant' : 'Décroissant'}
+                </Button>
 
                 <Button
                   variant={hideNoGo ? 'default' : 'outline'}
