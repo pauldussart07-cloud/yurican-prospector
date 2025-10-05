@@ -1357,45 +1357,48 @@ const Prospects = () => {
                               )}
                             </div>
 
-                            {/* Statut */}
-                            <Select 
-                              value={(contact as any).status || 'Nouveau'} 
-                              onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
-                            >
-                              <SelectTrigger className="w-36">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                <SelectItem value="Engagé">Engagé</SelectItem>
-                                <SelectItem value="Discussion">Discussion</SelectItem>
-                                <SelectItem value="RDV">RDV</SelectItem>
-                                <SelectItem value="Exclu">Exclu</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            {/* Statut et Action */}
+                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              {/* Statut */}
+                              <Select 
+                                value={(contact as any).status || 'Nouveau'} 
+                                onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
+                              >
+                                <SelectTrigger className="w-36">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Nouveau">Nouveau</SelectItem>
+                                  <SelectItem value="Engagé">Engagé</SelectItem>
+                                  <SelectItem value="Discussion">Discussion</SelectItem>
+                                  <SelectItem value="RDV">RDV</SelectItem>
+                                  <SelectItem value="Exclu">Exclu</SelectItem>
+                                </SelectContent>
+                              </Select>
 
-                            {/* Action */}
-                            <Select 
-                              value="" 
-                              onValueChange={(value) => {
-                                toast({
-                                  title: "Action sélectionnée",
-                                  description: `${getActionName(Number(value))} pour ${contact.fullName}`,
-                                });
-                              }}
-                            >
-                              <SelectTrigger className="w-36">
-                                <SelectValue placeholder="Action" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="1">{getActionName(1)}</SelectItem>
-                                <SelectItem value="2">{getActionName(2)}</SelectItem>
-                                <SelectItem value="3">{getActionName(3)}</SelectItem>
-                                <SelectItem value="4">{getActionName(4)}</SelectItem>
-                                <SelectItem value="5">{getActionName(5)}</SelectItem>
-                                <SelectItem value="6">{getActionName(6)}</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              {/* Action */}
+                              <Select 
+                                value="" 
+                                onValueChange={(value) => {
+                                  toast({
+                                    title: "Action sélectionnée",
+                                    description: `${getActionName(Number(value))} pour ${contact.fullName}`,
+                                  });
+                                }}
+                              >
+                                <SelectTrigger className="w-36">
+                                  <SelectValue placeholder="Action" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">{getActionName(1)}</SelectItem>
+                                  <SelectItem value="2">{getActionName(2)}</SelectItem>
+                                  <SelectItem value="3">{getActionName(3)}</SelectItem>
+                                  <SelectItem value="4">{getActionName(4)}</SelectItem>
+                                  <SelectItem value="5">{getActionName(5)}</SelectItem>
+                                  <SelectItem value="6">{getActionName(6)}</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                         </Card>
                       ))}
