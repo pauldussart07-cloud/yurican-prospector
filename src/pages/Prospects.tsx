@@ -481,6 +481,25 @@ const Prospects = () => {
                                 >
                                   <Mail className="h-4 w-4" />
                                 </Button>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      className="h-8"
+                                    >
+                                      Action
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent className="bg-background" align="end">
+                                    <DropdownMenuItem>Action 1</DropdownMenuItem>
+                                    <DropdownMenuItem>Action 2</DropdownMenuItem>
+                                    <DropdownMenuItem>Action 3</DropdownMenuItem>
+                                    <DropdownMenuItem>Action 4</DropdownMenuItem>
+                                    <DropdownMenuItem>Action 5</DropdownMenuItem>
+                                    <DropdownMenuItem>Action 6</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
                               </div>
                             </div>
                           </Card>
