@@ -71,7 +71,10 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
                     key={contact.id}
                     variant="ghost"
                     className="w-full justify-start text-left h-auto py-1 px-2 hover:bg-accent"
-                    onClick={() => onContactClick(contact)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onContactClick(contact);
+                    }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1 mb-0.5">
