@@ -47,7 +47,7 @@ const Companies = () => {
   
   // Filtres
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | 'headcount-asc' | 'headcount-desc' | 'revenue-asc' | 'revenue-desc'>('asc');
   const [hideNoGo, setHideNoGo] = useState(true);
 
   // Pagination et sélection
@@ -173,9 +173,18 @@ const Companies = () => {
     return filtered.sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.name.localeCompare(b.name);
-      } else {
+      } else if (sortOrder === 'desc') {
         return b.name.localeCompare(a.name);
+      } else if (sortOrder === 'headcount-asc') {
+        return a.headcount - b.headcount;
+      } else if (sortOrder === 'headcount-desc') {
+        return b.headcount - a.headcount;
+      } else if (sortOrder === 'revenue-asc') {
+        return a.ca - b.ca;
+      } else if (sortOrder === 'revenue-desc') {
+        return b.ca - a.ca;
       }
+      return 0;
     });
   }, [companies, hideNoGo, activeTargeting, departmentFilter, sortOrder]);
 
@@ -239,13 +248,17 @@ const Companies = () => {
               </SelectContent>
             </Select>
 
-            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as 'asc' | 'desc')}>
-              <SelectTrigger className="w-32">
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as any)}>
+              <SelectTrigger className="w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="asc">A → Z</SelectItem>
                 <SelectItem value="desc">Z → A</SelectItem>
+                <SelectItem value="headcount-asc">Effectif croissant</SelectItem>
+                <SelectItem value="headcount-desc">Effectif décroissant</SelectItem>
+                <SelectItem value="revenue-asc">CA croissant</SelectItem>
+                <SelectItem value="revenue-desc">CA décroissant</SelectItem>
               </SelectContent>
             </Select>
 
@@ -369,90 +382,65 @@ const Companies = () => {
                       />
                     </div>
 
-                    {/* Partie gauche floutée */}
-                    <div className="flex-1 flex items-center gap-4 blur-sm select-none pointer-events-none">
+                    {/* Partie gauche floutée - réduite */}
+                    <div className="w-80 flex items-center gap-3 blur-sm select-none pointer-events-none">
                       {/* Logo entreprise */}
                       <div className="flex-shrink-0">
-                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                          <Building2 className="h-6 w-6 text-muted-foreground" />
+                        <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                          <Building2 className="h-5 w-5 text-muted-foreground" />
                         </div>
                       </div>
 
-                      {/* Raison sociale, département, secteur */}
-                      <div className="flex-shrink-0 w-48">
-                        <h3 className="text-sm font-semibold truncate">
+                      {/* Info compacte */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs font-semibold truncate">
                           {company.name}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <MapPin className="h-3 w-3 flex-shrink-0" />
                           <span className="truncate">{company.department}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Briefcase className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{company.sector}</span>
-                        </div>
-                      </div>
-
-                      {/* CA et Effectif */}
-                      <div className="flex-shrink-0 w-32">
-                        <div className="flex items-center gap-2 mb-1">
-                          {getRevenueIcon(company.ca)}
-                          <span className="text-xs font-medium">
-                            {(company.ca / 1000000).toFixed(1)}M€
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {getHeadcountIcon(company.headcount)}
-                          <span className="text-xs font-medium">
-                            {company.headcount} emp.
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Liens */}
-                      <div className="flex-shrink-0 flex flex-col gap-1">
-                        <Button size="sm" variant="ghost" className="h-7 justify-start">
-                          <ExternalLink className="h-3 w-3 mr-1.5" />
-                          <span className="text-xs">Site web</span>
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-7 justify-start">
-                          <Linkedin className="h-3 w-3 mr-1.5" />
-                          <span className="text-xs">LinkedIn</span>
-                        </Button>
                       </div>
                     </div>
 
-                    {/* Résumé du signal (non flouté) */}
-                    <div className="flex-1 min-w-0 px-4">
+                    {/* Informations du signal (non flouté) */}
+                    <div className="flex-1 min-w-0 px-4 space-y-3">
                       <div className="flex items-start gap-2">
                         <FileText className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-semibold mb-1">Signal détecté</h4>
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn. Opportunité à saisir rapidement.
+                          
+                          <div className="space-y-2 mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground">Famille :</span>
+                              <Badge variant="secondary" className="text-xs">
+                                Appel d'offre
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground">Secteur :</span>
+                              <Badge variant="outline" className="text-xs">
+                                {company.sector}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            Entreprise en forte croissance avec +25% de CA. Recherche active de solutions digitales. Projet de transformation numérique annoncé sur LinkedIn.
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Actions GO/NO GO */}
-                    <div className="flex flex-col gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                    {/* Bouton Révéler */}
+                    <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Button 
                         size="sm" 
-                        onClick={() => handleGo(company)}
-                        className="gap-1.5 bg-green-600 hover:bg-green-700"
+                        onClick={() => handleCompanyClick(company)}
+                        className="gap-2"
                       >
-                        <ThumbsUp className="h-3.5 w-3.5" />
-                        <span className="text-xs">GO</span>
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="destructive"
-                        onClick={() => handleNoGo(company)}
-                        className="gap-1.5"
-                      >
-                        <ThumbsDown className="h-3.5 w-3.5" />
-                        <span className="text-xs">NO GO</span>
+                        <Building2 className="h-4 w-4" />
+                        <span className="text-sm">Révéler l'entreprise</span>
                       </Button>
                     </div>
                   </div>
