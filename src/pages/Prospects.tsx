@@ -19,6 +19,7 @@ import { contactsService, PersonaType } from '@/services/contactsService';
 import { supabase } from '@/integrations/supabase/client';
 import { KanbanView } from '@/components/KanbanView';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -79,7 +80,7 @@ const Prospects = () => {
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [generatingContacts, setGeneratingContacts] = useState(false);
   const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [contactNote, setContactNote] = useState('');
@@ -1773,43 +1774,75 @@ const Prospects = () => {
                       </div>
                     </Card>
 
-                    {/* Bloc 4 : Actions */}
+                    {/* Bloc 4 : Actions et Statut */}
                     <Card className="p-4 bg-background">
                       <div className="flex items-center gap-2 mb-3">
                         <Target className="h-4 w-4 text-primary" />
-                        <h3 className="font-semibold text-sm">Actions</h3>
+                        <h3 className="font-semibold text-sm">Statut et Actions</h3>
                       </div>
-                      <Button 
-                        className="w-full mb-2 h-8 text-xs"
-                        onClick={() => setShowActions(!showActions)}
-                        variant="default"
-                      >
-                        <span className="flex-1">Call to Action</span>
-                        <ChevronDown className={`h-3 w-3 transition-transform ${showActions ? 'rotate-180' : ''}`} />
-                      </Button>
                       
-                      {showActions && (
-                        <div className="space-y-1.5">
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 1
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 2
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 3
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 4
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 5
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
-                            Action 6
-                          </Button>
-                        </div>
-                      )}
+                      {/* Statut du contact */}
+                      <div className="mb-4">
+                        <Label className="text-xs font-medium mb-2 block">Statut</Label>
+                        <RadioGroup
+                          value={selectedContact?.status || 'Nouveau'}
+                          onValueChange={(value) => {
+                            if (selectedContact) {
+                              handleStatusChange(selectedContact.id, value as ContactStatus);
+                            }
+                          }}
+                          className="space-y-2"
+                        >
+                          {STATUS_HIERARCHY.map((status) => (
+                            <div key={status} className="flex items-center space-x-2">
+                              <RadioGroupItem value={status} id={`status-${status}`} />
+                              <Label 
+                                htmlFor={`status-${status}`} 
+                                className="text-xs cursor-pointer flex-1 font-normal"
+                              >
+                                {status}
+                              </Label>
+                              <Badge variant={getStatusBadgeVariant(status)} className="text-xs">
+                                {status}
+                              </Badge>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+
+                      <div className="border-t pt-3">
+                        <Button 
+                          className="w-full mb-2 h-8 text-xs"
+                          onClick={() => setShowActions(!showActions)}
+                          variant="default"
+                        >
+                          <span className="flex-1">Call to Action</span>
+                          <ChevronDown className={`h-3 w-3 transition-transform ${showActions ? 'rotate-180' : ''}`} />
+                        </Button>
+                        
+                        {showActions && (
+                          <div className="space-y-1.5">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 1
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 2
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 3
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 4
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 5
+                            </Button>
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                              Action 6
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </Card>
                   </div>
 
