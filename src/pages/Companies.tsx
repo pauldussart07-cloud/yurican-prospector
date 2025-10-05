@@ -291,12 +291,10 @@ const Companies = () => {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold">Entreprises</h1>
-          <Badge variant="outline" className="text-sm bg-white border-border flex items-center">
-            Votre Ciblage représente {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
-          </Badge>
-        </div>
+        <h1 className="text-3xl font-bold">Entreprises</h1>
+        <Badge variant="outline" className="text-sm bg-white border-border flex items-center absolute left-1/2 transform -translate-x-1/2">
+          Votre Ciblage représente {filteredCompanies.length} entreprise{filteredCompanies.length > 1 ? 's' : ''}
+        </Badge>
       </div>
 
 
