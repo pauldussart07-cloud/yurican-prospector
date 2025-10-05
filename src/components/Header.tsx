@@ -27,11 +27,16 @@ const Header = () => {
   const { activeTargeting, setActiveTargeting, credits } = useTargeting();
   const [allTargetings, setAllTargetings] = useState<Targeting[]>([]);
   const [showAll, setShowAll] = useState(false);
+  const [loadingTargetings, setLoadingTargetings] = useState(true);
 
   useEffect(() => {
     const loadTargetings = async () => {
+      setLoadingTargetings(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoadingTargetings(false);
+        return;
+      }
 
       const { data } = await supabase
         .from('targetings')
@@ -42,6 +47,7 @@ const Header = () => {
       if (data) {
         setAllTargetings(data);
       }
+      setLoadingTargetings(false);
     };
 
     loadTargetings();
@@ -91,37 +97,59 @@ const Header = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
-            {displayedTargetings.map((targeting) => (
-              <DropdownMenuItem
-                key={targeting.id}
-                onClick={() => handleTargetingChange(targeting)}
-                className="cursor-pointer"
-              >
-                <Target className="h-4 w-4 mr-2" />
-                {targeting.name}
-                {targeting.is_active && (
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    Actif
-                  </Badge>
+            {loadingTargetings ? (
+              <DropdownMenuItem disabled>
+                Chargement...
+              </DropdownMenuItem>
+            ) : allTargetings.length === 0 ? (
+              <>
+                <DropdownMenuItem disabled className="text-muted-foreground text-sm">
+                  Aucun ciblage créé
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate('/targeting')}
+                  className="cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Créer votre premier ciblage
+                </DropdownMenuItem>
+              </>
+            ) : (
+              <>
+                {displayedTargetings.map((targeting) => (
+                  <DropdownMenuItem
+                    key={targeting.id}
+                    onClick={() => handleTargetingChange(targeting)}
+                    className="cursor-pointer"
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    {targeting.name}
+                    {targeting.is_active && (
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        Actif
+                      </Badge>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+                {!showAll && allTargetings.length > 3 && (
+                  <DropdownMenuItem
+                    onClick={() => setShowAll(true)}
+                    className="cursor-pointer"
+                  >
+                    Voir tous ({allTargetings.length})
+                  </DropdownMenuItem>
                 )}
-              </DropdownMenuItem>
-            ))}
-            {!showAll && allTargetings.length > 3 && (
-              <DropdownMenuItem
-                onClick={() => setShowAll(true)}
-                className="cursor-pointer"
-              >
-                Voir tous ({allTargetings.length})
-              </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => navigate('/targeting')}
+                  className="cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nouveau ciblage
+                </DropdownMenuItem>
+              </>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => navigate('/targeting')}
-              className="cursor-pointer"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau ciblage
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
