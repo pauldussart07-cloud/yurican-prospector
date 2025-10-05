@@ -395,6 +395,9 @@ const Marche = () => {
         const company = companies.find(c => c.id === companyId);
         if (!company) continue;
 
+        // Récupérer le signal depuis mockLeads si disponible
+        const existingLead = mockLeads.find(l => l.companyId === company.id);
+        
         // Créer ou mettre à jour le lead
         const { data: leadData, error: leadError } = await supabase
           .from('leads')
@@ -412,6 +415,8 @@ const Marche = () => {
             company_siret: company.siret,
             company_naf: company.naf,
             status: 'Nouveau',
+            is_hot_signal: existingLead?.isHotSignal || false,
+            signal_summary: existingLead?.signalSummary || null,
           }, {
             onConflict: 'user_id,company_id'
           })
