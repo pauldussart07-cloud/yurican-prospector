@@ -26,6 +26,7 @@ export type Database = {
           lead_id: string
           linkedin: string | null
           note: string | null
+          persona_position: number | null
           phone: string | null
           role: string
           status: string
@@ -43,6 +44,7 @@ export type Database = {
           lead_id: string
           linkedin?: string | null
           note?: string | null
+          persona_position?: number | null
           phone?: string | null
           role: string
           status?: string
@@ -60,6 +62,7 @@ export type Database = {
           lead_id?: string
           linkedin?: string | null
           note?: string | null
+          persona_position?: number | null
           phone?: string | null
           role?: string
           status?: string

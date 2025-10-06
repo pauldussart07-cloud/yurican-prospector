@@ -178,6 +178,7 @@ const Prospects = () => {
         status: contact.status as ContactStatus,
         note: contact.note || '',
         followUpDate: contact.follow_up_date || '',
+        personaPosition: contact.persona_position || null,
         seniority: 'Senior',
         domain: 'General',
         source: 'Manual',
@@ -254,7 +255,13 @@ const Prospects = () => {
           count: count,
         });
         
-        allNewContacts = [...allNewContacts, ...contacts];
+        // Ajouter la position du persona (1-based index)
+        const contactsWithPosition = contacts.map(contact => ({
+          ...contact,
+          personaPosition: (persona as any).position || (i + 1),
+        }));
+        
+        allNewContacts = [...allNewContacts, ...contactsWithPosition];
         remainingContacts -= count;
       }
       
@@ -274,6 +281,7 @@ const Prospects = () => {
         follow_up_date: (contact as any).followUpDate || null,
         is_email_discovered: false,
         is_phone_discovered: false,
+        persona_position: (contact as any).personaPosition || null,
       }));
 
       const { data: insertedContacts, error } = await supabase
@@ -298,6 +306,7 @@ const Prospects = () => {
         status: contact.status as ContactStatus,
         note: contact.note || '',
         followUpDate: contact.follow_up_date || '',
+        personaPosition: contact.persona_position || null,
         seniority: 'Senior',
         domain: 'General',
         source: 'Manual',
@@ -980,9 +989,9 @@ const Prospects = () => {
                               handleContactClick(contact);
                             }}
                           >
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                              {index + 1}
-                            </div>
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                            {(contact as any).personaPosition || index + 1}
+                          </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between">
                                 <p className="text-sm font-medium truncate">{contact.fullName}</p>
@@ -1194,7 +1203,7 @@ const Prospects = () => {
                           }}
                         >
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                            {index + 1}
+                            {(contact as any).personaPosition || index + 1}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
