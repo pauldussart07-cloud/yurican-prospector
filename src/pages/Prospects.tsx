@@ -1000,9 +1000,9 @@ const Prospects = () => {
                     </div>
 
                     {/* Liste des contacts à droite */}
-                    {leadContacts.length > 0 && (
-                      <div className="w-64 space-y-2">
-                        {leadContacts.slice(0, 3).map((contact, index) => (
+                    <div className="w-64 space-y-2">
+                      {leadContacts.length > 0 ? (
+                        leadContacts.slice(0, 3).map((contact, index) => (
                           <div
                             key={contact.id}
                             className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
@@ -1019,9 +1019,23 @@ const Prospects = () => {
                               <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        ))
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLead(lead.id);
+                            setShowPersonaDialog(true);
+                          }}
+                        >
+                          <UsersIcon className="h-4 w-4 mr-2" />
+                          Chercher les contacts
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Statut */}
@@ -1029,24 +1043,8 @@ const Prospects = () => {
                     {getLeadStatus(lead.companyId)}
                   </Badge>
                 </div>
-
-                  {/* Bouton pour ajouter des contacts si aucun */}
-                  {leadContacts.length === 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-3"
-                      onClick={() => {
-                        setSelectedLead(lead.id);
-                        setShowPersonaDialog(true);
-                      }}
-                    >
-                      <UsersIcon className="h-4 w-4 mr-2" />
-                      Chercher les contacts
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
             );
           }
 
