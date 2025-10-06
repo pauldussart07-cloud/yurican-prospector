@@ -29,9 +29,7 @@ const Onboarding = () => {
   });
 
   const [step3Data, setStep3Data] = useState({
-    contactType: '',
-    departments: [] as string[],
-    specificRole: '',
+    jobTitles: [] as string[],
   });
 
   const [step4Data, setStep4Data] = useState({
@@ -68,6 +66,12 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
+    // Validate step 3: require at least 3 job titles
+    if (currentStep === 3 && step3Data.jobTitles.length < 3) {
+      toast.error('Veuillez ajouter au moins 3 intitulés de poste');
+      return;
+    }
+    
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
@@ -114,16 +118,13 @@ const Onboarding = () => {
       if (targetingError) throw targetingError;
 
       // 3. Create personas from step3Data
-      const decisionLevel = mapContactTypeToDecisionLevel(step3Data.contactType);
-      
-      for (const department of step3Data.departments) {
-        const service = mapDepartmentToService(department);
+      for (let i = 0; i < step3Data.jobTitles.length; i++) {
         await supabase.from('personas').insert({
           user_id: userId,
-          name: `${step3Data.specificRole || step3Data.contactType} - ${department}`,
-          service: service,
-          decision_level: decisionLevel,
-          position: 1,
+          name: step3Data.jobTitles[i],
+          service: 'Direction',
+          decision_level: 'Décisionnaire',
+          position: i + 1,
         });
       }
 

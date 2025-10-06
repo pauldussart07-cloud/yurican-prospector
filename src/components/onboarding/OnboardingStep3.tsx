@@ -1,17 +1,12 @@
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 
 interface Step3Data {
-  contactType: string;
-  departments: string[];
-  specificRole: string;
+  jobTitles: string[];
 }
 
 interface Props {
@@ -21,29 +16,27 @@ interface Props {
 
 const OnboardingStep3 = ({ data, onChange }: Props) => {
   const [jobSuggestions, setJobSuggestions] = useState<{ name: string; category: string }[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(-1);
+  const [currentInput, setCurrentInput] = useState('');
 
-  const updateField = (field: keyof Step3Data, value: any) => {
-    onChange({ ...data, [field]: value });
+  const addJobTitle = (title: string) => {
+    if (title.trim() && !data.jobTitles.includes(title.trim())) {
+      onChange({ ...data, jobTitles: [...data.jobTitles, title.trim()] });
+      setCurrentInput('');
+      setShowSuggestions(-1);
+    }
   };
 
-  const toggleDepartment = (dept: string) => {
-    if (data.departments.includes(dept)) {
-      updateField('departments', data.departments.filter(d => d !== dept));
-    } else {
-      updateField('departments', [...data.departments, dept]);
-    }
+  const removeJobTitle = (index: number) => {
+    onChange({ ...data, jobTitles: data.jobTitles.filter((_, i) => i !== index) });
   };
 
   const searchJobFunctions = async (query: string) => {
     if (!query || query.length < 2) {
       setJobSuggestions([]);
-      setShowSuggestions(false);
       return;
     }
 
-    setIsSearching(true);
     try {
       const { data: jobs, error } = await supabase
         .from('job_functions')
@@ -54,38 +47,30 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
       if (error) throw error;
       
       setJobSuggestions(jobs || []);
-      setShowSuggestions(true);
     } catch (error) {
       console.error('Error searching job functions:', error);
       setJobSuggestions([]);
-    } finally {
-      setIsSearching(false);
     }
   };
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      searchJobFunctions(data.specificRole);
+      searchJobFunctions(currentInput);
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [data.specificRole]);
+  }, [currentInput]);
 
   const handleSelectSuggestion = (jobName: string) => {
-    updateField('specificRole', jobName);
-    setShowSuggestions(false);
+    addJobTitle(jobName);
   };
 
-  const departments = [
-    'Direction générale',
-    'Commerce',
-    'Marketing',
-    'Achat',
-    'RH',
-    'IT',
-    'Production',
-    'Logistique',
-  ];
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && currentInput.trim()) {
+      e.preventDefault();
+      addJobTitle(currentInput);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -95,88 +80,74 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
 
       <div className="space-y-6">
         <div className="space-y-4">
-          <p className="text-muted-foreground">Dans quel(s) service(s) ?</p>
-          <div className="grid grid-cols-2 gap-3">
-            {departments.map((dept) => (
-              <Button
-                key={dept}
-                type="button"
-                variant={data.departments.includes(dept) ? 'default' : 'outline'}
-                onClick={() => toggleDepartment(dept)}
-                className="h-12 justify-start"
-              >
-                {dept}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {data.departments.length > 0 && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+          <div className="space-y-2">
             <p className="text-lg text-muted-foreground">
-              Quel est votre interlocuteur privilégié
+              Donnez-nous au moins 3 exemples d'intitulés de poste que vous ciblez
             </p>
-            <RadioGroup
-              value={data.contactType}
-              onValueChange={(value) => updateField('contactType', value)}
-              className="space-y-2"
-            >
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Directeur / Responsable" id="directeur" />
-                <Label htmlFor="directeur" className="font-normal cursor-pointer flex-1">
-                  Directeur / Responsable
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Autres collaborateurs" id="collaborateurs" />
-                <Label htmlFor="collaborateurs" className="font-normal cursor-pointer flex-1">
-                  Autres collaborateurs
-                </Label>
-              </div>
-            </RadioGroup>
+            {data.jobTitles.length < 3 && (
+              <p className="text-sm text-muted-foreground">
+                {data.jobTitles.length}/3 minimum
+              </p>
+            )}
           </div>
-        )}
 
-        {data.contactType && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Ciblez-vous un poste précis ? (optionnel)</p>
-            <div className="relative">
-              <Input
-                id="specificRole"
-                placeholder="Ex: Intégrateur Salesforce senior..."
-                value={data.specificRole}
-                onChange={(e) => updateField('specificRole', e.target.value)}
-                onFocus={() => data.specificRole.length >= 2 && setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                className="h-12"
-              />
-              {showSuggestions && jobSuggestions.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md">
-                  <Command>
-                    <CommandList>
-                      <CommandGroup>
-                        {jobSuggestions.map((job, index) => (
-                          <CommandItem
-                            key={index}
-                            onSelect={() => handleSelectSuggestion(job.name)}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex flex-col">
-                              <span>{job.name}</span>
-                              {job.category && (
-                                <span className="text-xs text-muted-foreground">{job.category}</span>
-                              )}
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </div>
-              )}
+          {data.jobTitles.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {data.jobTitles.map((title, index) => (
+                <Badge key={index} variant="secondary" className="px-3 py-2 text-sm">
+                  {title}
+                  <button
+                    type="button"
+                    onClick={() => removeJobTitle(index)}
+                    className="ml-2 hover:text-destructive"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
             </div>
+          )}
+
+          <div className="relative">
+            <Input
+              placeholder="Ex: Intégrateur Salesforce senior..."
+              value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => currentInput.length >= 2 && setShowSuggestions(0)}
+              onBlur={() => setTimeout(() => setShowSuggestions(-1), 200)}
+              className="h-12"
+            />
+            {showSuggestions >= 0 && jobSuggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md">
+                <Command>
+                  <CommandList>
+                    <CommandGroup>
+                      {jobSuggestions.map((job, index) => (
+                        <CommandItem
+                          key={index}
+                          onSelect={() => handleSelectSuggestion(job.name)}
+                          className="cursor-pointer"
+                        >
+                          <div className="flex flex-col">
+                            <span>{job.name}</span>
+                            {job.category && (
+                              <span className="text-xs text-muted-foreground">{job.category}</span>
+                            )}
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </div>
+            )}
           </div>
-        )}
+
+          <p className="text-xs text-muted-foreground">
+            Appuyez sur Entrée ou sélectionnez une suggestion pour ajouter un intitulé
+          </p>
+        </div>
       </div>
     </div>
   );
