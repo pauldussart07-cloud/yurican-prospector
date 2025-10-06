@@ -92,8 +92,7 @@ const Prospects = () => {
   const [loadingLeads, setLoadingLeads] = useState(true);
   
   // Persona selector state
-  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
-  const [personaContactCounts, setPersonaContactCounts] = useState<Map<string, number>>(new Map());
+  const [totalContactsToGenerate, setTotalContactsToGenerate] = useState(3);
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
   const [loadingPersonas, setLoadingPersonas] = useState(false);
 
@@ -206,10 +205,19 @@ const Prospects = () => {
 
 
   const handleGenerateContacts = async () => {
-    if (!selectedLead || selectedPersonas.length === 0) {
+    if (!selectedLead || userPersonas.length === 0) {
       toast({
         title: 'Erreur',
-        description: 'Veuillez sélectionner au moins un ciblage.',
+        description: 'Vous devez créer au moins un ciblage de contacts.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (totalContactsToGenerate < 1) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez saisir un nombre de contacts valide.',
         variant: 'destructive',
       });
       return;
@@ -228,23 +236,25 @@ const Prospects = () => {
         throw new Error('User not authenticated');
       }
 
-      // Récupérer les objets personas complets depuis les noms sélectionnés
-      const selectedPersonaObjects = userPersonas.filter(p => 
-        selectedPersonas.includes(p.name)
-      );
-
-      // Générer les contacts pour chaque persona individuellement
+      // Utiliser tous les personas dans l'ordre hiérarchique (position)
+      // Distribuer les contacts de manière équilibrée entre les personas
+      const contactsPerPersona = Math.ceil(totalContactsToGenerate / userPersonas.length);
       let allNewContacts: any[] = [];
+      let remainingContacts = totalContactsToGenerate;
       
-      for (const persona of selectedPersonaObjects) {
-        const count = personaContactCounts.get(persona.name) || 3;
+      for (let i = 0; i < userPersonas.length && remainingContacts > 0; i++) {
+        const persona = userPersonas[i];
+        const count = Math.min(contactsPerPersona, remainingContacts);
+        
         const contacts = await contactsService.generateContacts({
           companyId: company.id,
           companyName: company.name,
           personas: [persona],
           count: count,
         });
+        
         allNewContacts = [...allNewContacts, ...contacts];
+        remainingContacts -= count;
       }
       
       const newContacts = allNewContacts;
@@ -301,8 +311,7 @@ const Prospects = () => {
       });
 
       setShowPersonaDialog(false);
-      setSelectedPersonas([]);
-      setPersonaContactCounts(new Map());
+      setTotalContactsToGenerate(3);
     } catch (error) {
       console.error('Error generating contacts:', error);
       toast({
@@ -313,37 +322,6 @@ const Prospects = () => {
     } finally {
       setGeneratingContacts(false);
     }
-  };
-
-  const handlePersonaToggle = (personaName: string) => {
-    setSelectedPersonas(prev => {
-      const isCurrentlySelected = prev.includes(personaName);
-      if (isCurrentlySelected) {
-        // Retirer le persona et son count
-        setPersonaContactCounts(prevCounts => {
-          const newCounts = new Map(prevCounts);
-          newCounts.delete(personaName);
-          return newCounts;
-        });
-        return prev.filter(p => p !== personaName);
-      } else {
-        // Ajouter le persona avec un count par défaut
-        setPersonaContactCounts(prevCounts => {
-          const newCounts = new Map(prevCounts);
-          newCounts.set(personaName, 3);
-          return newCounts;
-        });
-        return [...prev, personaName];
-      }
-    });
-  };
-
-  const handlePersonaCountChange = (personaName: string, count: number) => {
-    setPersonaContactCounts(prev => {
-      const newCounts = new Map(prev);
-      newCounts.set(personaName, Math.max(1, Math.min(10, count)));
-      return newCounts;
-    });
   };
 
   const personas: PersonaType[] = [
@@ -1415,69 +1393,61 @@ const Prospects = () => {
             ) : (
               <>
                 <div className="space-y-3">
-                  <Label className="flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Ciblages de contacts
-                  </Label>
-                {userPersonas.map((persona, index) => (
-                  <div key={persona.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Checkbox
-                          id={persona.id}
-                          checked={selectedPersonas.includes(persona.name)}
-                          onCheckedChange={() => handlePersonaToggle(persona.name)}
-                        />
-                        <label
-                          htmlFor={persona.id}
-                          className="text-sm font-medium leading-none cursor-pointer"
-                        >
-                          {persona.name}
-                        </label>
-                      </div>
-                      <div className="flex gap-2 ml-6">
-                        <Badge variant="outline" className="text-xs">
-                          {persona.service}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          {persona.decision_level}
-                        </Badge>
+                  <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Target className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2">Recherche en cascade</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          La recherche de contacts se fait automatiquement selon la hiérarchie de vos ciblages. 
+                          Nous commençons par le ciblage prioritaire n°1, puis passons au suivant si nécessaire, 
+                          jusqu'à atteindre le nombre de contacts demandé.
+                        </p>
                       </div>
                     </div>
-                    {selectedPersonas.includes(persona.name) && (
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Label htmlFor={`count-${persona.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
-                          Nb contacts:
-                        </Label>
-                        <Input
-                          id={`count-${persona.id}`}
-                          type="number"
-                          min={1}
-                          max={10}
-                          value={personaContactCounts.get(persona.name) || 3}
-                          onChange={(e) => handlePersonaCountChange(persona.name, parseInt(e.target.value) || 1)}
-                          className="w-16 h-8 text-sm"
-                        />
+                    
+                    <div className="border-t pt-3 space-y-2">
+                      <p className="text-xs font-medium">Votre hiérarchie de ciblages :</p>
+                      <div className="space-y-1">
+                        {userPersonas.map((persona, index) => (
+                          <div key={persona.id} className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary font-bold text-xs">
+                              {index + 1}
+                            </div>
+                            <span className="font-medium">{persona.name}</span>
+                            <span className="text-muted-foreground">•</span>
+                            <Badge variant="outline" className="text-xs py-0">
+                              {persona.service}
+                            </Badge>
+                            <Badge variant="secondary" className="text-xs py-0">
+                              {persona.decision_level}
+                            </Badge>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </div>
-                ))}
                 </div>
 
-                <div className="space-y-2 pt-2 border-t">
-                  <p className="text-sm font-medium">Résumé</p>
+                <div className="space-y-2">
+                  <Label htmlFor="total-contacts">Nombre total de contacts à rechercher</Label>
+                  <Input
+                    id="total-contacts"
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={totalContactsToGenerate}
+                    onChange={(e) => setTotalContactsToGenerate(parseInt(e.target.value) || 1)}
+                  />
                   <p className="text-xs text-muted-foreground">
-                    Total : {Array.from(personaContactCounts.values()).reduce((sum, count) => sum + count, 0)} contact{Array.from(personaContactCounts.values()).reduce((sum, count) => sum + count, 0) > 1 ? 's' : ''} pour {selectedPersonas.length} ciblage{selectedPersonas.length > 1 ? 's' : ''}
+                    Maximum : 50 contacts par entreprise
                   </p>
                 </div>
 
                 <Button
                   className="w-full"
                   onClick={handleGenerateContacts}
-                  disabled={generatingContacts || selectedPersonas.length === 0}
+                  disabled={generatingContacts}
                 >
                   {generatingContacts ? 'Recherche...' : 'Chercher les contacts'}
                 </Button>
