@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 interface Step1Data {
   jobFunction: string;
-  growthType: string;
   productDescription: string;
   peakActivityPeriod: string;
 }
@@ -110,30 +109,6 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
         </div>
 
         {data.jobFunction && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Quel type de croissance recherchez-vous ?</p>
-            <RadioGroup
-              value={data.growthType}
-              onValueChange={(value) => updateField('growthType', value)}
-              className="space-y-2"
-            >
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Acquisition" id="acquisition" />
-                <Label htmlFor="acquisition" className="font-normal cursor-pointer flex-1">Acquisition de nouveaux clients</Label>
-              </div>
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Nurturing" id="nurturing" />
-                <Label htmlFor="nurturing" className="font-normal cursor-pointer flex-1">Nurturing et fidélisation</Label>
-              </div>
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Hybride" id="hybride" />
-                <Label htmlFor="hybride" className="font-normal cursor-pointer flex-1">Les deux (Hybride)</Label>
-              </div>
-            </RadioGroup>
-          </div>
-        )}
-
-        {data.growthType && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Décrivez votre produit ou service en quelques mots</p>
             <Textarea
