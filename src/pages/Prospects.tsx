@@ -978,27 +978,30 @@ const Prospects = () => {
                       </div>
                     </div>
 
-                  {/* Bloc 3 : Résumé du signal */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
-                    </p>
-                    <button 
-                      className="text-xs text-primary hover:underline mt-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const firstContact = leadContacts[0];
-                        if (firstContact) {
-                          handleContactClick(firstContact);
-                        }
-                      }}
-                    >
-                      Afficher plus →
-                    </button>
+                  {/* Bloc 3 : Résumé du signal et contacts */}
+                  <div className="flex-1 min-w-0 flex gap-3">
+                    {/* Résumé */}
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground line-clamp-3">
+                        {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
+                      </p>
+                      <button 
+                        className="text-xs text-primary hover:underline mt-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const firstContact = leadContacts[0];
+                          if (firstContact) {
+                            handleContactClick(firstContact);
+                          }
+                        }}
+                      >
+                        Afficher plus →
+                      </button>
+                    </div>
 
-                    {/* Affichage des 3 premiers contacts */}
+                    {/* Liste des contacts à droite */}
                     {leadContacts.length > 0 && (
-                      <div className="mt-3 space-y-2">
+                      <div className="w-64 space-y-2">
                         {leadContacts.slice(0, 3).map((contact, index) => (
                           <div
                             key={contact.id}
@@ -1018,6 +1021,14 @@ const Prospects = () => {
                         ))}
                       </div>
                     )}
+                  </div>
+
+                  {/* Nouveau bloc entre résumé et statut */}
+                  <div className="flex-shrink-0 w-32 flex flex-col items-center justify-center gap-2 px-3 border-l border-r">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">Dernière activité</p>
+                      <p className="text-sm font-semibold">-</p>
+                    </div>
                   </div>
 
                   {/* Statut */}
@@ -1113,9 +1124,10 @@ const Prospects = () => {
                     </div>
                   </div>
 
-                {/* Synthèse entreprise */}
-                <div className="flex-1 px-2">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                {/* Synthèse entreprise et contacts */}
+                <div className="flex-1 px-2 flex gap-3">
+                  {/* Synthèse */}
+                  <div className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
                       {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
                       {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
@@ -1134,29 +1146,37 @@ const Prospects = () => {
                     >
                       Voir plus →
                     </Button>
+                  </div>
 
-                    {/* Affichage des 3 premiers contacts */}
-                    {leadContacts.length > 0 && (
-                      <div className="mt-3 space-y-2">
-                        {leadContacts.slice(0, 3).map((contact, index) => (
-                          <div
-                            key={contact.id}
-                            className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleContactClick(contact);
-                            }}
-                          >
-                            <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
-                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            </div>
+                  {/* Liste des contacts à droite */}
+                  {leadContacts.length > 0 && (
+                    <div className="w-64 space-y-2">
+                      {leadContacts.slice(0, 3).map((contact, index) => (
+                        <div
+                          key={contact.id}
+                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactClick(contact);
+                          }}
+                        >
+                          <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
+                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Nouveau bloc entre résumé et statut */}
+                <div className="flex-shrink-0 w-32 flex flex-col items-center justify-center gap-2 px-3 border-l border-r">
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground">Dernière activité</p>
+                    <p className="text-sm font-semibold">-</p>
                   </div>
                 </div>
 
