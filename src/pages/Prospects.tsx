@@ -1407,21 +1407,36 @@ const Prospects = () => {
                     </div>
                     
                     <div className="border-t pt-3 space-y-2">
-                      <p className="text-xs font-medium">Votre hiérarchie de ciblages :</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-medium">Votre hiérarchie de ciblages :</p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setShowPersonaDialog(false);
+                            window.location.href = '/targeting';
+                          }}
+                          className="h-7 text-xs"
+                        >
+                          <Target className="h-3 w-3 mr-1" />
+                          Modifier
+                        </Button>
+                      </div>
                       <div className="space-y-1">
                         {userPersonas.map((persona, index) => (
                           <div key={persona.id} className="flex items-center gap-2 text-xs">
-                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary font-bold text-xs">
+                            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
                               {index + 1}
                             </div>
-                            <span className="font-medium">{persona.name}</span>
-                            <span className="text-muted-foreground">•</span>
-                            <Badge variant="outline" className="text-xs py-0">
-                              {persona.service}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs py-0">
-                              {persona.decision_level}
-                            </Badge>
+                            <span className="font-medium flex-1">{persona.name}</span>
+                            <div className="flex items-center gap-1">
+                              <Badge variant="outline" className="text-xs py-0">
+                                {persona.service}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs py-0">
+                                {persona.decision_level}
+                              </Badge>
+                            </div>
                           </div>
                         ))}
                       </div>
