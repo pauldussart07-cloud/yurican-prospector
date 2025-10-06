@@ -1041,6 +1041,33 @@ const Prospects = () => {
                           Chercher les contacts
                         </Button>
                       )}
+                      
+                      {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
+                      {leadContacts.length > 0 && remainingCount > 0 && (
+                        <div className="mt-2 flex justify-center">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpandContacts(lead.id);
+                            }}
+                            className="text-[10px] h-6 px-2 gap-1 hover:bg-accent/50 transition-colors"
+                          >
+                            {isContactsExpanded ? (
+                              <>
+                                <ChevronUp className="h-3 w-3" />
+                                Moins
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3 w-3" />
+                                +{remainingCount}
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Bloc 2 : Informations entreprise avec logo */}
@@ -1101,33 +1128,6 @@ const Prospects = () => {
                           LinkedIn
                         </a>
                       </div>
-                      
-                      {/* Bouton "Afficher x de plus" / "Afficher moins" positionné à droite du 3ème contact */}
-                      {leadContacts.length > 0 && remainingCount > 0 && (
-                        <div className="absolute top-[156px] -left-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpandContacts(lead.id);
-                            }}
-                            className="text-xs h-8 px-3 gap-1.5 bg-background/95 backdrop-blur-sm hover:bg-accent border-primary/20 hover:border-primary/40 transition-all shadow-sm"
-                          >
-                            {isContactsExpanded ? (
-                              <>
-                                <ChevronUp className="h-3.5 w-3.5" />
-                                Afficher moins
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="h-3.5 w-3.5" />
-                                Afficher {remainingCount} de plus
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      )}
                     </div>
 
                   {/* Bloc 3 : Synthèse signal */}
@@ -1254,6 +1254,33 @@ const Prospects = () => {
                         Chercher les contacts
                       </Button>
                     )}
+                    
+                    {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
+                    {leadContacts.length > 0 && remainingCount > 0 && (
+                      <div className="mt-2 flex justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpandContacts(lead.id);
+                          }}
+                          className="text-[10px] h-6 px-2 gap-1 hover:bg-accent/50 transition-colors"
+                        >
+                          {isContactsExpanded ? (
+                            <>
+                              <ChevronUp className="h-3 w-3" />
+                              Moins
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-3 w-3" />
+                              +{remainingCount}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Bloc 2 : Informations entreprise avec logo */}
@@ -1314,33 +1341,6 @@ const Prospects = () => {
                         LinkedIn
                       </a>
                     </div>
-                    
-                    {/* Bouton "Afficher x de plus" / "Afficher moins" positionné à droite du 3ème contact */}
-                    {leadContacts.length > 0 && remainingCount > 0 && (
-                      <div className="absolute top-[156px] -left-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpandContacts(lead.id);
-                          }}
-                          className="text-xs h-8 px-3 gap-1.5 bg-background/95 backdrop-blur-sm hover:bg-accent border-primary/20 hover:border-primary/40 transition-all shadow-sm"
-                        >
-                          {isContactsExpanded ? (
-                            <>
-                              <ChevronUp className="h-3.5 w-3.5" />
-                              Afficher moins
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-3.5 w-3.5" />
-                              Afficher {remainingCount} de plus
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
                   </div>
 
                 {/* Bloc 3 : Synthèse entreprise */}
