@@ -1011,9 +1011,10 @@ const Prospects = () => {
                               handleContactClick(contact);
                             }}
                           >
-                            <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                              {index + 1}
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
                               <p className="text-sm font-medium truncate">{contact.fullName}</p>
                               <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                             </div>
@@ -1021,14 +1022,6 @@ const Prospects = () => {
                         ))}
                       </div>
                     )}
-                  </div>
-
-                  {/* Nouveau bloc entre résumé et statut */}
-                  <div className="flex-shrink-0 w-32 flex flex-col items-center justify-center gap-2 px-3 border-l border-r">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">Dernière activité</p>
-                      <p className="text-sm font-semibold">-</p>
-                    </div>
                   </div>
 
                   {/* Statut */}
@@ -1160,9 +1153,10 @@ const Prospects = () => {
                             handleContactClick(contact);
                           }}
                         >
-                          <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                            {index + 1}
+                          </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
                             <p className="text-sm font-medium truncate">{contact.fullName}</p>
                             <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                           </div>
@@ -1170,14 +1164,6 @@ const Prospects = () => {
                       ))}
                     </div>
                   )}
-                </div>
-
-                {/* Nouveau bloc entre résumé et statut */}
-                <div className="flex-shrink-0 w-32 flex flex-col items-center justify-center gap-2 px-3 border-l border-r">
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Dernière activité</p>
-                    <p className="text-sm font-semibold">-</p>
-                  </div>
                 </div>
 
                 {/* Statut */}
