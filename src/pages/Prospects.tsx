@@ -1016,10 +1016,20 @@ const Prospects = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Mail className="h-3 w-3 text-primary" />
-                              <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <div className="flex items-center gap-1">
+                                  <Mail className="h-3 w-3 text-primary" />
+                                  <span className="text-xs">{contact.email}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                                  <span className={`text-xs ${isContactInfoDiscovered(contact.id, 'phone') ? '' : 'text-muted-foreground/30'}`}>
+                                    {isContactInfoDiscovered(contact.id, 'phone') ? contact.phone : '••••••'}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1082,10 +1092,20 @@ const Prospects = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                          <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Mail className="h-3 w-3 text-primary" />
-                            <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div className="flex items-center gap-1">
+                                <Mail className="h-3 w-3 text-primary" />
+                                <span className="text-xs">{contact.email}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                                <span className={`text-xs ${isContactInfoDiscovered(contact.id, 'phone') ? '' : 'text-muted-foreground/30'}`}>
+                                  {isContactInfoDiscovered(contact.id, 'phone') ? contact.phone : '••••••'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
