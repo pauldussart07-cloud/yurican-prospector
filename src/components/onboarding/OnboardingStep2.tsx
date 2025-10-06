@@ -190,12 +190,26 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
         {data.companySize && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Tranche de chiffre d'affaires ?</p>
-            <Input
-              placeholder="Ex: 1M-10M, 10M-50M..."
-              value={data.revenueRange}
-              onChange={(e) => updateField('revenueRange', e.target.value)}
-              className="h-12"
-            />
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: '0-1M', label: '0 - 1M€' },
+                { id: '1M-5M', label: '1M - 5M€' },
+                { id: '5M-10M', label: '5M - 10M€' },
+                { id: '10M-50M', label: '10M - 50M€' },
+                { id: '50M-100M', label: '50M - 100M€' },
+                { id: '100M+', label: '100M€+' },
+              ].map((range) => (
+                <Button
+                  key={range.id}
+                  type="button"
+                  variant={data.revenueRange === range.id ? 'default' : 'outline'}
+                  onClick={() => updateField('revenueRange', range.id)}
+                  className="h-12 justify-start"
+                >
+                  {range.label}
+                </Button>
+              ))}
+            </div>
           </div>
         )}
 
