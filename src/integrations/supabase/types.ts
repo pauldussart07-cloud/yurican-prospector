@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      job_functions: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       lead_contacts: {
         Row: {
           created_at: string
