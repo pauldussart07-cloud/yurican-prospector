@@ -1174,61 +1174,88 @@ const Prospects = () => {
                   {/* Bloc 4 : Liste des contacts */}
                   <div className="w-64 space-y-2">
                     {leadContacts.length > 0 ? (
-                      leadContacts.slice(0, 3).map((contact, index) => (
-                      <div
-                        key={contact.id}
-                        className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContactClick(contact);
-                        }}
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-auto">
-                                <p className="text-xs">{contact.email}</p>
-                              </HoverCardContent>
-                            </HoverCard>
-                          </div>
-                          <div className="flex items-center justify-between mt-1">
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            {isContactInfoDiscovered(contact.id, 'phone') ? (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs">{contact.phone}</p>
-                                </HoverCardContent>
-                              </HoverCard>
-                            ) : (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <Phone 
-                                    className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDiscoverRequest(contact.id, 'phone');
-                                    }}
-                                  />
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
-                                </HoverCardContent>
-                              </HoverCard>
+                      (() => {
+                        const sortedContacts = sortContactsByStatusAndHierarchy(leadContacts);
+                        const isContactsExpanded = expandedContactsLeads.has(lead.id);
+                        const displayedContacts = isContactsExpanded ? sortedContacts : sortedContacts.slice(0, 3);
+                        const remainingCount = sortedContacts.length - 3;
+
+                        return (
+                          <>
+                            {displayedContacts.map((contact, index) => (
+                              <div
+                                key={contact.id}
+                                className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleContactClick(contact);
+                                }}
+                              >
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                                  {index + 1}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                                    <HoverCard>
+                                      <HoverCardTrigger asChild>
+                                        <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                      </HoverCardTrigger>
+                                      <HoverCardContent className="w-auto">
+                                        <p className="text-xs">{contact.email}</p>
+                                      </HoverCardContent>
+                                    </HoverCard>
+                                  </div>
+                                  <div className="flex items-center justify-between mt-1">
+                                    <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                                    {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                      <HoverCard>
+                                        <HoverCardTrigger asChild>
+                                          <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                        </HoverCardTrigger>
+                                        <HoverCardContent className="w-auto">
+                                          <p className="text-xs">{contact.phone}</p>
+                                        </HoverCardContent>
+                                      </HoverCard>
+                                    ) : (
+                                      <HoverCard>
+                                        <HoverCardTrigger asChild>
+                                          <Phone 
+                                            className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDiscoverRequest(contact.id, 'phone');
+                                            }}
+                                          />
+                                        </HoverCardTrigger>
+                                        <HoverCardContent className="w-auto">
+                                          <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                        </HoverCardContent>
+                                      </HoverCard>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {!isContactsExpanded && remainingCount > 0 && (
+                              <div className="flex justify-end">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleExpandContacts(lead.id);
+                                  }}
+                                  className="text-xs h-7"
+                                >
+                                  Afficher {remainingCount} de plus
+                                </Button>
+                              </div>
                             )}
-                          </div>
-                        </div>
-                      </div>
-                      ))
+                          </>
+                        );
+                      })()
                     ) : (
                       <Button
                         variant="outline"
