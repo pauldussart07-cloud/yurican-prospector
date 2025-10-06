@@ -112,9 +112,9 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
             {availableServices.map((service) => (
               <Badge
                 key={service}
-                variant={data.services.includes(service) ? 'default' : 'outline'}
-                className={`px-2 py-1.5 text-xs font-medium cursor-pointer transition-all duration-200 justify-center ${
-                  !data.services.includes(service) ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : ''
+                variant="outline"
+                className={`px-3 py-2 text-sm font-medium cursor-pointer transition-all duration-200 justify-center bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 ${
+                  data.services.includes(service) ? 'ring-2 ring-primary border-primary' : ''
                 }`}
                 onClick={() => toggleService(service)}
               >
