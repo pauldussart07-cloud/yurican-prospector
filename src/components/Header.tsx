@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Target, Coins, ChevronDown, Plus, Bell, LogOut } from "lucide-react";
+import { Target, Coins, ChevronDown, Plus, Bell, LogOut, User, Mail, Calendar } from "lucide-react";
 import { useTargeting } from "@/contexts/TargetingContext";
 import {
   DropdownMenu,
@@ -11,8 +11,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Targeting {
   id: string;
@@ -22,10 +32,14 @@ interface Targeting {
 
 const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { activeTargeting, setActiveTargeting, credits } = useTargeting();
   const [allTargetings, setAllTargetings] = useState<Targeting[]>([]);
   const [showAll, setShowAll] = useState(false);
   const [loadingTargetings, setLoadingTargetings] = useState(true);
+  const [email, setEmail] = useState('');
+  const [createdAt, setCreatedAt] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const loadTargetings = async () => {
@@ -35,6 +49,13 @@ const Header = () => {
         setLoadingTargetings(false);
         return;
       }
+
+      setEmail(user.email || '');
+      setCreatedAt(new Date(user.created_at).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }));
 
       const { data } = await supabase
         .from('targetings')
@@ -72,7 +93,18 @@ const Header = () => {
   };
 
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: 'Déconnexion réussie',
+      description: 'À bientôt !',
+    });
+    setProfileOpen(false);
+    navigate('/login');
+  };
+
   const displayedTargetings = showAll ? allTargetings : allTargetings.slice(0, 3);
+  const initials = email ? email.substring(0, 2).toUpperCase() : 'U';
 
   return (
     <header className="h-14 border-b border-sidebar-border flex items-center px-3 bg-header text-header-foreground sticky top-0 z-10">
@@ -152,10 +184,62 @@ const Header = () => {
           {credits} crédits
         </Badge>
         
-        <Button variant="ghost" size="sm" onClick={() => navigate('/profile')} className="gap-2">
-          <LogOut className="h-4 w-4" />
-          Profil
-        </Button>
+        <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="gap-2">
+              <User className="h-4 w-4" />
+              Profil
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="flex justify-center mb-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarFallback className="text-xl">{initials}</AvatarFallback>
+                </Avatar>
+              </div>
+              <DialogTitle className="text-center text-2xl">{email}</DialogTitle>
+              <DialogDescription className="text-center">Compte Yurican</DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 py-4">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Email</p>
+                  <p className="text-sm text-muted-foreground">{email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Membre depuis</p>
+                  <p className="text-sm text-muted-foreground">{createdAt}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Coins className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Crédits disponibles</p>
+                  <p className="text-sm text-muted-foreground">{credits} crédits</p>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Button 
+                  onClick={handleLogout} 
+                  variant="destructive" 
+                  className="w-full gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Se déconnecter
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </header>
   );

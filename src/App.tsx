@@ -17,7 +17,6 @@ import Parametrage from "./pages/Parametrage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
-import Profile from "./pages/Profile";
 import Header from "./components/Header";
 
 const queryClient = new QueryClient();
@@ -50,7 +49,6 @@ const App = () => (
                               <Route path="/agenda" element={<Agenda />} />
                               <Route path="/targeting" element={<Targeting />} />
                               <Route path="/parametrage" element={<Parametrage />} />
-                              <Route path="/profile" element={<Profile />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </div>
