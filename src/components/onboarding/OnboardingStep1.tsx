@@ -23,7 +23,7 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
       <div>
         <h2 className="text-3xl font-bold mb-3">👋 Bienvenue !</h2>
         <p className="text-lg text-muted-foreground">
-          Commençons par vos informations personnelles
+          On va commencer par quelques informations pour personnaliser votre expérience
         </p>
       </div>
 
