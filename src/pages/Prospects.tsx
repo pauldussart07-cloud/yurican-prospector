@@ -978,186 +978,53 @@ const Prospects = () => {
                       </div>
                     </div>
 
-                    {/* Bloc 3 : Résumé du signal */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground line-clamp-3">
-                        {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
-                      </p>
-                      <button 
-                        className="text-xs text-primary hover:underline mt-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const firstContact = leadContacts[0];
-                          if (firstContact) {
-                            handleContactClick(firstContact);
-                          }
-                        }}
-                      >
-                        Afficher plus →
-                      </button>
-                    </div>
+                  {/* Bloc 3 : Résumé du signal */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
+                    </p>
+                    <button 
+                      className="text-xs text-primary hover:underline mt-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const firstContact = leadContacts[0];
+                        if (firstContact) {
+                          handleContactClick(firstContact);
+                        }
+                      }}
+                    >
+                      Afficher plus →
+                    </button>
 
-                    {/* Statut */}
-                    <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
-                      {getLeadStatus(lead.companyId)}
-                    </Badge>
-                  </div>
-
-                  {/* Section contacts dépliable */}
-                  {leadContacts.length > 0 && (
-                    <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpanded(lead.id)}>
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="w-full mt-3 justify-start gap-2"
-                        >
-                          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          <UsersIcon className="h-4 w-4" />
-                          {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
-                        </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-3 space-y-2">
-                        {leadContacts.map((contact) => (
-                          <Card
+                    {/* Affichage des 3 premiers contacts */}
+                    {leadContacts.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {leadContacts.slice(0, 3).map((contact, index) => (
+                          <div
                             key={contact.id}
-                            className="p-3 cursor-pointer hover:bg-card/80 transition-colors"
-                            onClick={() => handleContactClick(contact)}
+                            className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContactClick(contact);
+                            }}
                           >
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <div className="flex items-center gap-1 mb-1">
-                                  <Medal className="h-3.5 w-3.5 text-primary" />
-                                  <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
-                                </div>
-                                <p className="font-medium text-sm">{highlightText(contact.fullName, searchQuery)}</p>
-                                <p className="text-xs text-muted-foreground">{contact.role}</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                              </div>
-                            </div>
-                            
-                            {/* Note et date de suivi */}
-                            <div className="flex-1 flex flex-col gap-1 px-4">
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Calendar className="h-3 w-3" />
-                                <span>Suivi: {(contact as any).followUpDate ? new Date((contact as any).followUpDate).toLocaleDateString('fr-FR') : '-'}</span>
-                              </div>
-                              <div className="flex flex-col gap-1">
-                                <span className="text-xs font-medium text-muted-foreground">Note :</span>
-                                {(contact as any).note ? (
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
-                                      {(contact as any).note}
-                                    </p>
-                                    {(contact as any).note.length > 50 && (
-                                      <Button
-                                        variant="link"
-                                        size="sm"
-                                        className="h-auto p-0 text-xs"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleContactClick(contact);
-                                        }}
-                                      >
-                                        Afficher plus
-                                      </Button>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">-</span>
-                                )}
-                              </div>
-                            </div>
-                            
-                            {/* Mail et téléphone */}
-                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
-                              <a 
-                                href={`mailto:${contact.email}`}
-                                className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                              >
-                                <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                <span className="text-xs text-primary font-medium">
-                                  {contact.email}
-                                </span>
-                              </a>
-                              {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                <a 
-                                  href={`tel:${contact.phone}`}
-                                  className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                >
-                                  <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                  <span className="text-xs text-primary font-medium">
-                                    {contact.phone}
-                                  </span>
-                                </a>
-                              ) : (
-                                <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
-                                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                  <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                  <Button
-                                    variant="link"
-                                    size="sm"
-                                    className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
-                                    onClick={() => handleDiscoverRequest(contact.id, 'phone')}
-                                  >
-                                    Découvrir
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Statut et Action */}
-                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
-                              {/* Statut */}
-                              <Select 
-                                value={(contact as any).status || 'Nouveau'} 
-                                onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
-                              >
-                                <SelectTrigger className="w-36">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                  <SelectItem value="Engagé">Engagé</SelectItem>
-                                  <SelectItem value="Discussion">Discussion</SelectItem>
-                                  <SelectItem value="RDV">RDV</SelectItem>
-                                  <SelectItem value="Exclu">Exclu</SelectItem>
-                                </SelectContent>
-                              </Select>
-
-                              {/* Action */}
-                              <Select 
-                                value="" 
-                                onValueChange={(value) => {
-                                  toast({
-                                    title: "Action sélectionnée",
-                                    description: `${getActionName(Number(value))} pour ${contact.fullName}`,
-                                  });
-                                }}
-                              >
-                                <SelectTrigger className="w-36">
-                                  <SelectValue placeholder="Action" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">{getActionName(1)}</SelectItem>
-                                  <SelectItem value="2">{getActionName(2)}</SelectItem>
-                                  <SelectItem value="3">{getActionName(3)}</SelectItem>
-                                  <SelectItem value="4">{getActionName(4)}</SelectItem>
-                                  <SelectItem value="5">{getActionName(5)}</SelectItem>
-                                  <SelectItem value="6">{getActionName(6)}</SelectItem>
-                                </SelectContent>
-                              </Select>
+                            <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
+                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                             </div>
                           </div>
-                          </Card>
                         ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Statut */}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
+                    {getLeadStatus(lead.companyId)}
+                  </Badge>
+                </div>
 
                   {/* Bouton pour ajouter des contacts si aucun */}
                   {leadContacts.length === 0 && (
@@ -1246,191 +1113,58 @@ const Prospects = () => {
                     </div>
                   </div>
 
-                  {/* Synthèse entreprise */}
-                  <div className="flex-1 px-2">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
-                        {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
-                        {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
-                      </p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const firstContact = leadContacts[0];
-                          if (firstContact) {
-                            handleContactClick(firstContact);
-                          }
-                        }}
-                      >
-                        Voir plus →
-                      </Button>
-                    </div>
-                  </div>
+                {/* Synthèse entreprise */}
+                <div className="flex-1 px-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
+                      {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
+                      {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
+                    </p>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const firstContact = leadContacts[0];
+                        if (firstContact) {
+                          handleContactClick(firstContact);
+                        }
+                      }}
+                    >
+                      Voir plus →
+                    </Button>
 
-                  {/* Statut */}
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
-                    {getLeadStatus(lead.id)}
-                  </Badge>
-                </div>
-
-                {/* Section contacts dépliable */}
-                {leadContacts.length > 0 && (
-                  <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpanded(lead.id)}>
-                    <CollapsibleTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full mt-3 justify-start gap-2"
-                      >
-                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        <UsersIcon className="h-4 w-4" />
-                        {leadContacts.length} contact{leadContacts.length > 1 ? 's' : ''}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-3 space-y-2">
-                      {leadContacts.map((contact) => (
-                        <Card
-                          key={contact.id}
-                          className="p-3 cursor-pointer hover:bg-card/80 transition-colors"
-                          onClick={() => handleContactClick(contact)}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <div className="flex items-center gap-1 mb-1">
-                                  <Medal className="h-3.5 w-3.5 text-primary" />
-                                  <span className="text-xs font-semibold text-primary">Top {(leadContacts.indexOf(contact) % 3) + 1}</span>
-                                </div>
-                                <p className="font-medium text-sm">{highlightText(contact.fullName, searchQuery)}</p>
-                                <p className="text-xs text-muted-foreground">{contact.role}</p>
-                              </div>
-                              <div className="flex gap-2">
-                                <Badge variant="secondary" className="text-xs">{contact.seniority}</Badge>
-                                <Badge variant="secondary" className="text-xs">{contact.domain}</Badge>
-                              </div>
-                            </div>
-                            
-                            {/* Note et date de suivi */}
-                            <div className="flex-1 flex flex-col gap-1 px-4">
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Calendar className="h-3 w-3" />
-                                <span>Suivi: {(contact as any).followUpDate ? new Date((contact as any).followUpDate).toLocaleDateString('fr-FR') : '-'}</span>
-                              </div>
-                              <div className="flex flex-col gap-1">
-                                <span className="text-xs font-medium text-muted-foreground">Note :</span>
-                                {(contact as any).note ? (
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-xs text-muted-foreground line-clamp-1 flex-1">
-                                      {(contact as any).note}
-                                    </p>
-                                    {(contact as any).note.length > 50 && (
-                                      <Button
-                                        variant="link"
-                                        size="sm"
-                                        className="h-auto p-0 text-xs"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleContactClick(contact);
-                                        }}
-                                      >
-                                        Afficher plus
-                                      </Button>
-                                    )}
-                                  </div>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">-</span>
-                                )}
-                              </div>
-                            </div>
-                            
-                            {/* Mail et téléphone */}
-                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
-                              <a 
-                                href={`mailto:${contact.email}`}
-                                className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                              >
-                                <Mail className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                <span className="text-xs text-primary font-medium">
-                                  {contact.email}
-                                </span>
-                              </a>
-                              {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                <a 
-                                  href={`tel:${contact.phone}`}
-                                  className="flex items-center gap-2 px-2 py-1 rounded border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                >
-                                  <Phone className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                  <span className="text-xs text-primary font-medium">
-                                    {contact.phone}
-                                  </span>
-                                </a>
-                              ) : (
-                                <div className="relative flex items-center gap-2 px-2 py-1 rounded border border-muted-foreground/20 bg-muted/30">
-                                  <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                                  <span className="text-xs blur-sm select-none">{contact.phone}</span>
-                                  <Button
-                                    variant="link"
-                                    size="sm"
-                                    className="absolute inset-0 h-auto w-full p-0 text-xs flex items-center justify-center bg-background/80 backdrop-blur-[2px]"
-                                    onClick={() => handleDiscoverRequest(contact.id, 'phone')}
-                                  >
-                                    Découvrir
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Statut et Action */}
-                            <div className="flex flex-col gap-1.5" onClick={(e) => e.stopPropagation()}>
-                              {/* Statut */}
-                              <Select 
-                                value={(contact as any).status || 'Nouveau'} 
-                                onValueChange={(value) => handleStatusChange(contact.id, value as ContactStatus)}
-                              >
-                                <SelectTrigger className="w-36">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                  <SelectItem value="Engagé">Engagé</SelectItem>
-                                  <SelectItem value="Discussion">Discussion</SelectItem>
-                                  <SelectItem value="RDV">RDV</SelectItem>
-                                  <SelectItem value="Exclu">Exclu</SelectItem>
-                                </SelectContent>
-                              </Select>
-
-                              {/* Action */}
-                              <Select 
-                                value="" 
-                                onValueChange={(value) => {
-                                  toast({
-                                    title: "Action sélectionnée",
-                                    description: `${getActionName(Number(value))} pour ${contact.fullName}`,
-                                  });
-                                }}
-                              >
-                                <SelectTrigger className="w-36">
-                                  <SelectValue placeholder="Action" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">{getActionName(1)}</SelectItem>
-                                  <SelectItem value="2">{getActionName(2)}</SelectItem>
-                                  <SelectItem value="3">{getActionName(3)}</SelectItem>
-                                  <SelectItem value="4">{getActionName(4)}</SelectItem>
-                                  <SelectItem value="5">{getActionName(5)}</SelectItem>
-                                  <SelectItem value="6">{getActionName(6)}</SelectItem>
-                                </SelectContent>
-                              </Select>
+                    {/* Affichage des 3 premiers contacts */}
+                    {leadContacts.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {leadContacts.slice(0, 3).map((contact, index) => (
+                          <div
+                            key={contact.id}
+                            className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContactClick(contact);
+                            }}
+                          >
+                            <Medal className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-primary">Top {index + 1}</p>
+                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                             </div>
                           </div>
-                        </Card>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Statut */}
+                <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
+                  {getLeadStatus(lead.id)}
+                </Badge>
+              </div>
 
                 {/* Bouton pour ajouter des contacts si aucun */}
                 {leadContacts.length === 0 && (
