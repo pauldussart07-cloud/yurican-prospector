@@ -58,7 +58,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
       <div>
         <h2 className="text-3xl font-bold mb-3">🏢 Votre client idéal</h2>
         <p className="text-lg text-muted-foreground">
-          Parlez-moi des entreprises que vous ciblez
+          Quel(s) secteur(s) d'activité ciblez-vous ?
         </p>
       </div>
 
