@@ -108,17 +108,34 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
           <p className="text-lg font-medium text-foreground">
             Quel(s) service(s) ciblez-vous ?
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {availableServices.map((service) => (
-              <Badge
-                key={service}
-                variant={data.services.includes(service) ? 'default' : 'outline'}
-                className="px-4 py-3 text-sm font-medium cursor-pointer hover:scale-105 transition-all duration-200 justify-center"
-                onClick={() => toggleService(service)}
-              >
-                {service}
-              </Badge>
-            ))}
+          <div className="grid grid-cols-2 gap-2 max-w-md">
+            {availableServices.map((service, index) => {
+              const colors = [
+                'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200',
+                'bg-green-100 text-green-700 border-green-300 hover:bg-green-200',
+                'bg-purple-100 text-purple-700 border-purple-300 hover:bg-purple-200',
+                'bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200',
+                'bg-pink-100 text-pink-700 border-pink-300 hover:bg-pink-200',
+                'bg-cyan-100 text-cyan-700 border-cyan-300 hover:bg-cyan-200',
+                'bg-indigo-100 text-indigo-700 border-indigo-300 hover:bg-indigo-200',
+                'bg-teal-100 text-teal-700 border-teal-300 hover:bg-teal-200',
+                'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200',
+                'bg-rose-100 text-rose-700 border-rose-300 hover:bg-rose-200',
+              ];
+              const colorClass = colors[index % colors.length];
+              return (
+                <Badge
+                  key={service}
+                  variant={data.services.includes(service) ? 'default' : 'outline'}
+                  className={`px-2 py-1.5 text-xs font-medium cursor-pointer transition-all duration-200 justify-center ${
+                    !data.services.includes(service) ? colorClass : ''
+                  }`}
+                  onClick={() => toggleService(service)}
+                >
+                  {service}
+                </Badge>
+              );
+            })}
           </div>
         </div>
 
