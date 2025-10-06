@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import OnboardingStep1 from '@/components/onboarding/OnboardingStep1';
 import OnboardingStep2 from '@/components/onboarding/OnboardingStep2';
 import OnboardingStep3 from '@/components/onboarding/OnboardingStep3';
 import OnboardingStep5 from '@/components/onboarding/OnboardingStep5';
@@ -16,19 +17,26 @@ const Onboarding = () => {
 
   // Form data
   const [step1Data, setStep1Data] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  });
+
+  const [step2Data, setStep2Data] = useState({
     targetSectors: [] as string[],
     companySize: '',
     revenueRange: '',
     geographicZones: [] as string[],
   });
 
-  const [step2Data, setStep2Data] = useState({
+  const [step3Data, setStep3Data] = useState({
     services: [] as string[],
     decisionLevel: '',
     jobTitles: [] as string[],
   });
 
-  const [step3Data, setStep3Data] = useState({
+  const [step4Data, setStep4Data] = useState({
     trackedEvents: [] as string[],
   });
 
@@ -44,6 +52,9 @@ const Onboarding = () => {
     }
     setUserId(user.id);
 
+    // Pre-fill email from auth
+    setStep1Data(prev => ({ ...prev, email: user.email || '' }));
+
     // Check if onboarding is already completed
     const { data: profile } = await supabase
       .from('profiles')
@@ -57,19 +68,31 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
-    // Validate step 2: require services and decision level
-    if (currentStep === 2) {
-      if (step2Data.services.length === 0) {
+    // Validate step 1: require name and email
+    if (currentStep === 1) {
+      if (!step1Data.firstName.trim() || !step1Data.lastName.trim()) {
+        toast.error('Veuillez renseigner votre prénom et nom');
+        return;
+      }
+      if (!step1Data.email.trim()) {
+        toast.error('Veuillez renseigner votre email');
+        return;
+      }
+    }
+
+    // Validate step 3: require services and decision level
+    if (currentStep === 3) {
+      if (step3Data.services.length === 0) {
         toast.error('Veuillez sélectionner au moins un service');
         return;
       }
-      if (!step2Data.decisionLevel) {
+      if (!step3Data.decisionLevel) {
         toast.error('Veuillez sélectionner un niveau de décision');
         return;
       }
     }
     
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -83,35 +106,39 @@ const Onboarding = () => {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      // 1. Update profile
+      // 1. Update profile with personal info and tracked events
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          tracked_events: step3Data.trackedEvents,
+          first_name: step1Data.firstName.trim(),
+          last_name: step1Data.lastName.trim(),
+          email: step1Data.email.trim(),
+          phone: step1Data.phone.trim() || null,
+          tracked_events: step4Data.trackedEvents,
           onboarding_completed: true,
         })
         .eq('user_id', userId);
 
       if (profileError) throw profileError;
 
-      // 2. Create targeting from step1Data
+      // 2. Create targeting from step2Data
       const { error: targetingError } = await supabase
         .from('targetings')
         .insert({
           user_id: userId,
           name: 'Ciblage par défaut',
-          sectors: step1Data.targetSectors,
-          departments: step1Data.geographicZones,
-          min_headcount: getHeadcountMin(step1Data.companySize),
-          max_headcount: getHeadcountMax(step1Data.companySize),
-          min_revenue: getRevenueMin(step1Data.revenueRange),
-          max_revenue: getRevenueMax(step1Data.revenueRange),
+          sectors: step2Data.targetSectors,
+          departments: step2Data.geographicZones,
+          min_headcount: getHeadcountMin(step2Data.companySize),
+          max_headcount: getHeadcountMax(step2Data.companySize),
+          min_revenue: getRevenueMin(step2Data.revenueRange),
+          max_revenue: getRevenueMax(step2Data.revenueRange),
           is_active: true,
         });
 
       if (targetingError) throw targetingError;
 
-      // 3. Create personas from step2Data
+      // 3. Create personas from step3Data
       // Map decision level to database values
       const mapDecisionLevel = (level: string): 'Décisionnaire' | 'Influenceur' | 'Utilisateur' => {
         if (level === 'Dirigeant') return 'Décisionnaire';
@@ -120,25 +147,25 @@ const Onboarding = () => {
       };
 
       // If specific job titles are provided, create personas for each
-      if (step2Data.jobTitles.length > 0) {
-        for (let i = 0; i < step2Data.jobTitles.length; i++) {
+      if (step3Data.jobTitles.length > 0) {
+        for (let i = 0; i < step3Data.jobTitles.length; i++) {
           const { error: personaError } = await supabase.from('personas').insert({
             user_id: userId,
-            name: step2Data.jobTitles[i],
-            service: mapServiceToDatabase(step2Data.services[0] || 'Direction'),
-            decision_level: mapDecisionLevel(step2Data.decisionLevel),
+            name: step3Data.jobTitles[i],
+            service: mapServiceToDatabase(step3Data.services[0] || 'Direction'),
+            decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
           if (personaError) throw personaError;
         }
       } else {
         // Otherwise, create a default persona based on services and decision level
-        for (let i = 0; i < step2Data.services.length; i++) {
+        for (let i = 0; i < step3Data.services.length; i++) {
           const { error: personaError } = await supabase.from('personas').insert({
             user_id: userId,
-            name: `${step2Data.decisionLevel} - ${step2Data.services[i]}`,
-            service: mapServiceToDatabase(step2Data.services[i]),
-            decision_level: mapDecisionLevel(step2Data.decisionLevel),
+            name: `${step3Data.decisionLevel} - ${step3Data.services[i]}`,
+            service: mapServiceToDatabase(step3Data.services[i]),
+            decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
           if (personaError) throw personaError;
@@ -146,7 +173,7 @@ const Onboarding = () => {
       }
 
       toast.success('Onboarding terminé !');
-      navigate('/complete-profile');
+      navigate('/');
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error('Erreur lors de la sauvegarde');
@@ -206,9 +233,10 @@ const Onboarding = () => {
   };
 
   const steps = [
-    { number: 1, label: 'Votre activité' },
-    { number: 2, label: "L'entreprise cible" },
-    { number: 3, label: 'Vos outils' },
+    { number: 1, label: 'Vos informations' },
+    { number: 2, label: 'Votre activité' },
+    { number: 3, label: "L'entreprise cible" },
+    { number: 4, label: 'Vos outils' },
   ];
 
   return (
@@ -217,15 +245,16 @@ const Onboarding = () => {
         {/* Progress indicator */}
         <div className="mb-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Question {currentStep} sur 3
+            Question {currentStep} sur 4
           </p>
         </div>
 
         {/* Content Card */}
         <div className="bg-card rounded-lg shadow-xl p-8">
-          {currentStep === 1 && <OnboardingStep2 data={step1Data} onChange={setStep1Data} />}
-          {currentStep === 2 && <OnboardingStep3 data={step2Data} onChange={setStep2Data} />}
-          {currentStep === 3 && <OnboardingStep5 data={step3Data} onChange={setStep3Data} />}
+          {currentStep === 1 && <OnboardingStep1 data={step1Data} onChange={setStep1Data} />}
+          {currentStep === 2 && <OnboardingStep2 data={step2Data} onChange={setStep2Data} />}
+          {currentStep === 3 && <OnboardingStep3 data={step3Data} onChange={setStep3Data} />}
+          {currentStep === 4 && <OnboardingStep5 data={step4Data} onChange={setStep4Data} />}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
@@ -239,7 +268,7 @@ const Onboarding = () => {
               Retour
             </Button>
 
-            {currentStep < 3 ? (
+            {currentStep < 4 ? (
               <Button type="button" onClick={handleNext}>
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
