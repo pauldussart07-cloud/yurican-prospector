@@ -65,6 +65,7 @@ const Marche = () => {
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
+  const [showNoGoDialog, setShowNoGoDialog] = useState(false);
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
   const [contactCount, setContactCount] = useState(3);
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
@@ -228,6 +229,9 @@ const Marche = () => {
         return;
       }
 
+      // Retirer l'entreprise de la liste
+      setCompanies(companies.filter(c => c.id !== company.id));
+
       toast({
         title: 'Entreprise ajoutée',
         description: `${company.name} a été ajouté à vos prospects.`,
@@ -256,6 +260,7 @@ const Marche = () => {
     });
     
     setSelectedCompany(null);
+    setShowNoGoDialog(true);
   };
 
   // Filtrer et trier les entreprises avec le ciblage actif
@@ -1245,6 +1250,32 @@ const Marche = () => {
             </AlertDialogCancel>
             <AlertDialogAction onClick={confirmDiscover}>
               Confirmer (8 crédits)
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog NO GO pour modifier le ciblage */}
+      <AlertDialog open={showNoGoDialog} onOpenChange={setShowNoGoDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Entreprise masquée</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette entreprise a été masquée et ne sera plus affichée.
+              <br />
+              <br />
+              Souhaitez-vous affiner votre ciblage pour éviter ce type d'entreprises à l'avenir ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowNoGoDialog(false)}>
+              Non, merci
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowNoGoDialog(false);
+              navigate('/targeting');
+            }}>
+              Modifier mon ciblage
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
