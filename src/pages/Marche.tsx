@@ -70,6 +70,7 @@ const Marche = () => {
   const [contactCount, setContactCount] = useState(3);
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
   const [loadingPersonas, setLoadingPersonas] = useState(false);
+  const [swipingCompanies, setSwipingCompanies] = useState<Map<string, 'left' | 'right'>>(new Map());
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -186,81 +187,119 @@ const Marche = () => {
   };
 
   const handleGo = async (company: Company) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    // Déclencher l'animation de swipe vers la gauche
+    setSwipingCompanies(prev => new Map(prev).set(company.id, 'left'));
+    
+    // Attendre la fin de l'animation
+    setTimeout(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: 'Erreur',
+            description: 'Vous devez être connecté pour ajouter un lead.',
+            variant: 'destructive',
+          });
+          setSwipingCompanies(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(company.id);
+            return newMap;
+          });
+          return;
+        }
+
+        // Créer ou mettre à jour un lead dans Supabase
+        const { error } = await supabase
+          .from('leads')
+          .upsert({
+            user_id: user.id,
+            company_id: company.id,
+            company_name: company.name,
+            company_sector: company.sector,
+            company_department: company.department,
+            company_ca: company.ca,
+            company_headcount: company.headcount,
+            company_website: company.website,
+            company_linkedin: company.linkedin,
+            company_address: company.address,
+            company_siret: company.siret,
+            company_naf: company.naf,
+            status: 'Nouveau',
+            is_hot_signal: viewMode === 'signal',
+          }, {
+            onConflict: 'user_id,company_id'
+          });
+
+        if (error) {
+          console.error('Error saving lead:', error);
+          toast({
+            title: 'Erreur',
+            description: 'Impossible d\'ajouter le lead.',
+            variant: 'destructive',
+          });
+          setSwipingCompanies(prev => {
+            const newMap = new Map(prev);
+            newMap.delete(company.id);
+            return newMap;
+          });
+          return;
+        }
+
+        // Retirer l'entreprise de la liste
+        setCompanies(companies.filter(c => c.id !== company.id));
+        setSwipingCompanies(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(company.id);
+          return newMap;
+        });
+
+        toast({
+          title: 'Entreprise ajoutée',
+          description: `${company.name} a été ajouté à vos prospects.`,
+        });
+        
+        setSelectedCompany(null);
+      } catch (error) {
+        console.error('Error in handleGo:', error);
         toast({
           title: 'Erreur',
-          description: 'Vous devez être connecté pour ajouter un lead.',
+          description: 'Une erreur est survenue.',
           variant: 'destructive',
         });
-        return;
-      }
-
-      // Créer ou mettre à jour un lead dans Supabase
-      const { error } = await supabase
-        .from('leads')
-        .upsert({
-          user_id: user.id,
-          company_id: company.id,
-          company_name: company.name,
-          company_sector: company.sector,
-          company_department: company.department,
-          company_ca: company.ca,
-          company_headcount: company.headcount,
-          company_website: company.website,
-          company_linkedin: company.linkedin,
-          company_address: company.address,
-          company_siret: company.siret,
-          company_naf: company.naf,
-          status: 'Nouveau',
-          is_hot_signal: viewMode === 'signal',
-        }, {
-          onConflict: 'user_id,company_id'
+        setSwipingCompanies(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(company.id);
+          return newMap;
         });
-
-      if (error) {
-        console.error('Error saving lead:', error);
-        toast({
-          title: 'Erreur',
-          description: 'Impossible d\'ajouter le lead.',
-          variant: 'destructive',
-        });
-        return;
       }
-
-      // Retirer l'entreprise de la liste
-      setCompanies(companies.filter(c => c.id !== company.id));
-
-      toast({
-        title: 'Entreprise ajoutée',
-        description: `${company.name} a été ajouté à vos prospects.`,
-      });
-      
-      setSelectedCompany(null);
-    } catch (error) {
-      console.error('Error in handleGo:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue.',
-        variant: 'destructive',
-      });
-    }
+    }, 300);
   };
 
   const handleNoGo = (company: Company) => {
-    setCompanies(companies.map(c => 
-      c.id === company.id ? { ...c, isHidden: true } : c
-    ));
+    // Déclencher l'animation de swipe vers la droite
+    setSwipingCompanies(prev => new Map(prev).set(company.id, 'right'));
     
-    toast({
-      title: 'Entreprise masquée',
-      description: `${company.name} ne sera plus affichée.`,
-      variant: 'destructive',
-    });
-    
-    setSelectedCompany(null);
-    setShowNoGoDialog(true);
+    // Attendre la fin de l'animation
+    setTimeout(() => {
+      setCompanies(companies.map(c => 
+        c.id === company.id ? { ...c, isHidden: true } : c
+      ));
+      
+      setSwipingCompanies(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(company.id);
+        return newMap;
+      });
+      
+      toast({
+        title: 'Entreprise masquée',
+        description: `${company.name} ne sera plus affichée.`,
+        variant: 'destructive',
+      });
+      
+      setSelectedCompany(null);
+      setShowNoGoDialog(true);
+    }, 300);
   };
 
   // Filtrer et trier les entreprises avec le ciblage actif
@@ -621,10 +660,17 @@ const Marche = () => {
 
           if (viewMode === 'signal') {
             const isDiscovered = discoveredCompanies.has(company.id);
+            const swipeDirection = swipingCompanies.get(company.id);
+            const swipeClass = swipeDirection === 'left' 
+              ? '-translate-x-full opacity-0' 
+              : swipeDirection === 'right' 
+              ? 'translate-x-full opacity-0' 
+              : '';
+            
             return (
               <Card 
                 key={company.id} 
-                className={isDiscovered ? "hover:shadow-md transition-shadow cursor-pointer" : "transition-shadow"}
+                className={`${isDiscovered ? "hover:shadow-md cursor-pointer" : ""} transition-all duration-300 ${swipeClass}`}
                 onClick={isDiscovered ? () => handleCompanyClick(company) : undefined}
               >
                 <CardContent className="p-4">
@@ -779,10 +825,17 @@ const Marche = () => {
             );
           }
 
+          const swipeDirection = swipingCompanies.get(company.id);
+          const swipeClass = swipeDirection === 'left' 
+            ? '-translate-x-full opacity-0' 
+            : swipeDirection === 'right' 
+            ? 'translate-x-full opacity-0' 
+            : '';
+          
           return (
             <Card 
               key={company.id} 
-              className="hover:shadow-md transition-all duration-200 hover:scale-105 cursor-pointer"
+              className={`hover:shadow-md hover:scale-105 cursor-pointer transition-all duration-300 ${swipeClass}`}
               onClick={() => handleCompanyClick(company)}
             >
               <CardContent className="p-4">
