@@ -25,6 +25,24 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
   const [sectors, setSectors] = useState<Array<{ id: string; name: string }>>([]);
   const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
   const [filteredSectors, setFilteredSectors] = useState<Array<{ id: string; name: string }>>([]);
+  const [showZoneSuggestions, setShowZoneSuggestions] = useState(false);
+  const [filteredZones, setFilteredZones] = useState<string[]>([]);
+
+  const frenchRegions = [
+    'Île-de-France',
+    'Auvergne-Rhône-Alpes',
+    'Nouvelle-Aquitaine',
+    'Occitanie',
+    'Hauts-de-France',
+    'Provence-Alpes-Côte d\'Azur',
+    'Grand Est',
+    'Pays de la Loire',
+    'Bretagne',
+    'Normandie',
+    'Bourgogne-Franche-Comté',
+    'Centre-Val de Loire',
+    'Corse',
+  ];
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -54,6 +72,19 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
     }
   }, [sectorInput, sectors]);
 
+  useEffect(() => {
+    if (zoneInput && zoneInput.length > 0) {
+      const filtered = frenchRegions.filter(region =>
+        region.toLowerCase().includes(zoneInput.toLowerCase())
+      );
+      setFilteredZones(filtered);
+      setShowZoneSuggestions(filtered.length > 0);
+    } else {
+      setFilteredZones([]);
+      setShowZoneSuggestions(false);
+    }
+  }, [zoneInput]);
+
   const updateField = (field: keyof Step2Data, value: any) => {
     onChange({ ...data, [field]: value });
   };
@@ -82,7 +113,16 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
     if (zoneInput.trim() && !data.geographicZones.includes(zoneInput.trim())) {
       updateField('geographicZones', [...data.geographicZones, zoneInput.trim()]);
       setZoneInput('');
+      setShowZoneSuggestions(false);
     }
+  };
+
+  const selectZone = (zoneName: string) => {
+    if (!data.geographicZones.includes(zoneName)) {
+      updateField('geographicZones', [...data.geographicZones, zoneName]);
+    }
+    setZoneInput('');
+    setShowZoneSuggestions(false);
   };
 
   const removeZone = (zone: string) => {
@@ -217,13 +257,42 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Dans quelle(s) région(s) ?</p>
             <div className="flex gap-2">
-              <Input
-                placeholder="Ex: Île-de-France, Auvergne-Rhône-Alpes..."
-                value={zoneInput}
-                onChange={(e) => setZoneInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addZone())}
-                className="h-12"
-              />
+              <div className="relative flex-1">
+                <Input
+                  placeholder="Ex: Île-de-France, Auvergne-Rhône-Alpes..."
+                  value={zoneInput}
+                  onChange={(e) => setZoneInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addZone())}
+                  onFocus={() => zoneInput && setShowZoneSuggestions(filteredZones.length > 0)}
+                  className="h-12"
+                />
+                {showZoneSuggestions && (
+                  <div className="absolute w-full mt-1 z-50">
+                    <Command className="rounded-lg border shadow-md bg-popover">
+                      <CommandList>
+                        <CommandEmpty>Aucune région trouvée</CommandEmpty>
+                        <CommandGroup>
+                          {filteredZones.map((zone) => (
+                            <CommandItem
+                              key={zone}
+                              onSelect={() => selectZone(zone)}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  data.geographicZones.includes(zone) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {zone}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </div>
+                )}
+              </div>
               <Button type="button" onClick={addZone} className="h-12">
                 Ajouter
               </Button>
