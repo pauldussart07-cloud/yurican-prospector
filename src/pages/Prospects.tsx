@@ -924,22 +924,103 @@ const Prospects = () => {
                       />
                     </div>
 
-                    {/* Bloc 1 : Logo entreprise */}
-                    <div className="flex-shrink-0">
-                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                        <Building2 className="h-6 w-6 text-muted-foreground" />
-                      </div>
+                    {/* Bloc 4 : Liste des contacts */}
+                    <div className="w-64 space-y-2">
+                      {leadContacts.length > 0 ? (
+                        leadContacts.slice(0, 3).map((contact, index) => (
+                        <div
+                          key={contact.id}
+                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactClick(contact);
+                          }}
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs">{contact.email}</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                              {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs">{contact.phone}</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              ) : (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <Phone 
+                                      className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDiscoverRequest(contact.id, 'phone');
+                                      }}
+                                    />
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        ))
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedLead(lead.id);
+                            setShowPersonaDialog(true);
+                          }}
+                        >
+                          <UsersIcon className="h-4 w-4 mr-2" />
+                          Chercher les contacts
+                        </Button>
+                      )}
                     </div>
 
-                    {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
+                    {/* Bloc 2 : Informations entreprise avec logo */}
                     <div className="flex-shrink-0 w-48">
-                      <h3 className="text-sm font-semibold truncate">
-                        {highlightText(company.name, searchQuery)}
-                      </h3>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                        <MapPin className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{company.department}</span>
+                      {/* Nom et logo */}
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold truncate">
+                            {highlightText(company.name, searchQuery)}
+                          </h3>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">{company.department}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Logo */}
+                        <div className="flex-shrink-0">
+                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                            <Building2 className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        </div>
                       </div>
+                      
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Briefcase className="h-3 w-3 flex-shrink-0" />
                         <span className="truncate">{company.sector}</span>
@@ -978,15 +1059,16 @@ const Prospects = () => {
                       </div>
                     </div>
 
-                  {/* Bloc 3 : Résumé du signal et contacts */}
-                  <div className="flex-1 min-w-0 flex gap-3">
-                    {/* Résumé */}
-                    <div className="flex-1">
-                      <p className="text-sm text-muted-foreground line-clamp-3">
+                  {/* Bloc 3 : Synthèse signal */}
+                  <div className="flex-1 px-2">
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
                         {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
                       </p>
-                      <button 
-                        className="text-xs text-primary hover:underline mt-1"
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
                         onClick={(e) => {
                           e.stopPropagation();
                           const firstContact = leadContacts[0];
@@ -995,89 +1077,14 @@ const Prospects = () => {
                           }
                         }}
                       >
-                        Afficher plus →
-                      </button>
-                    </div>
-
-                    {/* Liste des contacts à droite */}
-                    <div className="w-64 space-y-2">
-                      {leadContacts.length > 0 ? (
-                        leadContacts.slice(0, 3).map((contact, index) => (
-                        <div
-                          key={contact.id}
-                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactClick(contact);
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                            {index + 1}
-                          </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-auto">
-                                <p className="text-xs">{contact.email}</p>
-                              </HoverCardContent>
-                            </HoverCard>
-                          </div>
-                          <div className="flex items-center justify-between mt-1">
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            {isContactInfoDiscovered(contact.id, 'phone') ? (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs">{contact.phone}</p>
-                                </HoverCardContent>
-                              </HoverCard>
-                            ) : (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <Phone 
-                                    className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDiscoverRequest(contact.id, 'phone');
-                                    }}
-                                  />
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
-                                </HoverCardContent>
-                              </HoverCard>
-                            )}
-                          </div>
-                        </div>
-                        </div>
-                        ))
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLead(lead.id);
-                            setShowPersonaDialog(true);
-                          }}
-                        >
-                          <UsersIcon className="h-4 w-4 mr-2" />
-                          Chercher les contacts
-                        </Button>
-                      )}
+                        Voir plus →
+                      </Button>
                     </div>
                   </div>
 
                   {/* Statut */}
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.companyId))} className="w-36 justify-center">
-                    {getLeadStatus(lead.companyId)}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
+                    {getLeadStatus(lead.id)}
                   </Badge>
                 </div>
               </CardContent>
