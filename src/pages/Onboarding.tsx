@@ -7,7 +7,6 @@ import { toast } from 'sonner';
 import OnboardingStep1 from '@/components/onboarding/OnboardingStep1';
 import OnboardingStep2 from '@/components/onboarding/OnboardingStep2';
 import OnboardingStep3 from '@/components/onboarding/OnboardingStep3';
-import OnboardingStep4 from '@/components/onboarding/OnboardingStep4';
 import OnboardingStep5 from '@/components/onboarding/OnboardingStep5';
 
 const Onboarding = () => {
@@ -35,11 +34,6 @@ const Onboarding = () => {
   });
 
   const [step4Data, setStep4Data] = useState({
-    crmTool: '',
-    otherTools: [] as string[],
-  });
-
-  const [step5Data, setStep5Data] = useState({
     trackedEvents: [] as string[],
   });
 
@@ -80,7 +74,7 @@ const Onboarding = () => {
       }
     }
     
-    if (currentStep < 5) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -99,9 +93,7 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           job_function: step1Data.jobFunction,
-          crm_tool: step4Data.crmTool,
-          other_tools: step4Data.otherTools,
-          tracked_events: step5Data.trackedEvents,
+          tracked_events: step4Data.trackedEvents,
           onboarding_completed: true,
         })
         .eq('user_id', userId);
@@ -223,8 +215,7 @@ const Onboarding = () => {
     { number: 1, label: 'Qui vous êtes' },
     { number: 2, label: 'Votre activité' },
     { number: 3, label: "L'entreprise cible" },
-    { number: 4, label: 'Le contact cible' },
-    { number: 5, label: 'Vos outils' },
+    { number: 4, label: 'Vos outils' },
   ];
 
   return (
@@ -233,7 +224,7 @@ const Onboarding = () => {
         {/* Progress indicator */}
         <div className="mb-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Question {currentStep} sur 5
+            Question {currentStep} sur 4
           </p>
         </div>
 
@@ -242,8 +233,7 @@ const Onboarding = () => {
           {currentStep === 1 && <OnboardingStep1 data={step1Data} onChange={setStep1Data} />}
           {currentStep === 2 && <OnboardingStep2 data={step2Data} onChange={setStep2Data} />}
           {currentStep === 3 && <OnboardingStep3 data={step3Data} onChange={setStep3Data} />}
-          {currentStep === 4 && <OnboardingStep4 data={step4Data} onChange={setStep4Data} />}
-          {currentStep === 5 && <OnboardingStep5 data={step5Data} onChange={setStep5Data} />}
+          {currentStep === 4 && <OnboardingStep5 data={step4Data} onChange={setStep4Data} />}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
@@ -256,7 +246,7 @@ const Onboarding = () => {
               Retour
             </Button>
 
-            {currentStep < 5 ? (
+            {currentStep < 4 ? (
               <Button onClick={handleNext}>
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
