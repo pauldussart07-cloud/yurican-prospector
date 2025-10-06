@@ -1070,6 +1070,30 @@ const Prospects = () => {
                     </div>
                   </div>
 
+                  {/* Bloc 4 : Liste des contacts à droite du logo */}
+                  {leadContacts.length > 0 && (
+                    <div className="w-64 space-y-2">
+                      {leadContacts.slice(0, 3).map((contact, index) => (
+                        <div
+                          key={contact.id}
+                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactClick(contact);
+                          }}
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
                   <div className="flex-shrink-0 w-48">
                     <h3 className="text-sm font-semibold truncate">
@@ -1117,10 +1141,9 @@ const Prospects = () => {
                     </div>
                   </div>
 
-                {/* Synthèse entreprise et contacts */}
-                <div className="flex-1 px-2 flex gap-3">
-                  {/* Synthèse */}
-                  <div className="flex-1 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                {/* Bloc 3 : Synthèse entreprise */}
+                <div className="flex-1 px-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
                       {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
                       {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
@@ -1140,30 +1163,6 @@ const Prospects = () => {
                       Voir plus →
                     </Button>
                   </div>
-
-                  {/* Liste des contacts à droite */}
-                  {leadContacts.length > 0 && (
-                    <div className="w-64 space-y-2">
-                      {leadContacts.slice(0, 3).map((contact, index) => (
-                        <div
-                          key={contact.id}
-                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactClick(contact);
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
                 {/* Statut */}
