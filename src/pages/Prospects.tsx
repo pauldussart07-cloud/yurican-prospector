@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1102,19 +1102,29 @@ const Prospects = () => {
                         </a>
                       </div>
                       
-                      {/* Bouton "Afficher x de plus" positionné à droite du 3ème contact */}
-                      {leadContacts.length > 0 && !isContactsExpanded && remainingCount > 0 && (
+                      {/* Bouton "Afficher x de plus" / "Afficher moins" positionné à droite du 3ème contact */}
+                      {leadContacts.length > 0 && remainingCount > 0 && (
                         <div className="absolute top-[156px] -left-4">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleExpandContacts(lead.id);
                             }}
-                            className="text-xs h-7"
+                            className="text-xs h-8 px-3 gap-1.5 bg-background/95 backdrop-blur-sm hover:bg-accent border-primary/20 hover:border-primary/40 transition-all shadow-sm"
                           >
-                            Afficher {remainingCount} de plus
+                            {isContactsExpanded ? (
+                              <>
+                                <ChevronUp className="h-3.5 w-3.5" />
+                                Afficher moins
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-3.5 w-3.5" />
+                                Afficher {remainingCount} de plus
+                              </>
+                            )}
                           </Button>
                         </div>
                       )}
@@ -1305,19 +1315,29 @@ const Prospects = () => {
                       </a>
                     </div>
                     
-                    {/* Bouton "Afficher x de plus" positionné à droite du 3ème contact */}
-                    {leadContacts.length > 0 && !isContactsExpanded && remainingCount > 0 && (
+                    {/* Bouton "Afficher x de plus" / "Afficher moins" positionné à droite du 3ème contact */}
+                    {leadContacts.length > 0 && remainingCount > 0 && (
                       <div className="absolute top-[156px] -left-4">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleExpandContacts(lead.id);
                           }}
-                          className="text-xs h-7"
+                          className="text-xs h-8 px-3 gap-1.5 bg-background/95 backdrop-blur-sm hover:bg-accent border-primary/20 hover:border-primary/40 transition-all shadow-sm"
                         >
-                          Afficher {remainingCount} de plus
+                          {isContactsExpanded ? (
+                            <>
+                              <ChevronUp className="h-3.5 w-3.5" />
+                              Afficher moins
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-3.5 w-3.5" />
+                              Afficher {remainingCount} de plus
+                            </>
+                          )}
                         </Button>
                       </div>
                     )}
