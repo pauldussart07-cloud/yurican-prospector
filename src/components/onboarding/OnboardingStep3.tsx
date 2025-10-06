@@ -56,21 +56,21 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
           className="space-y-2"
         >
           <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-            <RadioGroupItem value="Le Dirigeant" id="dirigeant" />
-            <Label htmlFor="dirigeant" className="font-normal cursor-pointer flex-1">
-              Le Dirigeant
+            <RadioGroupItem value="Décisionnaire" id="decisionnaire" />
+            <Label htmlFor="decisionnaire" className="font-normal cursor-pointer flex-1">
+              Décisionnaire
             </Label>
           </div>
           <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-            <RadioGroupItem value="Des directeurs" id="directeurs" />
-            <Label htmlFor="directeurs" className="font-normal cursor-pointer flex-1">
-              Des directeurs
+            <RadioGroupItem value="Influenceur" id="influenceur" />
+            <Label htmlFor="influenceur" className="font-normal cursor-pointer flex-1">
+              Influenceur
             </Label>
           </div>
           <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-            <RadioGroupItem value="Des collaborateurs" id="collaborateurs" />
-            <Label htmlFor="collaborateurs" className="font-normal cursor-pointer flex-1">
-              Des collaborateurs
+            <RadioGroupItem value="Utilisateur" id="utilisateur" />
+            <Label htmlFor="utilisateur" className="font-normal cursor-pointer flex-1">
+              Utilisateur
             </Label>
           </div>
         </RadioGroup>
