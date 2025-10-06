@@ -1064,9 +1064,9 @@ const Prospects = () => {
                   </div>
 
                   {/* Bloc 4 : Liste des contacts */}
-                  {leadContacts.length > 0 && (
-                    <div className="w-64 space-y-2">
-                      {leadContacts.slice(0, 3).map((contact, index) => (
+                  <div className="w-64 space-y-2">
+                    {leadContacts.length > 0 ? (
+                      leadContacts.slice(0, 3).map((contact, index) => (
                         <div
                           key={contact.id}
                           className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
@@ -1083,9 +1083,11 @@ const Prospects = () => {
                             <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      ))
+                    ) : (
+                      <div className="h-12" /> 
+                    )}
+                  </div>
 
                   {/* Bloc 1 : Logo entreprise et Bloc 2 : Informations */}
                   <div className="flex items-start gap-3">
