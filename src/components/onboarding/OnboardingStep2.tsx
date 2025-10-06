@@ -213,7 +213,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
             {/* Taille d'entreprise */}
             <div className="space-y-4">
               <p className="text-muted-foreground">Quelle taille d'entreprise ?</p>
-              <div className="grid grid-cols-2 gap-3 max-w-[65%]">
+              <div className="grid grid-cols-2 gap-3">
                 {companySizes.map((size) => (
                   <Button
                     key={size.id}
@@ -232,7 +232,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
             {data.companySize && (
               <div className="space-y-4">
                 <p className="text-muted-foreground">Tranche de chiffre d'affaires ?</p>
-                <div className="grid grid-cols-2 gap-3 max-w-[65%]">
+                <div className="grid grid-cols-2 gap-3">
                   {[
                     { id: '0-1M', label: '0 - 1M€' },
                     { id: '1M-5M', label: '1M - 5M€' },
@@ -260,7 +260,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
         {data.revenueRange && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Dans quelle(s) région(s) ?</p>
-            <div className="flex gap-2 max-w-[65%]">
+            <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
                   placeholder="Ex: Île-de-France..."
@@ -302,7 +302,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
               </Button>
             </div>
             {data.geographicZones.length > 0 && (
-              <div className="flex flex-wrap gap-2 max-w-[65%]">
+              <div className="flex flex-wrap gap-2">
                 {data.geographicZones.map((zone) => (
                   <Badge key={zone} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
                     {zone}
