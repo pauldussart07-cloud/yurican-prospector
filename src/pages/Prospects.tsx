@@ -1063,14 +1063,7 @@ const Prospects = () => {
                     />
                   </div>
 
-                  {/* Bloc 1 : Logo entreprise */}
-                  <div className="flex-shrink-0">
-                    <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                      <Building2 className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                  </div>
-
-                  {/* Bloc 4 : Liste des contacts à droite du logo */}
+                  {/* Bloc 4 : Liste des contacts */}
                   {leadContacts.length > 0 && (
                     <div className="w-64 space-y-2">
                       {leadContacts.slice(0, 3).map((contact, index) => (
@@ -1094,8 +1087,17 @@ const Prospects = () => {
                     </div>
                   )}
 
-                  {/* Bloc 2 : Raison sociale, département, secteur, effectif, CA, liens */}
-                  <div className="flex-shrink-0 w-48">
+                  {/* Bloc 1 : Logo entreprise et Bloc 2 : Informations */}
+                  <div className="flex items-start gap-3">
+                    {/* Logo */}
+                    <div className="flex-shrink-0">
+                      <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                        <Building2 className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    </div>
+
+                    {/* Raison sociale, département, secteur, effectif, CA, liens */}
+                    <div className="flex-shrink-0 w-48">
                     <h3 className="text-sm font-semibold truncate">
                       {highlightText(company.name, searchQuery)}
                     </h3>
@@ -1140,6 +1142,7 @@ const Prospects = () => {
                       </a>
                     </div>
                   </div>
+                </div>
 
                 {/* Bloc 3 : Synthèse entreprise */}
                 <div className="flex-1 px-2">
