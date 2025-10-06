@@ -29,6 +29,8 @@ const Onboarding = () => {
   });
 
   const [step3Data, setStep3Data] = useState({
+    services: [] as string[],
+    decisionLevel: '',
     jobTitles: [] as string[],
   });
 
@@ -66,10 +68,16 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
-    // Validate step 3: require at least 3 job titles
-    if (currentStep === 3 && step3Data.jobTitles.length < 3) {
-      toast.error('Veuillez ajouter au moins 3 intitulés de poste');
-      return;
+    // Validate step 3: require services and decision level
+    if (currentStep === 3) {
+      if (step3Data.services.length === 0) {
+        toast.error('Veuillez sélectionner au moins un service');
+        return;
+      }
+      if (!step3Data.decisionLevel) {
+        toast.error('Veuillez sélectionner un niveau de décision');
+        return;
+      }
     }
     
     if (currentStep < 5) {
@@ -118,14 +126,30 @@ const Onboarding = () => {
       if (targetingError) throw targetingError;
 
       // 3. Create personas from step3Data
-      for (let i = 0; i < step3Data.jobTitles.length; i++) {
-        await supabase.from('personas').insert({
-          user_id: userId,
-          name: step3Data.jobTitles[i],
-          service: 'Direction',
-          decision_level: 'Décisionnaire',
-          position: i + 1,
-        });
+      // If specific job titles are provided, create personas for each
+      if (step3Data.jobTitles.length > 0) {
+        for (let i = 0; i < step3Data.jobTitles.length; i++) {
+          const { error: personaError } = await supabase.from('personas').insert({
+            user_id: userId,
+            name: step3Data.jobTitles[i],
+            service: (step3Data.services[0] || 'Direction') as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
+            decision_level: step3Data.decisionLevel as 'Décisionnaire' | 'Influenceur' | 'Utilisateur',
+            position: i + 1,
+          });
+          if (personaError) throw personaError;
+        }
+      } else {
+        // Otherwise, create a default persona based on services and decision level
+        for (let i = 0; i < step3Data.services.length; i++) {
+          const { error: personaError } = await supabase.from('personas').insert({
+            user_id: userId,
+            name: `${step3Data.decisionLevel} - ${step3Data.services[i]}`,
+            service: step3Data.services[i] as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
+            decision_level: step3Data.decisionLevel as 'Décisionnaire' | 'Influenceur' | 'Utilisateur',
+            position: i + 1,
+          });
+          if (personaError) throw personaError;
+        }
       }
 
       toast.success('Onboarding terminé !');

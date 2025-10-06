@@ -1,11 +1,15 @@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 
 interface Step3Data {
+  services: string[];
+  decisionLevel: string;
   jobTitles: string[];
 }
 
@@ -18,6 +22,24 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
   const [jobSuggestions, setJobSuggestions] = useState<{ name: string; category: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(-1);
   const [currentInput, setCurrentInput] = useState('');
+
+  const availableServices = [
+    'Commerce',
+    'Marketing',
+    'IT',
+    'RH',
+    'Direction',
+    'Finance',
+    'Production',
+    'Logistique',
+  ];
+
+  const toggleService = (service: string) => {
+    const services = data.services.includes(service)
+      ? data.services.filter((s) => s !== service)
+      : [...data.services, service];
+    onChange({ ...data, services });
+  };
 
   const addJobTitle = (title: string) => {
     if (title.trim() && !data.jobTitles.includes(title.trim())) {
@@ -78,17 +100,53 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
         <h2 className="text-3xl font-bold mb-3">🎯 Parlons de votre cible</h2>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* Services */}
+        <div className="space-y-4">
+          <p className="text-lg text-muted-foreground">
+            Quel(s) service(s) ciblez-vous ?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {availableServices.map((service) => (
+              <Badge
+                key={service}
+                variant={data.services.includes(service) ? 'default' : 'outline'}
+                className="px-4 py-2 text-sm cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => toggleService(service)}
+              >
+                {service}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Niveau de décision */}
+        <div className="space-y-4">
+          <p className="text-lg text-muted-foreground">
+            Quel niveau de décision visez-vous ?
+          </p>
+          <RadioGroup value={data.decisionLevel} onValueChange={(value) => onChange({ ...data, decisionLevel: value })}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Décisionnaire" id="decisionnaire" />
+              <Label htmlFor="decisionnaire" className="cursor-pointer">Décisionnaire</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Influenceur" id="influenceur" />
+              <Label htmlFor="influenceur" className="cursor-pointer">Influenceur</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="Utilisateur" id="utilisateur" />
+              <Label htmlFor="utilisateur" className="cursor-pointer">Utilisateur</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        {/* Intitulés de poste (optionnel) */}
         <div className="space-y-4">
           <div className="space-y-2">
             <p className="text-lg text-muted-foreground">
-              Donnez-nous au moins 3 exemples d'intitulés de poste que vous ciblez
+              Intitulés de poste spécifiques <span className="text-sm">(optionnel)</span>
             </p>
-            {data.jobTitles.length < 3 && (
-              <p className="text-sm text-muted-foreground">
-                {data.jobTitles.length}/3 minimum
-              </p>
-            )}
           </div>
 
           {data.jobTitles.length > 0 && (
