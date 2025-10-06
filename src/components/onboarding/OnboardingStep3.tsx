@@ -137,6 +137,46 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
           </div>
         )}
 
+        {data.contactType && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Ciblez-vous un poste précis ? (optionnel)</p>
+            <div className="relative">
+              <Input
+                id="specificRole"
+                placeholder="Ex: Intégrateur Salesforce senior..."
+                value={data.specificRole}
+                onChange={(e) => updateField('specificRole', e.target.value)}
+                onFocus={() => data.specificRole.length >= 2 && setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                className="h-12"
+              />
+              {showSuggestions && jobSuggestions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-md">
+                  <Command>
+                    <CommandList>
+                      <CommandGroup>
+                        {jobSuggestions.map((job, index) => (
+                          <CommandItem
+                            key={index}
+                            onSelect={() => handleSelectSuggestion(job.name)}
+                            className="cursor-pointer"
+                          >
+                            <div className="flex flex-col">
+                              <span>{job.name}</span>
+                              {job.category && (
+                                <span className="text-xs text-muted-foreground">{job.category}</span>
+                              )}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
