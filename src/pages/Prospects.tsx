@@ -93,7 +93,7 @@ const Prospects = () => {
   
   // Persona selector state
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
-  const [contactCount, setContactCount] = useState(3);
+  const [personaContactCounts, setPersonaContactCounts] = useState<Map<string, number>>(new Map());
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
   const [loadingPersonas, setLoadingPersonas] = useState(false);
 
@@ -232,13 +232,22 @@ const Prospects = () => {
       const selectedPersonaObjects = userPersonas.filter(p => 
         selectedPersonas.includes(p.name)
       );
+
+      // Générer les contacts pour chaque persona individuellement
+      let allNewContacts: any[] = [];
       
-      const newContacts = await contactsService.generateContacts({
-        companyId: company.id,
-        companyName: company.name,
-        personas: selectedPersonaObjects,
-        count: contactCount,
-      });
+      for (const persona of selectedPersonaObjects) {
+        const count = personaContactCounts.get(persona.name) || 3;
+        const contacts = await contactsService.generateContacts({
+          companyId: company.id,
+          companyName: company.name,
+          personas: [persona],
+          count: count,
+        });
+        allNewContacts = [...allNewContacts, ...contacts];
+      }
+      
+      const newContacts = allNewContacts;
 
       // Sauvegarder les contacts dans Supabase
       const contactsToInsert = newContacts.map(contact => ({
@@ -293,7 +302,7 @@ const Prospects = () => {
 
       setShowPersonaDialog(false);
       setSelectedPersonas([]);
-      setContactCount(3);
+      setPersonaContactCounts(new Map());
     } catch (error) {
       console.error('Error generating contacts:', error);
       toast({
@@ -307,11 +316,34 @@ const Prospects = () => {
   };
 
   const handlePersonaToggle = (personaName: string) => {
-    setSelectedPersonas(prev =>
-      prev.includes(personaName)
-        ? prev.filter(p => p !== personaName)
-        : [...prev, personaName]
-    );
+    setSelectedPersonas(prev => {
+      const isCurrentlySelected = prev.includes(personaName);
+      if (isCurrentlySelected) {
+        // Retirer le persona et son count
+        setPersonaContactCounts(prevCounts => {
+          const newCounts = new Map(prevCounts);
+          newCounts.delete(personaName);
+          return newCounts;
+        });
+        return prev.filter(p => p !== personaName);
+      } else {
+        // Ajouter le persona avec un count par défaut
+        setPersonaContactCounts(prevCounts => {
+          const newCounts = new Map(prevCounts);
+          newCounts.set(personaName, 3);
+          return newCounts;
+        });
+        return [...prev, personaName];
+      }
+    });
+  };
+
+  const handlePersonaCountChange = (personaName: string, count: number) => {
+    setPersonaContactCounts(prev => {
+      const newCounts = new Map(prev);
+      newCounts.set(personaName, Math.max(1, Math.min(10, count)));
+      return newCounts;
+    });
   };
 
   const personas: PersonaType[] = [
@@ -1387,50 +1419,58 @@ const Prospects = () => {
                     <Target className="h-4 w-4" />
                     Ciblages de contacts
                   </Label>
-                  {userPersonas.map((persona, index) => (
-                    <div key={persona.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30">
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                        {index + 1}
+                {userPersonas.map((persona, index) => (
+                  <div key={persona.id} className="flex items-start space-x-3 p-3 rounded-lg border bg-muted/30">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Checkbox
+                          id={persona.id}
+                          checked={selectedPersonas.includes(persona.name)}
+                          onCheckedChange={() => handlePersonaToggle(persona.name)}
+                        />
+                        <label
+                          htmlFor={persona.id}
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          {persona.name}
+                        </label>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Checkbox
-                            id={persona.id}
-                            checked={selectedPersonas.includes(persona.name)}
-                            onCheckedChange={() => handlePersonaToggle(persona.name)}
-                          />
-                          <label
-                            htmlFor={persona.id}
-                            className="text-sm font-medium leading-none cursor-pointer"
-                          >
-                            {persona.name}
-                          </label>
-                        </div>
-                        <div className="flex gap-2 ml-6">
-                          <Badge variant="outline" className="text-xs">
-                            {persona.service}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            {persona.decision_level}
-                          </Badge>
-                        </div>
+                      <div className="flex gap-2 ml-6">
+                        <Badge variant="outline" className="text-xs">
+                          {persona.service}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {persona.decision_level}
+                        </Badge>
                       </div>
                     </div>
-                  ))}
+                    {selectedPersonas.includes(persona.name) && (
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Label htmlFor={`count-${persona.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
+                          Nb contacts:
+                        </Label>
+                        <Input
+                          id={`count-${persona.id}`}
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={personaContactCounts.get(persona.name) || 3}
+                          onChange={(e) => handlePersonaCountChange(persona.name, parseInt(e.target.value) || 1)}
+                          className="w-16 h-8 text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="count">Nombre de contacts par ciblage</Label>
-                  <Input
-                    id="count"
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={contactCount}
-                    onChange={(e) => setContactCount(parseInt(e.target.value) || 1)}
-                  />
+                <div className="space-y-2 pt-2 border-t">
+                  <p className="text-sm font-medium">Résumé</p>
                   <p className="text-xs text-muted-foreground">
-                    Total : {selectedPersonas.length * contactCount} contact{selectedPersonas.length * contactCount > 1 ? 's' : ''}
+                    Total : {Array.from(personaContactCounts.values()).reduce((sum, count) => sum + count, 0)} contact{Array.from(personaContactCounts.values()).reduce((sum, count) => sum + count, 0) > 1 ? 's' : ''} pour {selectedPersonas.length} ciblage{selectedPersonas.length > 1 ? 's' : ''}
                   </p>
                 </div>
 
