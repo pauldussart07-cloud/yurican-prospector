@@ -127,16 +127,16 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
           </p>
           <RadioGroup value={data.decisionLevel} onValueChange={(value) => onChange({ ...data, decisionLevel: value })}>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Décisionnaire" id="decisionnaire" />
-              <Label htmlFor="decisionnaire" className="cursor-pointer">Décisionnaire</Label>
+              <RadioGroupItem value="Dirigeant" id="dirigeant" />
+              <Label htmlFor="dirigeant" className="cursor-pointer">Dirigeant</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Influenceur" id="influenceur" />
-              <Label htmlFor="influenceur" className="cursor-pointer">Influenceur</Label>
+              <RadioGroupItem value="Directeur / Responsable" id="directeur" />
+              <Label htmlFor="directeur" className="cursor-pointer">Directeur / Responsable</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Utilisateur" id="utilisateur" />
-              <Label htmlFor="utilisateur" className="cursor-pointer">Utilisateur</Label>
+              <RadioGroupItem value="Autres collaborateurs" id="autres" />
+              <Label htmlFor="autres" className="cursor-pointer">Autres collaborateurs</Label>
             </div>
           </RadioGroup>
         </div>

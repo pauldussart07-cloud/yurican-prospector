@@ -126,6 +126,13 @@ const Onboarding = () => {
       if (targetingError) throw targetingError;
 
       // 3. Create personas from step3Data
+      // Map decision level to database values
+      const mapDecisionLevel = (level: string): 'Décisionnaire' | 'Influenceur' | 'Utilisateur' => {
+        if (level === 'Dirigeant') return 'Décisionnaire';
+        if (level === 'Directeur / Responsable') return 'Influenceur';
+        return 'Utilisateur';
+      };
+
       // If specific job titles are provided, create personas for each
       if (step3Data.jobTitles.length > 0) {
         for (let i = 0; i < step3Data.jobTitles.length; i++) {
@@ -133,7 +140,7 @@ const Onboarding = () => {
             user_id: userId,
             name: step3Data.jobTitles[i],
             service: (step3Data.services[0] || 'Direction') as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
-            decision_level: step3Data.decisionLevel as 'Décisionnaire' | 'Influenceur' | 'Utilisateur',
+            decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
           if (personaError) throw personaError;
@@ -145,7 +152,7 @@ const Onboarding = () => {
             user_id: userId,
             name: `${step3Data.decisionLevel} - ${step3Data.services[i]}`,
             service: step3Data.services[i] as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
-            decision_level: step3Data.decisionLevel as 'Décisionnaire' | 'Influenceur' | 'Utilisateur',
+            decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
           if (personaError) throw personaError;
