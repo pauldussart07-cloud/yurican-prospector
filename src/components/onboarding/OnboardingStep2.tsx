@@ -99,7 +99,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold mb-3">🏢 Votre client idéal</h2>
+        <h2 className="text-3xl font-bold mb-3">🏢 Votre prospect idéal</h2>
         <p className="text-lg text-muted-foreground">
           Quel(s) secteur(s) d'activité ciblez-vous ?
         </p>
