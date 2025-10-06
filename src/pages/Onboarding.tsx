@@ -139,7 +139,7 @@ const Onboarding = () => {
           const { error: personaError } = await supabase.from('personas').insert({
             user_id: userId,
             name: step3Data.jobTitles[i],
-            service: (step3Data.services[0] || 'Direction') as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
+            service: mapServiceToDatabase(step3Data.services[0] || 'Direction'),
             decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
@@ -151,7 +151,7 @@ const Onboarding = () => {
           const { error: personaError } = await supabase.from('personas').insert({
             user_id: userId,
             name: `${step3Data.decisionLevel} - ${step3Data.services[i]}`,
-            service: step3Data.services[i] as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique',
+            service: mapServiceToDatabase(step3Data.services[i]),
             decision_level: mapDecisionLevel(step3Data.decisionLevel),
             position: i + 1,
           });
@@ -212,18 +212,11 @@ const Onboarding = () => {
     return mapping[type] || 'Utilisateur';
   };
 
-  const mapDepartmentToService = (dept: string): 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique' => {
-    const mapping: { [key: string]: 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique' } = {
-      'Direction générale': 'Direction',
-      'Commerce': 'Commerce',
-      'Marketing': 'Marketing',
-      'Achat': 'Finance',
-      'RH': 'RH',
-      'IT': 'IT',
-      'Production': 'Production',
-      'Logistique': 'Logistique',
-    };
-    return mapping[dept] || 'Direction';
+  const mapServiceToDatabase = (service: string): 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique' => {
+    if (service === 'Comptabilité / Finance') return 'Finance';
+    if (service === 'Juridique') return 'Direction';
+    if (service === 'R&D') return 'IT';
+    return service as 'Commerce' | 'Marketing' | 'IT' | 'RH' | 'Direction' | 'Finance' | 'Production' | 'Logistique';
   };
 
   const steps = [

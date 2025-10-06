@@ -24,12 +24,14 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
   const [currentInput, setCurrentInput] = useState('');
 
   const availableServices = [
+    'Direction',
     'Commerce',
     'Marketing',
+    'Comptabilité / Finance',
     'IT',
     'RH',
-    'Direction',
-    'Finance',
+    'Juridique',
+    'R&D',
     'Production',
     'Logistique',
   ];
@@ -103,15 +105,15 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
       <div className="space-y-8">
         {/* Services */}
         <div className="space-y-4">
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg font-medium text-foreground">
             Quel(s) service(s) ciblez-vous ?
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {availableServices.map((service) => (
               <Badge
                 key={service}
                 variant={data.services.includes(service) ? 'default' : 'outline'}
-                className="px-4 py-2 text-sm cursor-pointer hover:opacity-80 transition-opacity"
+                className="px-4 py-3 text-sm font-medium cursor-pointer hover:scale-105 transition-all duration-200 justify-center"
                 onClick={() => toggleService(service)}
               >
                 {service}
