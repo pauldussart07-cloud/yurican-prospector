@@ -363,14 +363,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      decision_level: "Décisionnaire" | "Influenceur" | "Utilisateur"
+      decision_level:
+        | "Dirigeant"
+        | "Directeur / Responsable"
+        | "Autres collaborateurs"
       persona_service:
+        | "Direction"
         | "Commerce"
         | "Marketing"
+        | "Comptabilité / Finance"
         | "IT"
         | "RH"
-        | "Direction"
-        | "Finance"
+        | "Juridique"
+        | "R&D"
         | "Production"
         | "Logistique"
     }
@@ -500,14 +505,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      decision_level: ["Décisionnaire", "Influenceur", "Utilisateur"],
+      decision_level: [
+        "Dirigeant",
+        "Directeur / Responsable",
+        "Autres collaborateurs",
+      ],
       persona_service: [
+        "Direction",
         "Commerce",
         "Marketing",
+        "Comptabilité / Finance",
         "IT",
         "RH",
-        "Direction",
-        "Finance",
+        "Juridique",
+        "R&D",
         "Production",
         "Logistique",
       ],
