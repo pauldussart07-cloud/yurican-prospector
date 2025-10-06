@@ -22,108 +22,94 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Tu travailles dans :</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          Secteur d'activité (résultat auto-complétions grâce au SIRET) + Typologie entreprise + adresse de l'entreprise
-          <br />
-          <span className="italic">Au complète automatiquement les champs, si erreur, possibilité de corriger</span>
+        <h2 className="text-3xl font-bold mb-3">👋 Bienvenue !</h2>
+        <p className="text-lg text-muted-foreground">
+          Commençons par mieux vous connaître. Quelle est votre fonction ?
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div>
-          <Label htmlFor="jobFunction" className="text-base font-semibold">
-            Quel est ta fonction ?
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Picklist : Sales / directeur commercial / freelance / étudiant
-          </p>
           <Input
             id="jobFunction"
-            placeholder="Ex: Sales, Directeur commercial..."
+            placeholder="Ex: Directeur commercial, Sales..."
             value={data.jobFunction}
             onChange={(e) => updateField('jobFunction', e.target.value)}
-            className="mt-2"
+            className="text-lg h-12"
           />
         </div>
 
-        <div>
-          <Label className="text-base font-semibold">Niveau de poste</Label>
-          <RadioGroup
-            value={data.jobLevel}
-            onValueChange={(value) => updateField('jobLevel', value)}
-            className="mt-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Junior" id="junior" />
-              <Label htmlFor="junior" className="font-normal cursor-pointer">Junior</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Senior" id="senior" />
-              <Label htmlFor="senior" className="font-normal cursor-pointer">Senior</Label>
-            </div>
-          </RadioGroup>
-        </div>
+        {data.jobFunction && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Quel est votre niveau ?</p>
+            <RadioGroup
+              value={data.jobLevel}
+              onValueChange={(value) => updateField('jobLevel', value)}
+              className="grid grid-cols-2 gap-3"
+            >
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Junior" id="junior" />
+                <Label htmlFor="junior" className="font-normal cursor-pointer flex-1">Junior</Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Senior" id="senior" />
+                <Label htmlFor="senior" className="font-normal cursor-pointer flex-1">Senior</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
 
-        <div>
-          <Label className="text-base font-semibold">Type de croissance</Label>
-          <RadioGroup
-            value={data.growthType}
-            onValueChange={(value) => updateField('growthType', value)}
-            className="mt-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Acquisition" id="acquisition" />
-              <Label htmlFor="acquisition" className="font-normal cursor-pointer">Acquisition</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Nurturing" id="nurturing" />
-              <Label htmlFor="nurturing" className="font-normal cursor-pointer">Nurturing</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Hybride" id="hybride" />
-              <Label htmlFor="hybride" className="font-normal cursor-pointer">Hybride</Label>
-            </div>
-          </RadioGroup>
-        </div>
+        {data.jobLevel && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Quel type de croissance recherchez-vous ?</p>
+            <RadioGroup
+              value={data.growthType}
+              onValueChange={(value) => updateField('growthType', value)}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Acquisition" id="acquisition" />
+                <Label htmlFor="acquisition" className="font-normal cursor-pointer flex-1">Acquisition de nouveaux clients</Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Nurturing" id="nurturing" />
+                <Label htmlFor="nurturing" className="font-normal cursor-pointer flex-1">Nurturing et fidélisation</Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Hybride" id="hybride" />
+                <Label htmlFor="hybride" className="font-normal cursor-pointer flex-1">Les deux (Hybride)</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
 
-        <div>
-          <Label htmlFor="productDescription" className="text-base font-semibold">
-            Parlez-nous de votre produit ou service en quelques mots
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Produits / Services normée (Saas veille marchés publics)
-            <br />
-            <span className="italic">Exemple : je gère une société industrielle qui fabrique des résistances chauffantes</span>
-          </p>
-          <Textarea
-            id="productDescription"
-            placeholder="Décrivez votre produit ou service..."
-            value={data.productDescription}
-            onChange={(e) => updateField('productDescription', e.target.value)}
-            className="mt-2 min-h-[100px]"
-          />
-        </div>
+        {data.growthType && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Décrivez votre produit ou service en quelques mots</p>
+            <Textarea
+              id="productDescription"
+              placeholder="Ex: Logiciel SaaS pour la gestion de projets..."
+              value={data.productDescription}
+              onChange={(e) => updateField('productDescription', e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+        )}
 
-        <div>
-          <Label htmlFor="peakActivity" className="text-base font-semibold">
-            As-tu une période avec un pic d'activité commerciale
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Tranche de mois / Trimestre / Non
-            <br />
-            <span className="italic">Exemple : Pic d'activité au troisième trimestre</span>
-          </p>
-          <Input
-            id="peakActivity"
-            placeholder="Ex: Troisième trimestre, Septembre-Novembre..."
-            value={data.peakActivityPeriod}
-            onChange={(e) => updateField('peakActivityPeriod', e.target.value)}
-            className="mt-2"
-          />
-        </div>
+        {data.productDescription && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Avez-vous une période de pic d'activité ?</p>
+            <Input
+              id="peakActivity"
+              placeholder="Ex: T3, Septembre-Novembre, Non..."
+              value={data.peakActivityPeriod}
+              onChange={(e) => updateField('peakActivityPeriod', e.target.value)}
+              className="h-12"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

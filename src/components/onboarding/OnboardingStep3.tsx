@@ -41,76 +41,71 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Votre contact cible</h2>
+        <h2 className="text-3xl font-bold mb-3">🎯 Parlons de votre cible</h2>
+        <p className="text-lg text-muted-foreground">
+          Qui souhaitez-vous atteindre dans l'entreprise ?
+        </p>
       </div>
 
       <div className="space-y-6">
-        <div>
-          <Label className="text-base font-semibold">
-            Au sein de l'entreprise, quel est le contact que vous souhaitez atteindre ?
-          </Label>
-          <RadioGroup
-            value={data.contactType}
-            onValueChange={(value) => updateField('contactType', value)}
-            className="mt-3 space-y-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Le Dirigeant" id="dirigeant" />
-              <Label htmlFor="dirigeant" className="font-normal cursor-pointer">
-                Le Dirigeant
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Des directeurs" id="directeurs" />
-              <Label htmlFor="directeurs" className="font-normal cursor-pointer">
-                Des directeurs
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Des collaborateurs" id="collaborateurs" />
-              <Label htmlFor="collaborateurs" className="font-normal cursor-pointer">
-                Des collaborateurs
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div>
-          <Label className="text-base font-semibold">
-            Dans quel département ?
-          </Label>
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            {departments.map((dept) => (
-              <Button
-                key={dept}
-                type="button"
-                variant={data.departments.includes(dept) ? 'default' : 'outline'}
-                onClick={() => toggleDepartment(dept)}
-                className="h-12 justify-start"
-              >
-                {dept}
-              </Button>
-            ))}
+        <RadioGroup
+          value={data.contactType}
+          onValueChange={(value) => updateField('contactType', value)}
+          className="space-y-2"
+        >
+          <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+            <RadioGroupItem value="Le Dirigeant" id="dirigeant" />
+            <Label htmlFor="dirigeant" className="font-normal cursor-pointer flex-1">
+              Le Dirigeant
+            </Label>
           </div>
-        </div>
+          <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+            <RadioGroupItem value="Des directeurs" id="directeurs" />
+            <Label htmlFor="directeurs" className="font-normal cursor-pointer flex-1">
+              Des directeurs
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+            <RadioGroupItem value="Des collaborateurs" id="collaborateurs" />
+            <Label htmlFor="collaborateurs" className="font-normal cursor-pointer flex-1">
+              Des collaborateurs
+            </Label>
+          </div>
+        </RadioGroup>
 
-        <div>
-          <Label htmlFor="specificRole" className="text-base font-semibold">
-            Ciblez-vous un poste précis ?
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2 italic">
-            Exemple : Intégrateur salesforce senior
-          </p>
-          <Input
-            id="specificRole"
-            placeholder="Ex: Intégrateur salesforce senior..."
-            value={data.specificRole}
-            onChange={(e) => updateField('specificRole', e.target.value)}
-            className="mt-2"
-          />
-        </div>
+        {data.contactType && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Dans quel(s) département(s) ?</p>
+            <div className="grid grid-cols-2 gap-3">
+              {departments.map((dept) => (
+                <Button
+                  key={dept}
+                  type="button"
+                  variant={data.departments.includes(dept) ? 'default' : 'outline'}
+                  onClick={() => toggleDepartment(dept)}
+                  className="h-12 justify-start"
+                >
+                  {dept}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {data.departments.length > 0 && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Ciblez-vous un poste précis ? (optionnel)</p>
+            <Input
+              id="specificRole"
+              placeholder="Ex: Intégrateur Salesforce senior..."
+              value={data.specificRole}
+              onChange={(e) => updateField('specificRole', e.target.value)}
+              className="h-12"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

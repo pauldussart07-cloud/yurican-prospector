@@ -74,7 +74,7 @@ const Profile = () => {
           <h1 className="text-3xl font-bold">Mon Profil</h1>
           <Button onClick={() => navigate('/onboarding')}>
             <Edit className="w-4 h-4 mr-2" />
-            Modifier
+            Refaire l'onboarding
           </Button>
         </div>
 

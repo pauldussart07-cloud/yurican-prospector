@@ -1,6 +1,4 @@
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
@@ -48,37 +46,40 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
     updateField('geographicZones', data.geographicZones.filter(z => z !== zone));
   };
 
-  const companySizes = ['TPE', 'PME', 'ETI', 'GE'];
+  const companySizes = [
+    { id: 'TPE', label: 'TPE (0-9)', value: 'TPE' },
+    { id: 'PME', label: 'PME (10-249)', value: 'PME' },
+    { id: 'ETI', label: 'ETI (250-5000)', value: 'ETI' },
+    { id: 'GE', label: 'GE (5000+)', value: 'GE' },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Votre client cible</h2>
+        <h2 className="text-3xl font-bold mb-3">🏢 Votre client idéal</h2>
+        <p className="text-lg text-muted-foreground">
+          Parlez-moi des entreprises que vous ciblez
+        </p>
       </div>
 
       <div className="space-y-6">
-        <div>
-          <Label htmlFor="sectors" className="text-base font-semibold">
-            Dites-nous quelle sont les entreprises que vous ciblez
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2 italic">
-            Exemple : je cible l'industrie automobile
-          </p>
-          <div className="flex gap-2 mt-2">
-            <Input
-              id="sectors"
-              placeholder="Ex: Automobile, Industrie..."
-              value={sectorInput}
-              onChange={(e) => setSectorInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addSector()}
-            />
-            <Button type="button" onClick={addSector}>
-              Ajouter
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-3">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Ex: Automobile, Industrie pharmaceutique..."
+            value={sectorInput}
+            onChange={(e) => setSectorInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSector())}
+            className="h-12 text-base"
+          />
+          <Button type="button" onClick={addSector} className="h-12">
+            Ajouter
+          </Button>
+        </div>
+        
+        {data.targetSectors.length > 0 && (
+          <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-bottom-4">
             {data.targetSectors.map((sector) => (
-              <Badge key={sector} variant="secondary" className="pl-3 pr-1 py-1">
+              <Badge key={sector} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
                 {sector}
                 <Button
                   variant="ghost"
@@ -91,78 +92,73 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
               </Badge>
             ))}
           </div>
-        </div>
+        )}
 
-        <div>
-          <Label className="text-base font-semibold">
-            Quelle taille d'entreprise ciblez-vous ?
-          </Label>
-          <div className="grid grid-cols-4 gap-3 mt-2">
-            {companySizes.map((size) => (
-              <Button
-                key={size}
-                type="button"
-                variant={data.companySize === size ? 'default' : 'outline'}
-                onClick={() => updateField('companySize', size)}
-                className="h-12"
-              >
-                {size}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="revenue" className="text-base font-semibold">
-            Chiffre d'affaire de votre cible
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Picklist : tranche de CA
-          </p>
-          <Input
-            id="revenue"
-            placeholder="Ex: 1M-10M, 10M-50M..."
-            value={data.revenueRange}
-            onChange={(e) => updateField('revenueRange', e.target.value)}
-            className="mt-2"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="zones" className="text-base font-semibold">
-            Quelle zone géographique ?
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2 italic">
-            Exemple : Carte France avec régions à cliquer
-          </p>
-          <div className="flex gap-2 mt-2">
-            <Input
-              id="zones"
-              placeholder="Ex: Île-de-France, Auvergne-Rhône-Alpes..."
-              value={zoneInput}
-              onChange={(e) => setZoneInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addZone()}
-            />
-            <Button type="button" onClick={addZone}>
-              Ajouter
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {data.geographicZones.map((zone) => (
-              <Badge key={zone} variant="secondary" className="pl-3 pr-1 py-1">
-                {zone}
+        {data.targetSectors.length > 0 && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Quelle taille d'entreprise ?</p>
+            <div className="grid grid-cols-2 gap-3">
+              {companySizes.map((size) => (
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-1 ml-1"
-                  onClick={() => removeZone(zone)}
+                  key={size.id}
+                  type="button"
+                  variant={data.companySize === size.value ? 'default' : 'outline'}
+                  onClick={() => updateField('companySize', size.value)}
+                  className="h-12 justify-start"
                 >
-                  <X className="w-3 h-3" />
+                  {size.label}
                 </Button>
-              </Badge>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {data.companySize && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Tranche de chiffre d'affaires ?</p>
+            <Input
+              placeholder="Ex: 1M-10M, 10M-50M..."
+              value={data.revenueRange}
+              onChange={(e) => updateField('revenueRange', e.target.value)}
+              className="h-12"
+            />
+          </div>
+        )}
+
+        {data.revenueRange && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Dans quelle(s) région(s) ?</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ex: Île-de-France, Auvergne-Rhône-Alpes..."
+                value={zoneInput}
+                onChange={(e) => setZoneInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addZone())}
+                className="h-12"
+              />
+              <Button type="button" onClick={addZone} className="h-12">
+                Ajouter
+              </Button>
+            </div>
+            {data.geographicZones.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {data.geographicZones.map((zone) => (
+                  <Badge key={zone} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
+                    {zone}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-1 ml-1"
+                      onClick={() => removeZone(zone)}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

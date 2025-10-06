@@ -1,4 +1,3 @@
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,70 +32,66 @@ const OnboardingStep4 = ({ data, onChange }: Props) => {
     updateField('otherTools', data.otherTools.filter(t => t !== tool));
   };
 
-  const crmOptions = ['Salesforce', 'HubSpot', 'Pipedrive', 'Aucune'];
+  const crmOptions = ['Salesforce', 'HubSpot', 'Pipedrive', 'Aucun'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Vos outils</h2>
+        <h2 className="text-3xl font-bold mb-3">🛠️ Vos outils</h2>
+        <p className="text-lg text-muted-foreground">
+          Utilisez-vous un CRM ?
+        </p>
       </div>
 
       <div className="space-y-6">
-        <div>
-          <Label className="text-base font-semibold">Votre CRM</Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Picklist : Salesforce, HubSpot, Pipedrive, Aucune
-          </p>
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            {crmOptions.map((crm) => (
-              <Button
-                key={crm}
-                type="button"
-                variant={data.crmTool === crm ? 'default' : 'outline'}
-                onClick={() => updateField('crmTool', crm)}
-                className="h-12"
-              >
-                {crm}
-              </Button>
-            ))}
-          </div>
+        <div className="grid grid-cols-2 gap-3">
+          {crmOptions.map((crm) => (
+            <Button
+              key={crm}
+              type="button"
+              variant={data.crmTool === crm ? 'default' : 'outline'}
+              onClick={() => updateField('crmTool', crm)}
+              className="h-12"
+            >
+              {crm}
+            </Button>
+          ))}
         </div>
 
-        <div>
-          <Label htmlFor="otherTools" className="text-base font-semibold">
-            Vos outils
-          </Label>
-          <p className="text-sm text-muted-foreground mb-2">
-            Picklist : Lemlist, Pharrow, etc...
-          </p>
-          <div className="flex gap-2 mt-2">
-            <Input
-              id="otherTools"
-              placeholder="Ex: Lemlist, Pharrow..."
-              value={toolInput}
-              onChange={(e) => setToolInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addTool()}
-            />
-            <Button type="button" onClick={addTool}>
-              Ajouter
-            </Button>
+        {data.crmTool && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <p className="text-muted-foreground">Quels autres outils utilisez-vous ? (optionnel)</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ex: Lemlist, Pharrow, LinkedIn Sales Navigator..."
+                value={toolInput}
+                onChange={(e) => setToolInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTool())}
+                className="h-12"
+              />
+              <Button type="button" onClick={addTool} className="h-12">
+                Ajouter
+              </Button>
+            </div>
+            {data.otherTools.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {data.otherTools.map((tool) => (
+                  <Badge key={tool} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
+                    {tool}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-1 ml-1"
+                      onClick={() => removeTool(tool)}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {data.otherTools.map((tool) => (
-              <Badge key={tool} variant="secondary" className="pl-3 pr-1 py-1">
-                {tool}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto p-1 ml-1"
-                  onClick={() => removeTool(tool)}
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </Badge>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

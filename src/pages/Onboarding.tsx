@@ -212,36 +212,12 @@ const Onboarding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        {/* Progress Stepper */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            {steps.map((step, index) => (
-              <div key={step.number} className="flex items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${
-                      currentStep === step.number
-                        ? 'bg-primary text-primary-foreground scale-110'
-                        : currentStep > step.number
-                        ? 'bg-primary/20 text-primary'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {currentStep > step.number ? <Check className="w-6 h-6" /> : step.number}
-                  </div>
-                  <p className="text-xs mt-2 text-center font-medium">{step.label}</p>
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`flex-1 h-1 mx-2 transition-all ${
-                      currentStep > step.number ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+      <div className="w-full max-w-2xl">
+        {/* Progress indicator */}
+        <div className="mb-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            Question {currentStep} sur 5
+          </p>
         </div>
 
         {/* Content Card */}
@@ -255,7 +231,7 @@ const Onboarding = () => {
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleBack}
               disabled={currentStep === 1}
             >
