@@ -26,7 +26,7 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
       <div>
         <h2 className="text-3xl font-bold mb-3">👋 Bienvenue !</h2>
         <p className="text-lg text-muted-foreground">
-          Commençons par mieux vous connaître. Quelle est votre fonction ?
+          Quelle est votre fonction ? Cela nous aidera à mieux cibler votre marché
         </p>
       </div>
 
