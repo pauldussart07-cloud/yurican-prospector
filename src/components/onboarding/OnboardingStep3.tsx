@@ -44,51 +44,53 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
     <div className="space-y-8">
       <div>
         <h2 className="text-3xl font-bold mb-3">🎯 Parlons de votre cible</h2>
-        <p className="text-lg text-muted-foreground">
-          Quel est votre interlocuteur privilégié
-        </p>
       </div>
 
       <div className="space-y-6">
-        <RadioGroup
-          value={data.contactType}
-          onValueChange={(value) => updateField('contactType', value)}
-          className="space-y-2"
-        >
-          <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-            <RadioGroupItem value="Directeur / Responsable" id="directeur" />
-            <Label htmlFor="directeur" className="font-normal cursor-pointer flex-1">
-              Directeur / Responsable
-            </Label>
+        <div className="space-y-4">
+          <p className="text-muted-foreground">Dans quel(s) service(s) ?</p>
+          <div className="grid grid-cols-2 gap-3">
+            {departments.map((dept) => (
+              <Button
+                key={dept}
+                type="button"
+                variant={data.departments.includes(dept) ? 'default' : 'outline'}
+                onClick={() => toggleDepartment(dept)}
+                className="h-12 justify-start"
+              >
+                {dept}
+              </Button>
+            ))}
           </div>
-          <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-            <RadioGroupItem value="Autres collaborateurs" id="collaborateurs" />
-            <Label htmlFor="collaborateurs" className="font-normal cursor-pointer flex-1">
-              Autres collaborateurs
-            </Label>
-          </div>
-        </RadioGroup>
+        </div>
 
-        {data.contactType && (
+        {data.departments.length > 0 && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Dans quel(s) service(s) ?</p>
-            <div className="grid grid-cols-2 gap-3">
-              {departments.map((dept) => (
-                <Button
-                  key={dept}
-                  type="button"
-                  variant={data.departments.includes(dept) ? 'default' : 'outline'}
-                  onClick={() => toggleDepartment(dept)}
-                  className="h-12 justify-start"
-                >
-                  {dept}
-                </Button>
-              ))}
-            </div>
+            <p className="text-lg text-muted-foreground">
+              Quel est votre interlocuteur privilégié
+            </p>
+            <RadioGroup
+              value={data.contactType}
+              onValueChange={(value) => updateField('contactType', value)}
+              className="space-y-2"
+            >
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Directeur / Responsable" id="directeur" />
+                <Label htmlFor="directeur" className="font-normal cursor-pointer flex-1">
+                  Directeur / Responsable
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="Autres collaborateurs" id="collaborateurs" />
+                <Label htmlFor="collaborateurs" className="font-normal cursor-pointer flex-1">
+                  Autres collaborateurs
+                </Label>
+              </div>
+            </RadioGroup>
           </div>
         )}
 
-        {data.departments.length > 0 && (
+        {data.contactType && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Ciblez-vous un poste précis ? (optionnel)</p>
             <Input
