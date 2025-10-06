@@ -230,6 +230,7 @@ const Onboarding = () => {
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8">
             <Button
+              type="button"
               variant="ghost"
               onClick={handleBack}
               disabled={currentStep === 1}
@@ -239,12 +240,12 @@ const Onboarding = () => {
             </Button>
 
             {currentStep < 3 ? (
-              <Button onClick={handleNext}>
+              <Button type="button" onClick={handleNext}>
                 Suivant
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleComplete} disabled={isLoading}>
+              <Button type="button" onClick={handleComplete} disabled={isLoading}>
                 <Check className="w-4 h-4 mr-2" />
                 Terminer
               </Button>
