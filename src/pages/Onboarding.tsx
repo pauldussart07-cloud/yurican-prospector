@@ -146,7 +146,7 @@ const Onboarding = () => {
       }
 
       toast.success('Onboarding terminé !');
-      navigate('/');
+      navigate('/complete-profile');
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast.error('Erreur lors de la sauvegarde');

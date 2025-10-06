@@ -19,6 +19,7 @@ import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
+import CompleteProfile from "./pages/CompleteProfile";
 import Header from "./components/Header";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/complete-profile" element={<CompleteProfile />} />
               <Route
                 path="/*"
                 element={

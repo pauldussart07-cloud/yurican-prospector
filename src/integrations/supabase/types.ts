@@ -204,13 +204,17 @@ export type Database = {
           company_type: string | null
           created_at: string | null
           crm_tool: string | null
+          email: string | null
+          first_name: string | null
           growth_type: string | null
           id: string
           job_function: string | null
           job_level: string | null
+          last_name: string | null
           onboarding_completed: boolean | null
           other_tools: string[] | null
           peak_activity_period: string | null
+          phone: string | null
           product_description: string | null
           tracked_events: string[] | null
           updated_at: string | null
@@ -223,13 +227,17 @@ export type Database = {
           company_type?: string | null
           created_at?: string | null
           crm_tool?: string | null
+          email?: string | null
+          first_name?: string | null
           growth_type?: string | null
           id?: string
           job_function?: string | null
           job_level?: string | null
+          last_name?: string | null
           onboarding_completed?: boolean | null
           other_tools?: string[] | null
           peak_activity_period?: string | null
+          phone?: string | null
           product_description?: string | null
           tracked_events?: string[] | null
           updated_at?: string | null
@@ -242,13 +250,17 @@ export type Database = {
           company_type?: string | null
           created_at?: string | null
           crm_tool?: string | null
+          email?: string | null
+          first_name?: string | null
           growth_type?: string | null
           id?: string
           job_function?: string | null
           job_level?: string | null
+          last_name?: string | null
           onboarding_completed?: boolean | null
           other_tools?: string[] | null
           peak_activity_period?: string | null
+          phone?: string | null
           product_description?: string | null
           tracked_events?: string[] | null
           updated_at?: string | null
