@@ -1085,7 +1085,19 @@ const Prospects = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="h-12" /> 
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLead(lead.id);
+                          setShowPersonaDialog(true);
+                        }}
+                      >
+                        <UsersIcon className="h-4 w-4 mr-2" />
+                        Chercher les contacts
+                      </Button>
                     )}
                   </div>
 
@@ -1175,22 +1187,6 @@ const Prospects = () => {
                   {getLeadStatus(lead.id)}
                 </Badge>
               </div>
-
-                {/* Bouton pour ajouter des contacts si aucun */}
-                {leadContacts.length === 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-3"
-                    onClick={() => {
-                      setSelectedLead(lead.id);
-                      setShowPersonaDialog(true);
-                    }}
-                  >
-                    <UsersIcon className="h-4 w-4 mr-2" />
-                    Chercher les contacts
-                  </Button>
-                )}
               </CardContent>
             </Card>
           );
