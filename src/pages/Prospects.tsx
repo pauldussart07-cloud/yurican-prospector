@@ -1003,22 +1003,26 @@ const Prospects = () => {
                     <div className="w-64 space-y-2">
                       {leadContacts.length > 0 ? (
                         leadContacts.slice(0, 3).map((contact, index) => (
-                          <div
-                            key={contact.id}
-                            className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleContactClick(contact);
-                            }}
-                          >
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                        <div
+                          key={contact.id}
+                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactClick(contact);
+                          }}
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Mail className="h-3 w-3 text-primary" />
+                              <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
                             </div>
                           </div>
+                        </div>
                         ))
                       ) : (
                         <Button
@@ -1065,22 +1069,26 @@ const Prospects = () => {
                   <div className="w-64 space-y-2">
                     {leadContacts.length > 0 ? (
                       leadContacts.slice(0, 3).map((contact, index) => (
-                        <div
-                          key={contact.id}
-                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactClick(contact);
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                      <div
+                        key={contact.id}
+                        className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleContactClick(contact);
+                        }}
+                      >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                          <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Mail className="h-3 w-3 text-primary" />
+                            <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
                           </div>
                         </div>
+                      </div>
                       ))
                     ) : (
                       <Button
