@@ -1015,11 +1015,13 @@ const Prospects = () => {
                             {index + 1}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Mail className="h-3 w-3 text-primary" />
-                              <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                              <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2" />
+                            </div>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                              <Phone className={`h-3 w-3 flex-shrink-0 ml-2 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
                             </div>
                           </div>
                         </div>
@@ -1081,11 +1083,13 @@ const Prospects = () => {
                           {index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                          <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Mail className="h-3 w-3 text-primary" />
-                            <Phone className={`h-3 w-3 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                            <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2" />
+                          </div>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            <Phone className={`h-3 w-3 flex-shrink-0 ml-2 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
                           </div>
                         </div>
                       </div>
