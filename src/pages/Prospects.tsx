@@ -1014,16 +1014,40 @@ const Prospects = () => {
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
                             {index + 1}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                              <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2" />
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                              <Phone className={`h-3 w-3 flex-shrink-0 ml-2 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
-                            </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-auto">
+                                <p className="text-xs">{contact.email}</p>
+                              </HoverCardContent>
+                            </HoverCard>
                           </div>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            {isContactInfoDiscovered(contact.id, 'phone') ? (
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs">{contact.phone}</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            ) : (
+                              <Phone 
+                                className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDiscoverRequest(contact.id, 'phone');
+                                }}
+                              />
+                            )}
+                          </div>
+                        </div>
                         </div>
                         ))
                       ) : (
@@ -1085,11 +1109,35 @@ const Prospects = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                            <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2" />
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-auto">
+                                <p className="text-xs">{contact.email}</p>
+                              </HoverCardContent>
+                            </HoverCard>
                           </div>
                           <div className="flex items-center justify-between mt-1">
                             <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            <Phone className={`h-3 w-3 flex-shrink-0 ml-2 ${isContactInfoDiscovered(contact.id, 'phone') ? 'text-primary' : 'text-muted-foreground/30'}`} />
+                            {isContactInfoDiscovered(contact.id, 'phone') ? (
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs">{contact.phone}</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            ) : (
+                              <Phone 
+                                className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDiscoverRequest(contact.id, 'phone');
+                                }}
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
