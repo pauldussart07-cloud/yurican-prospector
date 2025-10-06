@@ -213,7 +213,7 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
             {/* Taille d'entreprise */}
             <div className="space-y-4">
               <p className="text-muted-foreground">Quelle taille d'entreprise ?</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 max-w-[65%]">
                 {companySizes.map((size) => (
                   <Button
                     key={size.id}
@@ -228,96 +228,96 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
               </div>
             </div>
 
-            {/* Localisation */}
+            {/* Tranche de chiffre d'affaires */}
             {data.companySize && (
               <div className="space-y-4">
-                <p className="text-muted-foreground">Dans quelle(s) région(s) ?</p>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      placeholder="Ex: Île-de-France..."
-                      value={zoneInput}
-                      onChange={(e) => setZoneInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addZone())}
-                      onFocus={() => zoneInput && setShowZoneSuggestions(filteredZones.length > 0)}
-                      className="h-12"
-                    />
-                    {showZoneSuggestions && (
-                      <div className="absolute w-full mt-1 z-50">
-                        <Command className="rounded-lg border shadow-md bg-popover">
-                          <CommandList>
-                            <CommandEmpty>Aucune région trouvée</CommandEmpty>
-                            <CommandGroup>
-                              {filteredZones.map((zone) => (
-                                <CommandItem
-                                  key={zone}
-                                  onSelect={() => selectZone(zone)}
-                                  className="cursor-pointer"
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      data.geographicZones.includes(zone) ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                  {zone}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </div>
-                    )}
-                  </div>
-                  <Button type="button" onClick={addZone} className="h-12">
-                    Ajouter
-                  </Button>
+                <p className="text-muted-foreground">Tranche de chiffre d'affaires ?</p>
+                <div className="grid grid-cols-2 gap-3 max-w-[65%]">
+                  {[
+                    { id: '0-1M', label: '0 - 1M€' },
+                    { id: '1M-5M', label: '1M - 5M€' },
+                    { id: '5M-10M', label: '5M - 10M€' },
+                    { id: '10M-50M', label: '10M - 50M€' },
+                    { id: '50M-100M', label: '50M - 100M€' },
+                    { id: '100M+', label: '100M€+' },
+                  ].map((range) => (
+                    <Button
+                      key={range.id}
+                      type="button"
+                      variant={data.revenueRange === range.id ? 'default' : 'outline'}
+                      onClick={() => updateField('revenueRange', range.id)}
+                      className="h-12 justify-start"
+                    >
+                      {range.label}
+                    </Button>
+                  ))}
                 </div>
-                {data.geographicZones.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {data.geographicZones.map((zone) => (
-                      <Badge key={zone} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
-                        {zone}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto p-1 ml-1"
-                          onClick={() => removeZone(zone)}
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
           </div>
         )}
 
-        {data.companySize && (
+        {data.revenueRange && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Tranche de chiffre d'affaires ?</p>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { id: '0-1M', label: '0 - 1M€' },
-                { id: '1M-5M', label: '1M - 5M€' },
-                { id: '5M-10M', label: '5M - 10M€' },
-                { id: '10M-50M', label: '10M - 50M€' },
-                { id: '50M-100M', label: '50M - 100M€' },
-                { id: '100M+', label: '100M€+' },
-              ].map((range) => (
-                <Button
-                  key={range.id}
-                  type="button"
-                  variant={data.revenueRange === range.id ? 'default' : 'outline'}
-                  onClick={() => updateField('revenueRange', range.id)}
-                  className="h-12 justify-start"
-                >
-                  {range.label}
-                </Button>
-              ))}
+            <p className="text-muted-foreground">Dans quelle(s) région(s) ?</p>
+            <div className="flex gap-2 max-w-[65%]">
+              <div className="relative flex-1">
+                <Input
+                  placeholder="Ex: Île-de-France..."
+                  value={zoneInput}
+                  onChange={(e) => setZoneInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addZone())}
+                  onFocus={() => zoneInput && setShowZoneSuggestions(filteredZones.length > 0)}
+                  className="h-12"
+                />
+                {showZoneSuggestions && (
+                  <div className="absolute w-full mt-1 z-50">
+                    <Command className="rounded-lg border shadow-md bg-popover">
+                      <CommandList>
+                        <CommandEmpty>Aucune région trouvée</CommandEmpty>
+                        <CommandGroup>
+                          {filteredZones.map((zone) => (
+                            <CommandItem
+                              key={zone}
+                              onSelect={() => selectZone(zone)}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  data.geographicZones.includes(zone) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {zone}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </div>
+                )}
+              </div>
+              <Button type="button" onClick={addZone} className="h-12">
+                Ajouter
+              </Button>
             </div>
+            {data.geographicZones.length > 0 && (
+              <div className="flex flex-wrap gap-2 max-w-[65%]">
+                {data.geographicZones.map((zone) => (
+                  <Badge key={zone} variant="secondary" className="pl-3 pr-1 py-2 text-sm">
+                    {zone}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-1 ml-1"
+                      onClick={() => removeZone(zone)}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
