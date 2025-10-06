@@ -1038,13 +1038,20 @@ const Prospects = () => {
                                 </HoverCardContent>
                               </HoverCard>
                             ) : (
-                              <Phone 
-                                className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDiscoverRequest(contact.id, 'phone');
-                                }}
-                              />
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Phone 
+                                    className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDiscoverRequest(contact.id, 'phone');
+                                    }}
+                                  />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                </HoverCardContent>
+                              </HoverCard>
                             )}
                           </div>
                         </div>
@@ -1130,13 +1137,20 @@ const Prospects = () => {
                                 </HoverCardContent>
                               </HoverCard>
                             ) : (
-                              <Phone 
-                                className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDiscoverRequest(contact.id, 'phone');
-                                }}
-                              />
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Phone 
+                                    className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDiscoverRequest(contact.id, 'phone');
+                                    }}
+                                  />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                </HoverCardContent>
+                              </HoverCard>
                             )}
                           </div>
                         </div>
