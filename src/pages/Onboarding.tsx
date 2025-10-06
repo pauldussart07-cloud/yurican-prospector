@@ -19,7 +19,6 @@ const Onboarding = () => {
   // Form data
   const [step1Data, setStep1Data] = useState({
     jobFunction: '',
-    productDescription: '',
     peakActivityPeriod: '',
   });
 
@@ -89,7 +88,6 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           job_function: step1Data.jobFunction,
-          product_description: step1Data.productDescription,
           peak_activity_period: step1Data.peakActivityPeriod,
           crm_tool: step4Data.crmTool,
           other_tools: step4Data.otherTools,

@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 interface Step1Data {
   jobFunction: string;
-  productDescription: string;
   peakActivityPeriod: string;
 }
 
@@ -109,19 +108,6 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
         </div>
 
         {data.jobFunction && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Décrivez votre produit ou service en quelques mots</p>
-            <Textarea
-              id="productDescription"
-              placeholder="Ex: Logiciel SaaS pour la gestion de projets..."
-              value={data.productDescription}
-              onChange={(e) => updateField('productDescription', e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-        )}
-
-        {data.productDescription && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Avez-vous une période de pic d'activité ?</p>
             <Input
