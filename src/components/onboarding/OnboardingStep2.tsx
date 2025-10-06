@@ -1,8 +1,11 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import { X, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 interface Step2Data {
   targetSectors: string[];
@@ -19,6 +22,37 @@ interface Props {
 const OnboardingStep2 = ({ data, onChange }: Props) => {
   const [sectorInput, setSectorInput] = useState('');
   const [zoneInput, setZoneInput] = useState('');
+  const [sectors, setSectors] = useState<Array<{ id: string; name: string }>>([]);
+  const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
+  const [filteredSectors, setFilteredSectors] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      const { data: sectorsData } = await supabase
+        .from('sectors')
+        .select('id, name')
+        .order('name');
+      
+      if (sectorsData) {
+        setSectors(sectorsData);
+      }
+    };
+
+    fetchSectors();
+  }, []);
+
+  useEffect(() => {
+    if (sectorInput && sectorInput.length > 0) {
+      const filtered = sectors.filter(sector =>
+        sector.name.toLowerCase().includes(sectorInput.toLowerCase())
+      );
+      setFilteredSectors(filtered);
+      setShowSectorSuggestions(filtered.length > 0);
+    } else {
+      setFilteredSectors([]);
+      setShowSectorSuggestions(false);
+    }
+  }, [sectorInput, sectors]);
 
   const updateField = (field: keyof Step2Data, value: any) => {
     onChange({ ...data, [field]: value });
@@ -28,7 +62,16 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
     if (sectorInput.trim() && !data.targetSectors.includes(sectorInput.trim())) {
       updateField('targetSectors', [...data.targetSectors, sectorInput.trim()]);
       setSectorInput('');
+      setShowSectorSuggestions(false);
     }
+  };
+
+  const selectSector = (sectorName: string) => {
+    if (!data.targetSectors.includes(sectorName)) {
+      updateField('targetSectors', [...data.targetSectors, sectorName]);
+    }
+    setSectorInput('');
+    setShowSectorSuggestions(false);
   };
 
   const removeSector = (sector: string) => {
@@ -63,17 +106,48 @@ const OnboardingStep2 = ({ data, onChange }: Props) => {
       </div>
 
       <div className="space-y-6">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Ex: Automobile, Industrie pharmaceutique..."
-            value={sectorInput}
-            onChange={(e) => setSectorInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSector())}
-            className="h-12 text-base"
-          />
-          <Button type="button" onClick={addSector} className="h-12">
-            Ajouter
-          </Button>
+        <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                placeholder="Ex: Automobile, Industrie pharmaceutique..."
+                value={sectorInput}
+                onChange={(e) => setSectorInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSector())}
+                onFocus={() => sectorInput && setShowSectorSuggestions(filteredSectors.length > 0)}
+                className="h-12 text-base"
+              />
+              {showSectorSuggestions && (
+                <div className="absolute w-full mt-1 z-50">
+                  <Command className="rounded-lg border shadow-md bg-popover">
+                    <CommandList>
+                      <CommandEmpty>Aucun secteur trouvé</CommandEmpty>
+                      <CommandGroup>
+                        {filteredSectors.map((sector) => (
+                          <CommandItem
+                            key={sector.id}
+                            onSelect={() => selectSector(sector.name)}
+                            className="cursor-pointer"
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                data.targetSectors.includes(sector.name) ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {sector.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </div>
+              )}
+            </div>
+            <Button type="button" onClick={addSector} className="h-12">
+              Ajouter
+            </Button>
+          </div>
         </div>
         
         {data.targetSectors.length > 0 && (

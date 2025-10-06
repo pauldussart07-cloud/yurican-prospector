@@ -256,6 +256,27 @@ export type Database = {
         }
         Relationships: []
       }
+      sectors: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       targetings: {
         Row: {
           created_at: string | null
