@@ -19,7 +19,6 @@ const Onboarding = () => {
   // Form data
   const [step1Data, setStep1Data] = useState({
     jobFunction: '',
-    peakActivityPeriod: '',
   });
 
   const [step2Data, setStep2Data] = useState({
@@ -88,7 +87,6 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           job_function: step1Data.jobFunction,
-          peak_activity_period: step1Data.peakActivityPeriod,
           crm_tool: step4Data.crmTool,
           other_tools: step4Data.otherTools,
           tracked_events: step5Data.trackedEvents,

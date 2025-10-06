@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 interface Step1Data {
   jobFunction: string;
-  peakActivityPeriod: string;
 }
 
 interface Props {
@@ -106,19 +105,6 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
             </div>
           )}
         </div>
-
-        {data.jobFunction && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Avez-vous une période de pic d'activité ?</p>
-            <Input
-              id="peakActivity"
-              placeholder="Ex: T3, Septembre-Novembre, Non..."
-              value={data.peakActivityPeriod}
-              onChange={(e) => updateField('peakActivityPeriod', e.target.value)}
-              className="h-12"
-            />
-          </div>
-        )}
       </div>
     </div>
   );
