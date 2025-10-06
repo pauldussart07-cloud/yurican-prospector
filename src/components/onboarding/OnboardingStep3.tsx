@@ -77,7 +77,7 @@ const OnboardingStep3 = ({ data, onChange }: Props) => {
 
         {data.contactType && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Dans quel(s) département(s) ?</p>
+            <p className="text-muted-foreground">Dans quel(s) service(s) ?</p>
             <div className="grid grid-cols-2 gap-3">
               {departments.map((dept) => (
                 <Button
