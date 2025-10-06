@@ -175,6 +175,66 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          company_address: string | null
+          company_name: string | null
+          company_siret: string | null
+          company_type: string | null
+          created_at: string | null
+          crm_tool: string | null
+          growth_type: string | null
+          id: string
+          job_function: string | null
+          job_level: string | null
+          onboarding_completed: boolean | null
+          other_tools: string[] | null
+          peak_activity_period: string | null
+          product_description: string | null
+          tracked_events: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_address?: string | null
+          company_name?: string | null
+          company_siret?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          crm_tool?: string | null
+          growth_type?: string | null
+          id?: string
+          job_function?: string | null
+          job_level?: string | null
+          onboarding_completed?: boolean | null
+          other_tools?: string[] | null
+          peak_activity_period?: string | null
+          product_description?: string | null
+          tracked_events?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_address?: string | null
+          company_name?: string | null
+          company_siret?: string | null
+          company_type?: string | null
+          created_at?: string | null
+          crm_tool?: string | null
+          growth_type?: string | null
+          id?: string
+          job_function?: string | null
+          job_level?: string | null
+          onboarding_completed?: boolean | null
+          other_tools?: string[] | null
+          peak_activity_period?: string | null
+          product_description?: string | null
+          tracked_events?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       targetings: {
         Row: {
           created_at: string | null
