@@ -19,7 +19,6 @@ const Onboarding = () => {
   // Form data
   const [step1Data, setStep1Data] = useState({
     jobFunction: '',
-    jobLevel: '',
     growthType: '',
     productDescription: '',
     peakActivityPeriod: '',
@@ -91,7 +90,6 @@ const Onboarding = () => {
         .from('profiles')
         .update({
           job_function: step1Data.jobFunction,
-          job_level: step1Data.jobLevel,
           growth_type: step1Data.growthType,
           product_description: step1Data.productDescription,
           peak_activity_period: step1Data.peakActivityPeriod,

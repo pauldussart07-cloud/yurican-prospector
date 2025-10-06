@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 interface Step1Data {
   jobFunction: string;
-  jobLevel: string;
   growthType: string;
   productDescription: string;
   peakActivityPeriod: string;
@@ -111,26 +110,6 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
         </div>
 
         {data.jobFunction && (
-          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
-            <p className="text-muted-foreground">Quel est votre niveau ?</p>
-            <RadioGroup
-              value={data.jobLevel}
-              onValueChange={(value) => updateField('jobLevel', value)}
-              className="grid grid-cols-2 gap-3"
-            >
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Junior" id="junior" />
-                <Label htmlFor="junior" className="font-normal cursor-pointer flex-1">Junior</Label>
-              </div>
-              <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-muted/50">
-                <RadioGroupItem value="Senior" id="senior" />
-                <Label htmlFor="senior" className="font-normal cursor-pointer flex-1">Senior</Label>
-              </div>
-            </RadioGroup>
-          </div>
-        )}
-
-        {data.jobLevel && (
           <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
             <p className="text-muted-foreground">Quel type de croissance recherchez-vous ?</p>
             <RadioGroup
