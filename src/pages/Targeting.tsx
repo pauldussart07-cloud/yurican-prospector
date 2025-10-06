@@ -48,8 +48,19 @@ interface Persona {
   position: number;
 }
 
-const SERVICES = ['Commerce', 'Marketing', 'IT', 'RH', 'Direction', 'Finance', 'Production', 'Logistique'];
-const DECISION_LEVELS = ['Décisionnaire', 'Influenceur', 'Utilisateur'];
+const SERVICES = [
+  'Direction',
+  'Commerce',
+  'Marketing',
+  'Comptabilité / Finance',
+  'IT',
+  'RH',
+  'Juridique',
+  'R&D',
+  'Production',
+  'Logistique',
+];
+const DECISION_LEVELS = ['Dirigeant', 'Directeur / Responsable', 'Autres collaborateurs'];
 
 interface SortablePersonaCardProps {
   persona: Persona;
