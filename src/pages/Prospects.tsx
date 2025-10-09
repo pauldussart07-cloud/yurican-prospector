@@ -1197,33 +1197,32 @@ const Prospects = () => {
                       displayedContacts.map((contact, index) => (
                         <div
                           key={contact.id}
-                          className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-all hover:shadow-sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleContactClick(contact);
                           }}
                         >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
+                          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
                             {(contact as any).personaPosition || index + 1}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm font-medium truncate">{contact.fullName}</p>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <p className="text-sm font-semibold truncate">{contact.fullName}</p>
+                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            <div className="flex items-center gap-2 mt-1.5">
                               <HoverCard>
                                 <HoverCardTrigger asChild>
-                                  <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                  <Mail className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
                                 </HoverCardTrigger>
                                 <HoverCardContent className="w-auto">
                                   <p className="text-xs">{contact.email}</p>
                                 </HoverCardContent>
                               </HoverCard>
-                            </div>
-                            <div className="flex items-center justify-between mt-1">
-                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                              
                               {isContactInfoDiscovered(contact.id, 'phone') ? (
                                 <HoverCard>
                                   <HoverCardTrigger asChild>
-                                    <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
+                                    <Phone className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
                                   </HoverCardTrigger>
                                   <HoverCardContent className="w-auto">
                                     <p className="text-xs">{contact.phone}</p>
@@ -1233,7 +1232,7 @@ const Prospects = () => {
                                 <HoverCard>
                                   <HoverCardTrigger asChild>
                                     <Phone 
-                                      className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
+                                      className="h-4 w-4 text-muted-foreground/30 hover:text-muted-foreground/50 flex-shrink-0 cursor-pointer transition-colors" 
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleDiscoverRequest(contact.id, 'phone');
@@ -1242,6 +1241,25 @@ const Prospects = () => {
                                   </HoverCardTrigger>
                                   <HoverCardContent className="w-auto">
                                     <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              )}
+                              
+                              {contact.linkedin && (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <a
+                                      href={contact.linkedin}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="flex items-center"
+                                    >
+                                      <Linkedin className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
+                                    </a>
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs">Voir le profil LinkedIn</p>
                                   </HoverCardContent>
                                 </HoverCard>
                               )}

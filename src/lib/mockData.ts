@@ -25,6 +25,7 @@ export interface Contact {
   role: string;
   email: string;
   phone: string;
+  linkedin?: string;
   seniority: string;
   domain: string;
   source: string;
