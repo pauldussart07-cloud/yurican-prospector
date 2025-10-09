@@ -1,6 +1,8 @@
 import { Home, Building2, Users, Settings, Target, Calendar, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +26,45 @@ const navItems = [
 ];
 
 export function AppSidebar() {
+  const [signalCount, setSignalCount] = useState(0);
+
+  useEffect(() => {
+    const fetchSignalCount = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { count } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_hot_signal', true);
+
+      setSignalCount(count || 0);
+    };
+
+    fetchSignalCount();
+
+    // Subscribe to changes
+    const channel = supabase
+      .channel('signal-count-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads',
+        },
+        () => {
+          fetchSignalCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   return (
     <Sidebar className="border-r border-border w-44">
       <SidebarHeader className="p-6">
@@ -54,9 +95,9 @@ export function AppSidebar() {
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {item.title === 'Marché' && (
+                      {item.title === 'Marché' && signalCount > 0 && (
                         <Badge variant="destructive" className="ml-auto h-5 w-5 flex items-center justify-center p-0 text-xs">
-                          3
+                          {signalCount}
                         </Badge>
                       )}
                     </NavLink>
