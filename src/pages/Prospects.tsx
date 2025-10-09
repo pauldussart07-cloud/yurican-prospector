@@ -1766,6 +1766,19 @@ const Prospects = () => {
                               </div>
                             )}
                           </div>
+                          {selectedContact.linkedin && (
+                            <div className="flex items-center gap-2">
+                              <Linkedin className="h-3 w-3 text-muted-foreground" />
+                              <a
+                                href={selectedContact.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline truncate"
+                              >
+                                Voir le profil LinkedIn
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Card>
