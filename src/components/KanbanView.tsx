@@ -54,6 +54,24 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
     contacts: Contact[];
   } | null>(null);
   const [showContactSelector, setShowContactSelector] = useState(false);
+
+  // Handler pour mettre à jour le statut et le state local
+  const handleStatusChangeInDialog = (contactId: string, newStatus: ContactStatus) => {
+    // Mettre à jour via le prop
+    onContactStatusChange(contactId, newStatus);
+    
+    // Mettre à jour draggedCompany pour refléter le changement immédiatement dans le popup
+    if (draggedCompany) {
+      setDraggedCompany({
+        ...draggedCompany,
+        contacts: draggedCompany.contacts.map(contact =>
+          contact.id === contactId
+            ? { ...contact, status: newStatus } as Contact
+            : contact
+        ),
+      });
+    }
+  };
   // Grouper les entreprises par statut
   const companiesByStatus = useMemo(() => {
     const grouped: Record<ContactStatus, Array<{
@@ -194,7 +212,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
                     <Select
                       value={(contact as any).status || 'Nouveau'}
                       onValueChange={(value) => {
-                        onContactStatusChange(contact.id, value as ContactStatus);
+                        handleStatusChangeInDialog(contact.id, value as ContactStatus);
                       }}
                     >
                       <SelectTrigger id={`status-${contact.id}`} className="h-9">

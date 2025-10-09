@@ -45,7 +45,9 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
     <Card 
       ref={setNodeRef} 
       style={style}
-      className={`mb-2 hover:shadow-md transition-shadow ${
+      {...listeners} 
+      {...attributes}
+      className={`mb-2 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
         isDragging ? 'opacity-50' : ''
       }`}
     >
@@ -53,12 +55,8 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div 
-                {...listeners} 
-                {...attributes}
-                className="cursor-grab active:cursor-grabbing flex-shrink-0"
-              >
-                <GripVertical className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <div className="flex-shrink-0">
+                <GripVertical className="h-4 w-4 text-muted-foreground" />
               </div>
               
               <CollapsibleTrigger asChild>
