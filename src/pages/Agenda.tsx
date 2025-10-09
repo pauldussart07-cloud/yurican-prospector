@@ -29,6 +29,8 @@ interface ContactDetails extends Meeting {
   company_linkedin: string | null;
   company_sector: string | null;
   company_headcount: number | null;
+  company_summary: string | null;
+  signal_summary: string | null;
 }
 
 type ViewMode = 'month' | 'week' | 'day';
@@ -78,7 +80,7 @@ const Agenda = () => {
       const leadIds = [...new Set(contactsData.map(c => c.lead_id))];
       const { data: leadsData } = await supabase
         .from('leads')
-        .select('id, company_name, company_address, company_website, company_linkedin, company_sector, company_headcount')
+        .select('id, company_name, company_address, company_website, company_linkedin, company_sector, company_headcount, signal_summary')
         .in('id', leadIds);
 
       const leadsMap = new Map(leadsData?.map(l => [l.id, l]) || []);
@@ -98,7 +100,7 @@ const Agenda = () => {
     // Récupérer les détails complets
     const { data: leadData } = await supabase
       .from('leads')
-      .select('company_address, company_website, company_linkedin, company_sector, company_headcount')
+      .select('company_address, company_website, company_linkedin, company_sector, company_headcount, signal_summary')
       .eq('id', meeting.lead_id)
       .single();
 
@@ -109,6 +111,8 @@ const Agenda = () => {
       company_linkedin: leadData?.company_linkedin || null,
       company_sector: leadData?.company_sector || null,
       company_headcount: leadData?.company_headcount || null,
+      company_summary: null, // À implémenter via un service AI
+      signal_summary: leadData?.signal_summary || null,
     });
     setIsDialogOpen(true);
   };
@@ -501,6 +505,19 @@ const Agenda = () => {
               {/* Informations Entreprise */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold border-b pb-2">Entreprise</h3>
+                
+                {/* Résumé de l'entreprise */}
+                {selectedContact.company_summary && (
+                  <div className="col-span-2 bg-muted/50 p-4 rounded-lg">
+                    <div className="text-sm font-medium text-muted-foreground mb-2">
+                      À propos de l'entreprise
+                    </div>
+                    <div className="text-sm leading-relaxed">
+                      {selectedContact.company_summary}
+                    </div>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <div className="text-sm text-muted-foreground">Nom</div>
@@ -560,6 +577,18 @@ const Agenda = () => {
                   )}
                 </div>
               </div>
+
+              {/* Actualité / Signal */}
+              {selectedContact.signal_summary && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Actualité & Signaux</h3>
+                  <div className="bg-accent/50 p-4 rounded-lg border border-accent">
+                    <div className="text-sm leading-relaxed">
+                      {selectedContact.signal_summary}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* RDV et Statut */}
               <div className="space-y-4">
