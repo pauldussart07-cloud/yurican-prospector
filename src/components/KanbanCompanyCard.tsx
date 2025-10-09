@@ -62,31 +62,31 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
               </div>
               
               <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between cursor-pointer group gap-2 flex-1 text-left bg-transparent border-none p-0 w-full">
-                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                <button className="cursor-pointer group flex-1 text-left bg-transparent border-none p-0 w-full">
+                  <div className="flex items-center gap-1.5 mb-1.5">
                     {isExpanded ? (
                       <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                     ) : (
                       <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                     )}
                     <Building2 className="h-3 w-3 text-primary flex-shrink-0" />
-                    <h4 className="font-semibold text-xs group-hover:text-primary transition-colors truncate">
+                    <h4 className="font-semibold text-xs group-hover:text-primary transition-colors">
                       {companyName}
                     </h4>
                   </div>
                 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    <span>{contacts.length}</span>
-                  </div>
-                  
-                  {nextFollowUp && (
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground ml-6">
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{new Date(nextFollowUp).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                      <Users className="h-3 w-3" />
+                      <span>{contacts.length} contact{contacts.length > 1 ? 's' : ''}</span>
                     </div>
-                   )}
+                    
+                    {nextFollowUp && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>{new Date(nextFollowUp).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
+                      </div>
+                    )}
                   </div>
                 </button>
               </CollapsibleTrigger>
