@@ -1209,61 +1209,61 @@ const Prospects = () => {
                           <div className="flex-1 min-w-0 space-y-1">
                             <p className="text-sm font-semibold truncate">{contact.fullName}</p>
                             <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                            <div className="flex items-center gap-2 mt-1.5">
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <HoverCard>
+                              <HoverCardTrigger asChild>
+                                <Mail className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
+                              </HoverCardTrigger>
+                              <HoverCardContent className="w-auto">
+                                <p className="text-xs">{contact.email}</p>
+                              </HoverCardContent>
+                            </HoverCard>
+                            
+                            {isContactInfoDiscovered(contact.id, 'phone') ? (
                               <HoverCard>
                                 <HoverCardTrigger asChild>
-                                  <Mail className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
+                                  <Phone className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
                                 </HoverCardTrigger>
                                 <HoverCardContent className="w-auto">
-                                  <p className="text-xs">{contact.email}</p>
+                                  <p className="text-xs">{contact.phone}</p>
                                 </HoverCardContent>
                               </HoverCard>
-                              
-                              {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                <HoverCard>
-                                  <HoverCardTrigger asChild>
-                                    <Phone className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
-                                  </HoverCardTrigger>
-                                  <HoverCardContent className="w-auto">
-                                    <p className="text-xs">{contact.phone}</p>
-                                  </HoverCardContent>
-                                </HoverCard>
-                              ) : (
-                                <HoverCard>
-                                  <HoverCardTrigger asChild>
-                                    <Phone 
-                                      className="h-4 w-4 text-muted-foreground/30 hover:text-muted-foreground/50 flex-shrink-0 cursor-pointer transition-colors" 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDiscoverRequest(contact.id, 'phone');
-                                      }}
-                                    />
-                                  </HoverCardTrigger>
-                                  <HoverCardContent className="w-auto">
-                                    <p className="text-xs blur-sm select-none">{contact.phone}</p>
-                                  </HoverCardContent>
-                                </HoverCard>
-                              )}
-                              
-                              {contact.linkedin && (
-                                <HoverCard>
-                                  <HoverCardTrigger asChild>
-                                    <a
-                                      href={contact.linkedin}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      onClick={(e) => e.stopPropagation()}
-                                      className="flex items-center"
-                                    >
-                                      <Linkedin className="h-4 w-4 text-primary hover:text-primary/80 flex-shrink-0 cursor-pointer transition-colors" />
-                                    </a>
-                                  </HoverCardTrigger>
-                                  <HoverCardContent className="w-auto">
-                                    <p className="text-xs">Voir le profil LinkedIn</p>
-                                  </HoverCardContent>
-                                </HoverCard>
-                              )}
-                            </div>
+                            ) : (
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <Phone 
+                                    className="h-4 w-4 text-muted-foreground/30 hover:text-muted-foreground/50 cursor-pointer transition-colors" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDiscoverRequest(contact.id, 'phone');
+                                    }}
+                                  />
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            )}
+                            
+                            {contact.linkedin && (
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <a
+                                    href={contact.linkedin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-center"
+                                  >
+                                    <Linkedin className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
+                                  </a>
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs">Voir le profil LinkedIn</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            )}
                           </div>
                         </div>
                       ))
