@@ -1786,31 +1786,9 @@ const Prospects = () => {
                       
                       {/* Statut du contact */}
                       <div className="mb-4">
-                        <Label className="text-xs font-medium mb-2 block">Statut</Label>
-                        <Select
-                          value={selectedContact?.status || 'Nouveau'}
-                          onValueChange={(value) => {
-                            if (selectedContact) {
-                              handleStatusChange(selectedContact.id, value as ContactStatus);
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="w-full h-9 text-xs bg-background">
-                            <SelectValue placeholder="Sélectionner un statut" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-popover z-50">
-                            {STATUS_HIERARCHY.map((status) => (
-                              <SelectItem key={status} value={status} className="text-xs">
-                                <div className="flex items-center justify-between w-full gap-2">
-                                  <span>{status}</span>
-                                  <Badge variant={getStatusBadgeVariant(status)} className="text-xs">
-                                    {status}
-                                  </Badge>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Badge variant={getStatusBadgeVariant(selectedContact?.status || 'Nouveau')} className="text-xs">
+                          {selectedContact?.status || 'Nouveau'}
+                        </Badge>
                       </div>
 
                       <div className="border-t pt-3">
