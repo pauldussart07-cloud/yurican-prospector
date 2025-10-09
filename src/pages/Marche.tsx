@@ -644,11 +644,11 @@ const Marche = () => {
                 </Button>
 
                 <Button
-                  variant={hideNoGo ? 'default' : 'outline'}
+                  variant={hideNoGo ? 'outline' : 'default'}
                   size="sm"
                   onClick={() => setHideNoGo(!hideNoGo)}
                 >
-                  {hideNoGo ? 'NO GO masqués' : 'Afficher NO GO'}
+                  {hideNoGo ? 'Afficher NO GO' : 'Masquer NO GO'}
                 </Button>
               </>
             )}
