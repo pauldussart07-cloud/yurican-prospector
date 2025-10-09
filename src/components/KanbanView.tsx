@@ -8,9 +8,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
@@ -43,7 +53,6 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
     companyName: string;
     contacts: Contact[];
   } | null>(null);
-  const [dropTargetStatus, setDropTargetStatus] = useState<ContactStatus | null>(null);
   const [showContactSelector, setShowContactSelector] = useState(false);
   // Grouper les entreprises par statut
   const companiesByStatus = useMemo(() => {
@@ -120,19 +129,10 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
 
     // Si le statut est différent, ouvrir le dialog
     if (sourceStatus !== targetStatus) {
-      setDropTargetStatus(targetStatus);
       setShowContactSelector(true);
     }
     
     setDraggedCompany(null);
-  };
-
-  const handleContactSelect = (contactId: string) => {
-    if (dropTargetStatus) {
-      onContactStatusChange(contactId, dropTargetStatus);
-    }
-    setShowContactSelector(false);
-    setDropTargetStatus(null);
   };
 
   return (
@@ -164,34 +164,55 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
       </DndContext>
 
       <Dialog open={showContactSelector} onOpenChange={setShowContactSelector}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Sélectionner le contact</DialogTitle>
+            <DialogTitle>Modifier le statut des contacts</DialogTitle>
             <DialogDescription>
-              Quel contact doit passer au statut "{dropTargetStatus}" ?
+              Sélectionnez le nouveau statut pour chaque contact de {draggedCompany?.companyName}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
             {draggedCompany?.contacts.map(contact => (
-              <Button
-                key={contact.id}
-                variant="outline"
-                className="w-full justify-start text-left h-auto py-3 px-4"
-                onClick={() => handleContactSelect(contact.id)}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="font-semibold text-sm">{contact.fullName}</div>
-                    <Badge variant="secondary" className="text-xs">
-                      {(contact as any).status || 'Nouveau'}
-                    </Badge>
+              <Card key={contact.id} className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm mb-1">{contact.fullName}</div>
+                    <div className="text-xs text-muted-foreground">{contact.role}</div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{contact.role}</div>
+                  
+                  <div className="flex-shrink-0 w-48">
+                    <Label htmlFor={`status-${contact.id}`} className="text-xs mb-1 block">
+                      Statut
+                    </Label>
+                    <Select
+                      value={(contact as any).status || 'Nouveau'}
+                      onValueChange={(value) => {
+                        onContactStatusChange(contact.id, value as ContactStatus);
+                      }}
+                    >
+                      <SelectTrigger id={`status-${contact.id}`} className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Nouveau">Nouveau</SelectItem>
+                        <SelectItem value="Engagé">Engagé</SelectItem>
+                        <SelectItem value="Discussion">Discussion</SelectItem>
+                        <SelectItem value="RDV">RDV planifié</SelectItem>
+                        <SelectItem value="Exclu">Exclu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </Button>
+              </Card>
             ))}
           </div>
+
+          <DialogFooter>
+            <Button onClick={() => setShowContactSelector(false)}>
+              Fermer
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
