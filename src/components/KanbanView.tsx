@@ -130,8 +130,14 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
     // Si le statut est différent, ouvrir le dialog
     if (sourceStatus !== targetStatus) {
       setShowContactSelector(true);
+      // Ne pas effacer draggedCompany ici, on le fera à la fermeture du dialog
+    } else {
+      setDraggedCompany(null);
     }
-    
+  };
+
+  const handleCloseDialog = () => {
+    setShowContactSelector(false);
     setDraggedCompany(null);
   };
 
@@ -163,7 +169,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
         </DragOverlay>
       </DndContext>
 
-      <Dialog open={showContactSelector} onOpenChange={setShowContactSelector}>
+      <Dialog open={showContactSelector} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Modifier le statut des contacts</DialogTitle>
@@ -209,7 +215,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
           </div>
 
           <DialogFooter>
-            <Button onClick={() => setShowContactSelector(false)}>
+            <Button onClick={handleCloseDialog}>
               Fermer
             </Button>
           </DialogFooter>
