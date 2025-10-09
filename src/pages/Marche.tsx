@@ -65,6 +65,7 @@ const Marche = () => {
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
   const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
+  const [companySummaries, setCompanySummaries] = useState<Map<string, string>>(new Map());
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [showNoGoDialog, setShowNoGoDialog] = useState(false);
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
@@ -125,12 +126,22 @@ const Marche = () => {
     }
     
     setSelectedCompany(company);
+    
+    // Vérifier si on a déjà un résumé pour cette entreprise
+    const existingSummary = companySummaries.get(company.id);
+    if (existingSummary) {
+      setSummary(existingSummary);
+      return;
+    }
+    
     setSummary('');
     setLoadingSummary(true);
     
     try {
       const generatedSummary = await companySummaryService.summarize(company);
       setSummary(generatedSummary);
+      // Stocker le résumé généré
+      setCompanySummaries(prev => new Map(prev).set(company.id, generatedSummary));
     } catch (error) {
       console.error('Error generating summary:', error);
       setSummary('Erreur lors de la génération du résumé.');
@@ -874,7 +885,7 @@ const Marche = () => {
                   {/* Bloc 3 : Résumé */}
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm text-muted-foreground ${expandedSummaries.has(company.id) ? '' : 'line-clamp-3'}`}>
-                      {company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
+                      {companySummaries.get(company.id) || company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
                     </p>
                     <button 
                       className="text-xs text-primary hover:underline mt-1"
