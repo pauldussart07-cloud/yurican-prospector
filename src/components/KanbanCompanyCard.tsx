@@ -45,9 +45,7 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
     <Card 
       ref={setNodeRef} 
       style={style}
-      {...listeners} 
-      {...attributes}
-      className={`mb-2 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
+      className={`mb-2 hover:shadow-md transition-shadow ${
         isDragging ? 'opacity-50' : ''
       }`}
     >
@@ -55,12 +53,16 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="flex-shrink-0">
+              <div 
+                className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+                {...listeners} 
+                {...attributes}
+              >
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
               </div>
               
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer group gap-2 flex-1">
+                <button className="flex items-center justify-between cursor-pointer group gap-2 flex-1 text-left bg-transparent border-none p-0 w-full">
                   <div className="flex items-center gap-1.5 flex-1 min-w-0">
                     {isExpanded ? (
                       <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />
@@ -84,9 +86,9 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
                       <Calendar className="h-3 w-3" />
                       <span>{new Date(nextFollowUp).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })}</span>
                     </div>
-                  )}
+                   )}
                   </div>
-                </div>
+                </button>
               </CollapsibleTrigger>
             </div>
 
