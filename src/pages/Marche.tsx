@@ -318,6 +318,14 @@ const Marche = () => {
   const filteredCompanies = useMemo(() => {
     let filtered = companies.filter(c => !hideNoGo || !c.isHidden);
 
+    // En mode signal, filtrer uniquement les entreprises qui ont des signaux
+    if (viewMode === 'signal') {
+      const signalCompanyIds = new Set(
+        leads.filter(l => l.isHotSignal).map(l => l.companyId)
+      );
+      filtered = filtered.filter(c => signalCompanyIds.has(c.id));
+    }
+
     // Apply targeting filter if active
     if (activeTargeting) {
       filtered = filtered.filter(c => {
