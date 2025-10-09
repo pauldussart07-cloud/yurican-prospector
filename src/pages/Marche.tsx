@@ -885,12 +885,36 @@ const Marche = () => {
                   {/* Bloc 3 : Résumé */}
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm text-muted-foreground ${expandedSummaries.has(company.id) ? '' : 'line-clamp-3'}`}>
-                      {companySummaries.get(company.id) || company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
+                      {loadingSummary && selectedCompany?.id === company.id 
+                        ? 'Génération du résumé en cours...' 
+                        : companySummaries.get(company.id) || company.summary || "Aucun résumé disponible. Cliquez sur 'Afficher plus' pour générer une synthèse."}
                     </p>
                     <button 
                       className="text-xs text-primary hover:underline mt-1"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
+                        
+                        // Si pas de résumé, le générer d'abord
+                        if (!companySummaries.get(company.id)) {
+                          setSelectedCompany(company);
+                          setLoadingSummary(true);
+                          try {
+                            const generatedSummary = await companySummaryService.summarize(company);
+                            setCompanySummaries(prev => new Map(prev).set(company.id, generatedSummary));
+                          } catch (error) {
+                            console.error('Error generating summary:', error);
+                            toast({
+                              title: 'Erreur',
+                              description: 'Erreur lors de la génération du résumé.',
+                              variant: 'destructive',
+                            });
+                          } finally {
+                            setLoadingSummary(false);
+                            setSelectedCompany(null);
+                          }
+                        }
+                        
+                        // Basculer l'affichage étendu
                         const newExpanded = new Set(expandedSummaries);
                         if (newExpanded.has(company.id)) {
                           newExpanded.delete(company.id);
