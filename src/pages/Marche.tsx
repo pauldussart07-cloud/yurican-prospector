@@ -64,6 +64,7 @@ const Marche = () => {
   const [showDiscoverAlert, setShowDiscoverAlert] = useState(false);
   const [companyToDiscover, setCompanyToDiscover] = useState<Company | null>(null);
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
+  const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
   const [showPersonaDialog, setShowPersonaDialog] = useState(false);
   const [showNoGoDialog, setShowNoGoDialog] = useState(false);
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
@@ -872,17 +873,23 @@ const Marche = () => {
 
                   {/* Bloc 3 : Résumé */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                    <p className={`text-sm text-muted-foreground ${expandedSummaries.has(company.id) ? '' : 'line-clamp-3'}`}>
                       {company.summary || "Aucun résumé disponible. Cliquez pour générer une synthèse détaillée de cette entreprise."}
                     </p>
                     <button 
                       className="text-xs text-primary hover:underline mt-1"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCompanyClick(company);
+                        const newExpanded = new Set(expandedSummaries);
+                        if (newExpanded.has(company.id)) {
+                          newExpanded.delete(company.id);
+                        } else {
+                          newExpanded.add(company.id);
+                        }
+                        setExpandedSummaries(newExpanded);
                       }}
                     >
-                      Afficher plus →
+                      {expandedSummaries.has(company.id) ? 'Afficher moins ←' : 'Afficher plus →'}
                     </button>
                   </div>
 
