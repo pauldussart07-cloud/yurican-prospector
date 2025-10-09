@@ -59,7 +59,7 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
   return (
     <div 
       ref={setNodeRef}
-      className={`flex-shrink-0 w-52 transition-colors rounded-lg p-2 ${
+      className={`flex-shrink-0 w-80 transition-colors rounded-lg p-2 ${
         isOver ? 'bg-accent/50' : ''
       }`}
     >
