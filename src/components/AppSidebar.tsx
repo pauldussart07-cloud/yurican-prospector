@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { mockLeads } from '@/lib/mockData';
 import {
   Sidebar,
   SidebarContent,
@@ -33,13 +34,24 @@ export function AppSidebar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { count } = await supabase
+      // Compter le nombre total de signaux disponibles (dans mockLeads)
+      const totalSignals = mockLeads.filter(l => l.isHotSignal).length;
+
+      // Compter le nombre de signaux déjà ajoutés par l'utilisateur
+      const { data: userLeads } = await supabase
         .from('leads')
-        .select('*', { count: 'exact', head: true })
+        .select('company_id')
         .eq('user_id', user.id)
         .eq('is_hot_signal', true);
 
-      setSignalCount(count || 0);
+      const userSignalCompanyIds = new Set(userLeads?.map(l => l.company_id) || []);
+      
+      // Compter les signaux non découverts (non encore ajoutés)
+      const undiscoveredSignals = mockLeads.filter(
+        l => l.isHotSignal && !userSignalCompanyIds.has(l.companyId)
+      ).length;
+
+      setSignalCount(undiscoveredSignals);
     };
 
     fetchSignalCount();
