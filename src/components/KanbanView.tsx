@@ -188,7 +188,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
       </DndContext>
 
       <Dialog open={showContactSelector} onOpenChange={handleCloseDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Modifier le statut des contacts</DialogTitle>
             <DialogDescription>
@@ -196,16 +196,16 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
             {draggedCompany?.contacts.map(contact => (
-              <Card key={contact.id} className="p-4">
-                <div className="flex items-start gap-4">
+              <Card key={contact.id} className="p-3">
+                <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm mb-1">{contact.fullName}</div>
+                    <div className="font-semibold text-sm mb-0.5">{contact.fullName}</div>
                     <div className="text-xs text-muted-foreground">{contact.role}</div>
                   </div>
                   
-                  <div className="flex-shrink-0 w-48">
+                  <div className="flex-shrink-0 w-40">
                     <Label htmlFor={`status-${contact.id}`} className="text-xs mb-1 block">
                       Statut
                     </Label>
