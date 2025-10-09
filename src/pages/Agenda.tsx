@@ -439,7 +439,9 @@ const Agenda = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Fiche Contact</DialogTitle>
+            <DialogTitle className="text-2xl">
+              {selectedContact ? `RDV - ${selectedContact.company_name} - ${selectedContact.full_name}` : 'Fiche Contact'}
+            </DialogTitle>
           </DialogHeader>
 
           {selectedContact && (
