@@ -140,34 +140,34 @@ const Onboarding = () => {
 
       // 3. Create personas from step3Data
       // Map decision level to database values
-      const mapDecisionLevel = (level: string): 'Décisionnaire' | 'Influenceur' | 'Utilisateur' => {
-        if (level === 'Dirigeant') return 'Décisionnaire';
-        if (level === 'Directeur / Responsable') return 'Influenceur';
-        return 'Utilisateur';
+      const mapDecisionLevel = (level: string): 'Dirigeant' | 'Directeur / Responsable' | 'Autres collaborateurs' => {
+        if (level === 'Dirigeant') return 'Dirigeant';
+        if (level === 'Directeur / Responsable') return 'Directeur / Responsable';
+        return 'Autres collaborateurs';
       };
 
       // If specific job titles are provided, create personas for each
       if (step3Data.jobTitles.length > 0) {
         for (let i = 0; i < step3Data.jobTitles.length; i++) {
-          const { error: personaError } = await supabase.from('personas').insert({
+          const { error: personaError } = await supabase.from('personas').insert([{
             user_id: userId,
             name: step3Data.jobTitles[i],
-            service: mapServiceToDatabase(step3Data.services[0] || 'Direction'),
-            decision_level: mapDecisionLevel(step3Data.decisionLevel),
+            service: mapServiceToDatabase(step3Data.services[0] || 'Direction') as any,
+            decision_level: mapDecisionLevel(step3Data.decisionLevel) as any,
             position: i + 1,
-          });
+          }]);
           if (personaError) throw personaError;
         }
       } else {
         // Otherwise, create a default persona based on services and decision level
         for (let i = 0; i < step3Data.services.length; i++) {
-          const { error: personaError } = await supabase.from('personas').insert({
+          const { error: personaError } = await supabase.from('personas').insert([{
             user_id: userId,
             name: `${step3Data.decisionLevel} - ${step3Data.services[i]}`,
-            service: mapServiceToDatabase(step3Data.services[i]),
-            decision_level: mapDecisionLevel(step3Data.decisionLevel),
+            service: mapServiceToDatabase(step3Data.services[i]) as any,
+            decision_level: mapDecisionLevel(step3Data.decisionLevel) as any,
             position: i + 1,
-          });
+          }]);
           if (personaError) throw personaError;
         }
       }

@@ -1,6 +1,16 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { KanbanColumn } from './KanbanColumn';
 import { Lead, Contact } from '@/lib/mockData';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
@@ -10,6 +20,7 @@ interface KanbanViewProps {
   leads: Array<{ lead: Lead; company: any }>;
   contacts: Contact[];
   onContactClick: (contact: Contact) => void;
+  onContactStatusChange: (contactId: string, newStatus: ContactStatus) => void;
   searchQuery?: string;
 }
 
@@ -26,7 +37,14 @@ const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
   return STATUS_HIERARCHY[maxIndex];
 };
 
-export const KanbanView = ({ leads, contacts, onContactClick, searchQuery = '' }: KanbanViewProps) => {
+export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusChange, searchQuery = '' }: KanbanViewProps) => {
+  const [draggedCompany, setDraggedCompany] = useState<{
+    companyId: string;
+    companyName: string;
+    contacts: Contact[];
+  } | null>(null);
+  const [dropTargetStatus, setDropTargetStatus] = useState<ContactStatus | null>(null);
+  const [showContactSelector, setShowContactSelector] = useState(false);
   // Grouper les entreprises par statut
   const companiesByStatus = useMemo(() => {
     const grouped: Record<ContactStatus, Array<{
@@ -76,18 +94,106 @@ export const KanbanView = ({ leads, contacts, onContactClick, searchQuery = '' }
     return grouped;
   }, [leads, contacts, searchQuery]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const [companyId, sourceStatus] = (active.id as string).split('|');
+    
+    const company = companiesByStatus[sourceStatus as ContactStatus].find(
+      c => c.companyId === companyId
+    );
+    
+    if (company) {
+      setDraggedCompany(company);
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || !draggedCompany) {
+      setDraggedCompany(null);
+      return;
+    }
+
+    const targetStatus = over.id as ContactStatus;
+    const [companyId, sourceStatus] = (active.id as string).split('|');
+
+    // Si le statut est différent, ouvrir le dialog
+    if (sourceStatus !== targetStatus) {
+      setDropTargetStatus(targetStatus);
+      setShowContactSelector(true);
+    }
+    
+    setDraggedCompany(null);
+  };
+
+  const handleContactSelect = (contactId: string) => {
+    if (dropTargetStatus) {
+      onContactStatusChange(contactId, dropTargetStatus);
+    }
+    setShowContactSelector(false);
+    setDropTargetStatus(null);
+  };
+
   return (
-    <div className="overflow-x-auto pb-4">
-      <div className="flex gap-6 min-w-max">
-        {STATUS_HIERARCHY.map(status => (
-          <KanbanColumn
-            key={status}
-            status={status}
-            companies={companiesByStatus[status]}
-            onContactClick={onContactClick}
-          />
-        ))}
-      </div>
-    </div>
+    <>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-6 min-w-max">
+            {STATUS_HIERARCHY.map(status => (
+              <KanbanColumn
+                key={status}
+                status={status}
+                companies={companiesByStatus[status]}
+                onContactClick={onContactClick}
+              />
+            ))}
+          </div>
+        </div>
+
+        <DragOverlay>
+          {draggedCompany && (
+            <div className="bg-card border rounded-lg p-3 shadow-lg opacity-90">
+              <div className="font-semibold text-sm">{draggedCompany.companyName}</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {draggedCompany.contacts.length} contact{draggedCompany.contacts.length > 1 ? 's' : ''}
+              </div>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
+
+      <Dialog open={showContactSelector} onOpenChange={setShowContactSelector}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sélectionner le contact</DialogTitle>
+            <DialogDescription>
+              Quel contact doit passer au statut "{dropTargetStatus}" ?
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            {draggedCompany?.contacts.map(contact => (
+              <Button
+                key={contact.id}
+                variant="outline"
+                className="w-full justify-start text-left h-auto py-3 px-4"
+                onClick={() => handleContactSelect(contact.id)}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="font-semibold text-sm">{contact.fullName}</div>
+                    <Badge variant="secondary" className="text-xs">
+                      {(contact as any).status || 'Nouveau'}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground">{contact.role}</div>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

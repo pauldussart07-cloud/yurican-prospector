@@ -808,6 +808,7 @@ const Prospects = () => {
             leads={filteredAndSortedLeads}
             contacts={contacts}
             onContactClick={handleContactClick}
+            onContactStatusChange={handleStatusChange}
             searchQuery={searchQuery}
           />
         </div>

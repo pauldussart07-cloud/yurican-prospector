@@ -1,3 +1,4 @@
+import { useDroppable } from '@dnd-kit/core';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { KanbanCompanyCard } from './KanbanCompanyCard';
@@ -51,9 +52,17 @@ const getStatusColor = (status: ContactStatus): string => {
 
 export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumnProps) => {
   const totalContacts = companies.reduce((sum, company) => sum + company.contacts.length, 0);
+  const { setNodeRef, isOver } = useDroppable({
+    id: status,
+  });
 
   return (
-    <div className="flex-shrink-0 w-52">
+    <div 
+      ref={setNodeRef}
+      className={`flex-shrink-0 w-52 transition-colors rounded-lg p-2 ${
+        isOver ? 'bg-accent/50' : ''
+      }`}
+    >
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-semibold text-xs uppercase tracking-wide">
           {getStatusLabel(status)}
