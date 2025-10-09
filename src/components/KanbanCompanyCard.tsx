@@ -9,6 +9,8 @@ import { Contact } from '@/lib/mockData';
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
+const STATUS_HIERARCHY: ContactStatus[] = ['Nouveau', 'Engagé', 'Discussion', 'RDV', 'Exclu'];
+
 interface KanbanCompanyCardProps {
   companyName: string;
   companyId: string;
@@ -40,6 +42,15 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
   };
 
   const nextFollowUp = getNextFollowUpDate();
+
+  // Trier les contacts par hiérarchie de statut décroissant (RDV > Discussion > Engagé > Nouveau > Exclu)
+  const sortedContacts = [...contacts].sort((a, b) => {
+    const statusA = (a as any).status || 'Nouveau';
+    const statusB = (b as any).status || 'Nouveau';
+    const indexA = STATUS_HIERARCHY.indexOf(statusA);
+    const indexB = STATUS_HIERARCHY.indexOf(statusB);
+    return indexB - indexA; // Ordre décroissant
+  });
 
   return (
     <Card 
@@ -94,7 +105,7 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
 
             <CollapsibleContent>
               <div className="space-y-1 ml-5 pt-1 border-t">
-                {contacts.map(contact => (
+                {sortedContacts.map(contact => (
                   <Button
                     key={contact.id}
                     variant="ghost"
