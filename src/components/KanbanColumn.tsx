@@ -56,6 +56,29 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
     id: status,
   });
 
+  // Fonction pour obtenir la date de suivi la plus proche d'une entreprise
+  const getCompanyNextFollowUpDate = (company: { contacts: Contact[] }) => {
+    const dates = company.contacts
+      .map(c => (c as any).followUpDate)
+      .filter(Boolean)
+      .sort();
+    return dates[0] || null;
+  };
+
+  // Trier les entreprises par date de suivi (les plus proches en premier)
+  const sortedCompanies = [...companies].sort((a, b) => {
+    const dateA = getCompanyNextFollowUpDate(a);
+    const dateB = getCompanyNextFollowUpDate(b);
+    
+    // Les entreprises avec date de suivi en premier
+    if (dateA && !dateB) return -1;
+    if (!dateA && dateB) return 1;
+    if (!dateA && !dateB) return 0;
+    
+    // Tri par date (les plus proches en premier)
+    return new Date(dateA).getTime() - new Date(dateB).getTime();
+  });
+
   return (
     <div 
       ref={setNodeRef}
@@ -80,7 +103,7 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
             </p>
           </Card>
         ) : (
-          companies.slice(0, 50).map(company => (
+          sortedCompanies.slice(0, 50).map(company => (
             <KanbanCompanyCard
               key={company.companyId}
               companyName={company.companyName}
