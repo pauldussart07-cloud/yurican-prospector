@@ -20,6 +20,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { KanbanView } from '@/components/KanbanView';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useActions } from '@/contexts/ActionsContext';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -73,7 +78,7 @@ import {
 
 const Prospects = () => {
   const { toast } = useToast();
-  const { getActionName } = useActions();
+  const { getActionName, actions } = useActions();
   const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -96,6 +101,19 @@ const Prospects = () => {
     subject: '',
     body: '',
     actionNumber: 0
+  });
+  const [meetingPreview, setMeetingPreview] = useState<{
+    isOpen: boolean;
+    actionName: string;
+    actionNumber: number;
+    selectedDate: Date | undefined;
+    selectedTime: string;
+  }>({
+    isOpen: false,
+    actionName: '',
+    actionNumber: 0,
+    selectedDate: undefined,
+    selectedTime: '14:00'
   });
   const [contactNote, setContactNote] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
@@ -403,31 +421,44 @@ Cordialement,
   const handleActionClick = (actionId: number) => {
     if (!selectedContact) return;
     
-    // Trouver le lead associé au contact
-    const lead = leads.find(l => l.id === selectedContact.companyId);
-    if (!lead) {
-      console.error('Lead not found for contact', selectedContact);
-      return;
+    // Vérifier le type d'action
+    const action = actions.find(a => a.id === actionId);
+    
+    if (action?.type === 'meeting') {
+      // C'est un RDV, ouvrir la dialog de calendrier
+      setMeetingPreview({
+        isOpen: true,
+        actionName: getActionName(actionId),
+        actionNumber: actionId,
+        selectedDate: undefined,
+        selectedTime: '14:00'
+      });
+    } else {
+      // C'est un email, ouvrir la preview d'email
+      const lead = leads.find(l => l.id === selectedContact.companyId);
+      if (!lead) {
+        console.error('Lead not found for contact', selectedContact);
+        return;
+      }
+      
+      const company = mockCompanies.find(c => c.id === lead.companyId);
+      const companyName = company?.name || 'Entreprise';
+      
+      const actionName = getActionName(actionId);
+      const { subject, body } = generateEmailContent(
+        actionId,
+        selectedContact.fullName,
+        companyName
+      );
+      
+      setEmailPreview({
+        isOpen: true,
+        actionName,
+        subject,
+        body,
+        actionNumber: actionId
+      });
     }
-    
-    // Trouver l'entreprise associée au lead
-    const company = mockCompanies.find(c => c.id === lead.companyId);
-    const companyName = company?.name || 'Entreprise';
-    
-    const actionName = getActionName(actionId);
-    const { subject, body } = generateEmailContent(
-      actionId,
-      selectedContact.fullName,
-      companyName
-    );
-    
-    setEmailPreview({
-      isOpen: true,
-      actionName,
-      subject,
-      body,
-      actionNumber: actionId
-    });
   };
 
   // Fonction pour exécuter l'action après confirmation
@@ -437,6 +468,58 @@ Cordialement,
       description: `${emailPreview.actionName} a été exécutée avec succès`,
     });
     setEmailPreview({ ...emailPreview, isOpen: false });
+  };
+
+  // Fonction pour créer un RDV
+  const executeMeeting = async () => {
+    if (!selectedContact || !meetingPreview.selectedDate) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Créer la date complète avec l'heure
+    const [hours, minutes] = meetingPreview.selectedTime.split(':');
+    const meetingDate = new Date(meetingPreview.selectedDate);
+    meetingDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+
+    // Mettre à jour le follow_up_date du contact
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({ 
+        follow_up_date: meetingDate.toISOString().split('T')[0],
+        status: 'RDV',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', selectedContact.id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error creating meeting:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de créer le rendez-vous.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Mettre à jour l'état local
+    setContacts(contacts.map(c => 
+      c.id === selectedContact.id 
+        ? { ...c, followUpDate: meetingDate.toISOString().split('T')[0], status: 'RDV' as ContactStatus }
+        : c
+    ));
+
+    if (selectedContact?.id === selectedContact.id) {
+      setSelectedContact({ ...selectedContact, followUpDate: meetingDate.toISOString().split('T')[0], status: 'RDV' as ContactStatus });
+    }
+
+    toast({
+      title: "Rendez-vous créé",
+      description: `Le rendez-vous a été ajouté à votre agenda le ${format(meetingDate, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}`,
+    });
+
+    setMeetingPreview({ ...meetingPreview, isOpen: false });
   };
 
   // Déterminer la taille de l'icône CA
@@ -1809,6 +1892,99 @@ Cordialement,
             </Button>
             <Button onClick={executeAction}>
               Exécuter l'action
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Meeting Preview Dialog */}
+      <Dialog open={meetingPreview.isOpen} onOpenChange={(open) => setMeetingPreview({ ...meetingPreview, isOpen: open })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Planifier un rendez-vous - {meetingPreview.actionName}</DialogTitle>
+            <DialogDescription>
+              Choisissez la date et l'heure du rendez-vous
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Date du rendez-vous</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !meetingPreview.selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {meetingPreview.selectedDate ? (
+                      format(meetingPreview.selectedDate, "PPP", { locale: fr })
+                    ) : (
+                      <span>Choisir une date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={meetingPreview.selectedDate}
+                    onSelect={(date) => setMeetingPreview({ ...meetingPreview, selectedDate: date })}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium mb-2 block">Heure du rendez-vous</Label>
+              <Select 
+                value={meetingPreview.selectedTime} 
+                onValueChange={(value) => setMeetingPreview({ ...meetingPreview, selectedTime: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="09:00">09:00</SelectItem>
+                  <SelectItem value="09:30">09:30</SelectItem>
+                  <SelectItem value="10:00">10:00</SelectItem>
+                  <SelectItem value="10:30">10:30</SelectItem>
+                  <SelectItem value="11:00">11:00</SelectItem>
+                  <SelectItem value="11:30">11:30</SelectItem>
+                  <SelectItem value="12:00">12:00</SelectItem>
+                  <SelectItem value="14:00">14:00</SelectItem>
+                  <SelectItem value="14:30">14:30</SelectItem>
+                  <SelectItem value="15:00">15:00</SelectItem>
+                  <SelectItem value="15:30">15:30</SelectItem>
+                  <SelectItem value="16:00">16:00</SelectItem>
+                  <SelectItem value="16:30">16:30</SelectItem>
+                  <SelectItem value="17:00">17:00</SelectItem>
+                  <SelectItem value="17:30">17:30</SelectItem>
+                  <SelectItem value="18:00">18:00</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedContact && (
+              <div className="bg-muted p-3 rounded-lg">
+                <p className="text-sm font-medium mb-1">Contact</p>
+                <p className="text-sm text-muted-foreground">{selectedContact.fullName}</p>
+                <p className="text-xs text-muted-foreground mt-1">{selectedContact.role}</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMeetingPreview({ ...meetingPreview, isOpen: false })}>
+              Annuler
+            </Button>
+            <Button onClick={executeMeeting} disabled={!meetingPreview.selectedDate}>
+              Créer le rendez-vous
             </Button>
           </DialogFooter>
         </DialogContent>
