@@ -423,11 +423,6 @@ const Prospects = () => {
   const filteredAndSortedLeads = useMemo(() => {
     let filtered = leads;
 
-    // Filtrer par mode (signal = leads chauds uniquement)
-    if (viewMode === 'signal') {
-      filtered = filtered.filter(lead => lead.isHotSignal);
-    }
-
     const leadsWithCompanies = filtered
       .map(lead => {
         // Récupérer l'entreprise complète depuis mockCompanies ou utiliser un objet par défaut
@@ -767,38 +762,15 @@ const Prospects = () => {
           {/* Header pour la vue Kanban */}
           <div className="flex items-center justify-between px-4">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <Label htmlFor="view-mode-kanban" className="text-sm font-medium">
-                  Ciblage
-                </Label>
-                <Switch
-                  id="view-mode-kanban"
-                  checked={viewMode === 'signal'}
-                  onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher une entreprise ou un contact..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-80"
                 />
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="view-mode-kanban" className="text-sm font-medium">
-                    Signal
-                  </Label>
-                  {leads.filter(l => l.isHotSignal).length > 0 && (
-                    <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
-                      {leads.filter(l => l.isHotSignal).length}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 border-l pl-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="text"
-                    placeholder="Rechercher une entreprise ou un contact..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 w-80"
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -827,27 +799,6 @@ const Prospects = () => {
               <span className="text-sm text-muted-foreground">
                 Tout sélectionner
               </span>
-            </div>
-            
-            <div className="flex items-center gap-3 border-l pl-4">
-              <Label htmlFor="view-mode-leads" className="text-sm font-medium">
-                Ciblage
-              </Label>
-              <Switch
-                id="view-mode-leads"
-                checked={viewMode === 'signal'}
-                onCheckedChange={(checked) => setViewMode(checked ? 'signal' : 'ciblage')}
-              />
-              <div className="flex items-center gap-2">
-                <Label htmlFor="view-mode-leads" className="text-sm font-medium">
-                  Signal
-                </Label>
-                {leads.filter(l => l.isHotSignal).length > 0 && (
-                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
-                    {leads.filter(l => l.isHotSignal).length}
-                  </Badge>
-                )}
-              </div>
             </div>
 
             <div className="flex items-center gap-2 border-l pl-4">
@@ -959,228 +910,19 @@ const Prospects = () => {
 
           if (!company) return null;
 
-          // En mode signal, affichage différent
-          if (viewMode === 'signal') {
-            const sortedContacts = sortContactsByStatusAndHierarchy(leadContacts);
-            const isContactsExpanded = expandedContactsLeads.has(lead.id);
-            const displayedContacts = isContactsExpanded ? sortedContacts : sortedContacts.slice(0, 3);
-            const remainingCount = sortedContacts.length - 3;
-
-            return (
-              <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    {/* Checkbox */}
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={selectedLeads.has(lead.id)}
-                        onCheckedChange={() => handleSelectLead(lead.id)}
-                      />
-                    </div>
-
-                    {/* Bloc 4 : Liste des contacts */}
-                    <div className="w-64 space-y-2">
-                      {leadContacts.length > 0 ? (
-                        displayedContacts.map((contact, index) => (
-                          <div
-                            key={contact.id}
-                            className="flex items-center gap-2 p-2 rounded border bg-card hover:bg-card/80 cursor-pointer transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleContactClick(contact);
-                            }}
-                          >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-xs flex-shrink-0">
-                            {(contact as any).personaPosition || index + 1}
-                          </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium truncate">{contact.fullName}</p>
-                                <HoverCard>
-                                  <HoverCardTrigger asChild>
-                                    <Mail className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                                  </HoverCardTrigger>
-                                  <HoverCardContent className="w-auto">
-                                    <p className="text-xs">{contact.email}</p>
-                                  </HoverCardContent>
-                                </HoverCard>
-                              </div>
-                              <div className="flex items-center justify-between mt-1">
-                                <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                                {isContactInfoDiscovered(contact.id, 'phone') ? (
-                                  <HoverCard>
-                                    <HoverCardTrigger asChild>
-                                      <Phone className="h-3 w-3 text-primary flex-shrink-0 ml-2 cursor-pointer" />
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="w-auto">
-                                      <p className="text-xs">{contact.phone}</p>
-                                    </HoverCardContent>
-                                  </HoverCard>
-                                ) : (
-                                  <HoverCard>
-                                    <HoverCardTrigger asChild>
-                                      <Phone 
-                                        className="h-3 w-3 text-muted-foreground/30 flex-shrink-0 ml-2 cursor-pointer" 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDiscoverRequest(contact.id, 'phone');
-                                        }}
-                                      />
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="w-auto">
-                                      <p className="text-xs blur-sm select-none">{contact.phone}</p>
-                                    </HoverCardContent>
-                                  </HoverCard>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLead(lead.id);
-                            setShowPersonaDialog(true);
-                          }}
-                        >
-                          <UsersIcon className="h-4 w-4 mr-2" />
-                          Chercher les contacts
-                        </Button>
-                      )}
-                      
-                      {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
-                      {leadContacts.length > 0 && remainingCount > 0 && (
-                        <div className="mt-2 flex justify-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleExpandContacts(lead.id);
-                            }}
-                            className="text-[10px] h-6 px-2 gap-1 hover:bg-accent/50 transition-colors"
-                          >
-                            {isContactsExpanded ? (
-                              <>
-                                <ChevronUp className="h-3 w-3" />
-                                Moins
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="h-3 w-3" />
-                                +{remainingCount}
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bloc 2 : Informations entreprise avec logo */}
-                    <div className="flex-shrink-0 w-48 relative">
-                      {/* Nom et logo */}
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold truncate">
-                            {highlightText(company.name, searchQuery)}
-                          </h3>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{company.department}</span>
-                          </div>
-                        </div>
-                        
-                        {/* Logo */}
-                        <div className="flex-shrink-0">
-                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Briefcase className="h-3 w-3 flex-shrink-0" />
-                        <span className="truncate">{company.sector}</span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-2">
-                        <div className="flex items-center gap-1">
-                          {getHeadcountIcon(company.headcount)}
-                          <span className="text-xs font-medium">{company.headcount}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {getRevenueIcon(company.ca)}
-                          <span className="text-xs font-medium">{(company.ca / 1000000).toFixed(1)}M€</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <a 
-                          href={company.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Globe className="h-3 w-3" />
-                          Site
-                        </a>
-                        <a 
-                          href={company.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Linkedin className="h-3 w-3" />
-                          LinkedIn
-                        </a>
-                      </div>
-                    </div>
-
-                  {/* Bloc 3 : Synthèse signal */}
-                  <div className="flex-1 px-2">
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
-                        {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
-                      </p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const firstContact = leadContacts[0];
-                          if (firstContact) {
-                            handleContactClick(firstContact);
-                          }
-                        }}
-                      >
-                        Voir plus →
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Statut */}
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
-                    {getLeadStatus(lead.id)}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-            );
-          }
-
-          // Mode ciblage avec la même structure que signal mais avec synthèse entreprise
+          // Vue unifiée avec indicateur pour les signaux
           const sortedContacts = sortContactsByStatusAndHierarchy(leadContacts);
           const isContactsExpanded = expandedContactsLeads.has(lead.id);
           const displayedContacts = isContactsExpanded ? sortedContacts : sortedContacts.slice(0, 3);
           const remainingCount = sortedContacts.length - 3;
 
           return (
-            <Card key={lead.id} className="hover:shadow-md transition-all duration-200 hover:scale-105">
+            <Card 
+              key={lead.id} 
+              className={`hover:shadow-md transition-all duration-200 hover:scale-105 ${
+                lead.isHotSignal ? 'border-orange-300 border-2' : ''
+              }`}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Checkbox */}
@@ -1316,9 +1058,12 @@ const Prospects = () => {
                     {/* Nom et logo */}
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold truncate">
-                          {highlightText(company.name, searchQuery)}
-                        </h3>
+                        <div className="flex items-center gap-1.5">
+                          {lead.isHotSignal && <span className="text-lg">🔥</span>}
+                          <h3 className="text-sm font-semibold truncate">
+                            {highlightText(company.name, searchQuery)}
+                          </h3>
+                        </div>
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                           <MapPin className="h-3 w-3 flex-shrink-0" />
                           <span className="truncate">{company.department}</span>
@@ -1371,28 +1116,50 @@ const Prospects = () => {
                     </div>
                   </div>
 
-                {/* Bloc 3 : Synthèse entreprise */}
+                {/* Bloc 3 : Synthèse */}
                 <div className="flex-1 px-2">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
-                      {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
-                      {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
-                    </p>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const firstContact = leadContacts[0];
-                        if (firstContact) {
-                          handleContactClick(firstContact);
-                        }
-                      }}
-                    >
-                      Voir plus →
-                    </Button>
-                  </div>
+                  {lead.isHotSignal ? (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
+                        {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
+                      </p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const firstContact = leadContacts[0];
+                          if (firstContact) {
+                            handleContactClick(firstContact);
+                          }
+                        }}
+                      >
+                        Voir plus →
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
+                        {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
+                        {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
+                      </p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const firstContact = leadContacts[0];
+                          if (firstContact) {
+                            handleContactClick(firstContact);
+                          }
+                        }}
+                      >
+                        Voir plus →
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Statut */}

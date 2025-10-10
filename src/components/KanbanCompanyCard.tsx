@@ -16,9 +16,10 @@ interface KanbanCompanyCardProps {
   companyId: string;
   contacts: Contact[];
   onContactClick: (contact: Contact) => void;
+  isHotSignal?: boolean;
 }
 
-export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactClick }: KanbanCompanyCardProps) => {
+export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactClick, isHotSignal }: KanbanCompanyCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Déterminer le statut actuel (le plus avancé)
@@ -58,7 +59,7 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
       style={style}
       className={`mb-2 hover:shadow-md transition-shadow ${
         isDragging ? 'opacity-50' : ''
-      }`}
+      } ${isHotSignal ? 'border-orange-300 border-2' : ''}`}
     >
       <CardContent className="p-2">
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
@@ -81,6 +82,7 @@ export const KanbanCompanyCard = ({ companyName, companyId, contacts, onContactC
                       <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                     )}
                     <Building2 className="h-3 w-3 text-primary flex-shrink-0" />
+                    {isHotSignal && <span className="text-sm">🔥</span>}
                     <h4 className="font-semibold text-xs group-hover:text-primary transition-colors">
                       {companyName}
                     </h4>

@@ -12,6 +12,7 @@ interface KanbanColumnProps {
     companyId: string;
     companyName: string;
     contacts: Contact[];
+    isHotSignal?: boolean;
   }>;
   onContactClick: (contact: Contact) => void;
 }
@@ -110,6 +111,7 @@ export const KanbanColumn = ({ status, companies, onContactClick }: KanbanColumn
               companyId={company.companyId}
               contacts={company.contacts}
               onContactClick={onContactClick}
+              isHotSignal={company.isHotSignal}
             />
           ))
         )}

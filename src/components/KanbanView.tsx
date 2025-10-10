@@ -34,6 +34,13 @@ interface KanbanViewProps {
   searchQuery?: string;
 }
 
+interface CompanyWithSignal {
+  companyId: string;
+  companyName: string;
+  contacts: Contact[];
+  isHotSignal?: boolean;
+}
+
 // Fonction pour obtenir le statut le plus avancé
 const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
   if (statuses.length === 0) return 'Nouveau';
@@ -48,11 +55,7 @@ const getMostAdvancedStatus = (statuses: ContactStatus[]): ContactStatus => {
 };
 
 export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusChange, searchQuery = '' }: KanbanViewProps) => {
-  const [draggedCompany, setDraggedCompany] = useState<{
-    companyId: string;
-    companyName: string;
-    contacts: Contact[];
-  } | null>(null);
+  const [draggedCompany, setDraggedCompany] = useState<CompanyWithSignal | null>(null);
   const [showContactSelector, setShowContactSelector] = useState(false);
 
   // Handler pour mettre à jour le statut et le state local
@@ -74,11 +77,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
   };
   // Grouper les entreprises par statut
   const companiesByStatus = useMemo(() => {
-    const grouped: Record<ContactStatus, Array<{
-      companyId: string;
-      companyName: string;
-      contacts: Contact[];
-    }>> = {
+    const grouped: Record<ContactStatus, Array<CompanyWithSignal>> = {
       'Nouveau': [],
       'Engagé': [],
       'Discussion': [],
@@ -115,6 +114,7 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
         companyId: lead.id,
         companyName: company.name,
         contacts: companyContacts,
+        isHotSignal: lead.isHotSignal,
       });
     });
 
@@ -177,8 +177,13 @@ export const KanbanView = ({ leads, contacts, onContactClick, onContactStatusCha
 
         <DragOverlay>
           {draggedCompany && (
-            <div className="bg-card border rounded-lg p-3 shadow-lg opacity-90">
-              <div className="font-semibold text-sm">{draggedCompany.companyName}</div>
+            <div className={`bg-card border rounded-lg p-3 shadow-lg opacity-90 ${
+              draggedCompany.isHotSignal ? 'border-orange-300 border-2' : ''
+            }`}>
+              <div className="flex items-center gap-1.5">
+                {draggedCompany.isHotSignal && <span className="text-base">🔥</span>}
+                <div className="font-semibold text-sm">{draggedCompany.companyName}</div>
+              </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {draggedCompany.contacts.length} contact{draggedCompany.contacts.length > 1 ? 's' : ''}
               </div>
