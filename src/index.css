@@ -2,167 +2,127 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 36 35% 98%;
-    --foreground: 220 15% 20%;
+    /* ====== Core palette (no green, no pink/purple) ====== */
+    --background: 42 30% 97%;             /* ivoire chaud quasi blanc */
+    --foreground: 220 20% 18%;            /* encre/slate foncé */
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card-foreground: 220 20% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover-foreground: 220 20% 18%;
 
-    --primary: 160 28% 40%;
+    /* Signature: Terracotta (original, chaleureux, pro) */
+    --primary: 16 70% 55%;                /* terracotta */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 140 16% 92%;
-    --secondary-foreground: 220 15% 20%;
+    /* Second ton: Bleu acier (tech sans tirer sur le vert) */
+    --secondary: 205 28% 42%;             /* bleu acier / encre douce */
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 20% 96%;
-    --muted-foreground: 220 12% 38%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 200 22% 42%;
+    /* Accent alternatif (ambre doux — évite vert/rose/violet) */
+    --accent: 30 70% 55%;                 /* ambre/abricot subtil */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 65% 60%;
+    --destructive: 0 70% 56%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 140 25% 38%;
+    /* Success sans vert : bleu soutenu (lisible, moderne) */
+    --success: 205 60% 40%;               /* bleu succès */
     --success-foreground: 0 0% 100%;
 
-    --warning: 40 90% 50%;
-    --warning-foreground: 40 50% 12%;
+    --warning: 38 92% 52%;                /* amber lisible */
+    --warning-foreground: 38 60% 12%;
 
-    --border: 210 16% 84%;
+    --border: 220 16% 84%;
     --input: 0 0% 100%;
-    --ring: 160 28% 40%;
+    --ring: 16 70% 55%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 36 28% 96%;
-    --sidebar-foreground: 220 15% 18%;
-    --sidebar-primary: 160 28% 40%;
+    /* Sidebar / Header (fonds teintés, pas fades) */
+    --sidebar-background: 42 24% 95%;
+    --sidebar-foreground: 220 20% 18%;
+    --sidebar-primary: 16 70% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 36 22% 92%;
-    --sidebar-accent-foreground: 220 15% 18%;
-    --sidebar-border: 210 16% 85%;
-    --sidebar-ring: 160 28% 40%;
+    --sidebar-accent: 42 18% 92%;
+    --sidebar-accent-foreground: 220 20% 18%;
+    --sidebar-border: 220 16% 82%;
+    --sidebar-ring: 16 70% 55%;
 
-    --header-background: 36 28% 96%;
-    --header-foreground: 220 15% 18%;
+    --header-background: 42 24% 95%;
+    --header-foreground: 220 20% 18%;
 
-    --shadow-sm: 0 1px 2px 0 hsl(220 20% 60% / 0.08);
-    --shadow-md: 0 4px 6px -1px hsl(220 20% 60% / 0.12);
-    --shadow-lg: 0 10px 15px -3px hsl(220 20% 60% / 0.15);
-    --shadow-xl: 0 20px 25px -5px hsl(220 20% 60% / 0.18);
+    /* Shadows neutres (pas gris sale) */
+    --shadow-sm: 0 1px 2px 0 hsl(220 20% 40% / 0.08);
+    --shadow-md: 0 4px 6px -1px hsl(220 20% 40% / 0.12);
+    --shadow-lg: 0 10px 15px -3px hsl(220 20% 40% / 0.15);
+    --shadow-xl: 0 20px 25px -5px hsl(220 20% 40% / 0.18);
 
-    --gradient-primary: linear-gradient(135deg, hsl(160 28% 40%), hsl(160 28% 48%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(36 35% 98%));
-    --glow-primary: 0 0 20px hsl(160 28% 40% / 0.25);
+    /* Effets */
+    --gradient-primary: linear-gradient(135deg, hsl(16 70% 55%), hsl(16 70% 62%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(42 30% 97%));
+    --glow-primary: 0 0 20px hsl(16 70% 55% / 0.28);
   }
 
   .dark {
-    --background: 36 35% 98%;
-    --foreground: 220 15% 20%;
+    /* Dark chaleureux, sans noir pur */
+    --background: 220 12% 12%;            /* encre profond */
+    --foreground: 42 30% 96%;             /* ivoire doux */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card: 220 12% 14%;
+    --card-foreground: 42 30% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover: 220 12% 14%;
+    --popover-foreground: 42 30% 96%;
 
-    --primary: 160 28% 40%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 16 70% 60%;                /* terracotta un peu plus clair en dark */
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 140 16% 92%;
-    --secondary-foreground: 220 15% 20%;
+    --secondary: 205 28% 52%;             /* bleu acier + lumineux */
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 220 12% 38%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 42 18% 78%;
 
-    --accent: 200 22% 42%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 30 70% 60%;
+    --accent-foreground: 0 0% 8%;
 
-    --destructive: 0 65% 60%;
+    --destructive: 0 70% 56%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 140 25% 38%;
-    --success-foreground: 0 0% 100%;
+    --success: 205 60% 50%;
+    --success-foreground: 0 0% 8%;
 
-    --warning: 40 90% 50%;
-    --warning-foreground: 40 50% 12%;
+    --warning: 38 92% 58%;
+    --warning-foreground: 38 60% 10%;
 
-    --border: 210 16% 84%;
-    --input: 0 0% 100%;
-    --ring: 160 28% 40%;
+    --border: 220 12% 24%;
+    --input: 220 12% 16%;
+    --ring: 16 70% 60%;
 
-    --sidebar-background: 36 28% 96%;
-    --sidebar-foreground: 220 15% 18%;
-    --sidebar-primary: 160 28% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 36 22% 92%;
-    --sidebar-accent-foreground: 220 15% 18%;
-    --sidebar-border: 210 16% 85%;
-    --sidebar-ring: 160 28% 40%;
+    --sidebar-background: 220 12% 14%;
+    --sidebar-foreground: 42 30% 96%;
+    --sidebar-primary: 16 70% 60%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 220 12% 18%;
+    --sidebar-accent-foreground: 42 30% 96%;
+    --sidebar-border: 220 12% 22%;
+    --sidebar-ring: 16 70% 60%;
 
-    --header-background: 36 28% 96%;
-    --header-foreground: 220 15% 18%;
+    --header-background: 220 12% 14%;
+    --header-foreground: 42 30% 96%;
 
-    --gradient-bg: linear-gradient(135deg, hsl(160 28% 40%), hsl(160 28% 48%));
-  }
-
-  /* ===== Textures ===== */
-  
-  /* Texture: Soft Paper (recommandé) */
-  :root {
-    --paper-tint: 42 25% 98%;
-    --paper-spot: 42 18% 94%;
-    --paper-edge: 220 16% 97%;
-  }
-
-  .bg-texture-paper {
-    background:
-      radial-gradient(1200px 800px at 20% 0%, hsl(var(--paper-spot) / 0.35), transparent 60%),
-      radial-gradient(1000px 600px at 80% 0%, hsl(var(--paper-spot) / 0.25), transparent 55%),
-      radial-gradient(1600px 900px at 50% 120%, hsl(var(--paper-edge) / 0.7), transparent 60%),
-      hsl(var(--paper-tint));
-    background-attachment: fixed;
-  }
-
-  /* Texture: Subtle Vignette */
-  :root {
-    --vignette-base: 0 0% 100%;
-    --vignette-ring: 210 20% 96%;
-    --vignette-corner: 210 20% 92%;
-  }
-
-  .bg-texture-vignette {
-    background:
-      radial-gradient(1200px 800px at 50% -10%, hsl(var(--vignette-ring) / 0.6), transparent 60%),
-      radial-gradient(1200px 800px at 50% 110%, hsl(var(--vignette-ring) / 0.55), transparent 60%),
-      radial-gradient(1800px 1200px at -10% 110%, hsl(var(--vignette-corner) / 0.30), transparent 60%),
-      radial-gradient(1800px 1200px at 110% -10%, hsl(var(--vignette-corner) / 0.30), transparent 60%),
-      hsl(var(--vignette-base));
-    background-attachment: fixed;
-  }
-
-  /* Texture: Micro Grid */
-  :root {
-    --grid-base: 42 25% 98%;
-    --grid-dot: 210 8% 80%;
-  }
-
-  .bg-texture-grid {
-    background:
-      radial-gradient(1px 1px at 0 0, hsl(var(--grid-dot) / 0.15) 1px, transparent 1px),
-      hsl(var(--grid-base));
-    background-size: 14px 14px, auto;
-    background-attachment: fixed;
+    --gradient-bg: linear-gradient(135deg, hsl(220 12% 14%), hsl(220 12% 12%));
   }
 }
 
@@ -174,28 +134,45 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
 
-  /* Relief & depth */
-  .card,
-  .shadow-card,
-  .ui-surface {
-    box-shadow:
-      0 1px 0 0 hsl(var(--border) / 0.7),
-      0 6px 20px -6px hsl(220 20% 30% / 0.10),
-      0 2px 8px -2px hsl(220 20% 30% / 0.06);
-    border: 1px solid hsl(var(--border));
-    background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 100% / 0.96) 100%);
-    border-radius: var(--radius);
-  }
+/* ===========================
+   Optional: Soft Paper Texture
+   (donne du "corps" au fond quasi blanc, sans bruit visuel)
+   Active avec <body class="bg-texture-paper">
+   =========================== */
+:root {
+  --paper-tint: 42 30% 97%;
+  --paper-spot: 42 18% 94%;
+  --paper-edge: 210 16% 97%;
+}
+.bg-texture-paper {
+  background:
+    radial-gradient(1200px 800px at 20% 0%, hsl(var(--paper-spot) / 0.35), transparent 60%),
+    radial-gradient(1000px 600px at 80% 0%, hsl(var(--paper-spot) / 0.25), transparent 55%),
+    radial-gradient(1600px 900px at 50% 120%, hsl(var(--paper-edge) / 0.7), transparent 60%),
+    hsl(var(--paper-tint));
+  background-attachment: fixed;
+}
 
-  .app-header {
-    backdrop-filter: saturate(1.05) blur(2px);
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0.65));
-    border-bottom: 1px solid hsl(var(--border));
-  }
+/* Cartes plus "matière" (cohérent avec la nouvelle DA) */
+.card, .shadow-card, .ui-surface {
+  box-shadow:
+    0 1px 0 0 hsl(var(--border) / 0.65),
+    0 6px 20px -6px hsl(220 20% 30% / 0.10),
+    0 2px 8px -2px hsl(220 20% 30% / 0.06);
+  border: 1px solid hsl(var(--border));
+  background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 100% / 0.96) 100%);
+  border-radius: var(--radius);
+}
 
-  .app-sidebar {
-    background: linear-gradient(180deg, hsl(0 0% 100% / 0.90), hsl(0 0% 100% / 0.85));
-    border-right: 1px solid hsl(var(--border));
-  }
+/* Header / Sidebar légèrement détachés du fond */
+.app-header {
+  backdrop-filter: saturate(1.05) blur(2px);
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0.65));
+  border-bottom: 1px solid hsl(var(--border));
+}
+.app-sidebar {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.90), hsl(0 0% 100% / 0.85));
+  border-right: 1px solid hsl(var(--border));
 }
