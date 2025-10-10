@@ -912,7 +912,7 @@ Cordialement,
           </ToggleGroup>
         </div>
         <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
-          {filteredAndSortedLeads.length} lead{filteredAndSortedLeads.length > 1 ? 's' : ''}
+          {filteredAndSortedLeads.length} Prospect{filteredAndSortedLeads.length > 1 ? 's' : ''}
         </Badge>
       </div>
 
