@@ -101,7 +101,7 @@ const SortablePersonaCard = ({ persona, index, onDelete }: SortablePersonaCardPr
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium">{persona.name}</div>
-              <div className="flex gap-2 mt-1 flex-wrap">
+              <div className="flex gap-2 mt-1 flex-wrap justify-end">
                 <Badge variant="outline" className="text-xs">{persona.service}</Badge>
                 <Badge variant="secondary" className="text-xs">{persona.decision_level}</Badge>
               </div>
