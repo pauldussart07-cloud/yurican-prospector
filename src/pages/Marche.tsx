@@ -1237,7 +1237,7 @@ const Marche = () => {
                       </div>
                     </div>
                     
-                    <div className="col-span-2">
+                    <div>
                       <span className="text-xs text-muted-foreground block mb-1">Site web</span>
                       <a 
                         href={selectedCompany.website} 
@@ -1250,7 +1250,7 @@ const Marche = () => {
                       </a>
                     </div>
                     
-                    <div className="col-span-2">
+                    <div>
                       <span className="text-xs text-muted-foreground block mb-1">LinkedIn</span>
                       <a 
                         href={selectedCompany.linkedin} 
