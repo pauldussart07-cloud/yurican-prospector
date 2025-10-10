@@ -84,6 +84,19 @@ const Prospects = () => {
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [emailPreview, setEmailPreview] = useState<{
+    isOpen: boolean;
+    actionName: string;
+    subject: string;
+    body: string;
+    actionNumber: number;
+  }>({
+    isOpen: false,
+    actionName: '',
+    subject: '',
+    body: '',
+    actionNumber: 0
+  });
   const [contactNote, setContactNote] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [discoveredContacts, setDiscoveredContacts] = useState<Set<string>>(new Set());
@@ -367,6 +380,53 @@ const Prospects = () => {
       loadUserPersonas();
     }
   }, [showPersonaDialog]);
+
+  // Fonction pour générer le contenu de l'email
+  const generateEmailContent = (actionId: number, contactName: string, companyName: string) => {
+    const actionName = getActionName(actionId);
+    const subject = `${actionName} - ${companyName}`;
+    const body = `Bonjour ${contactName},
+
+Je me permets de vous contacter concernant ${companyName}.
+
+Suite à notre intérêt pour votre entreprise, j'aimerais discuter des opportunités de collaboration.
+
+Dans l'attente de votre retour,
+
+Cordialement,
+[Votre nom]`;
+    
+    return { subject, body };
+  };
+
+  // Fonction pour gérer le clic sur une action
+  const handleActionClick = (actionId: number) => {
+    if (!selectedContact) return;
+    
+    const actionName = getActionName(actionId);
+    const { subject, body } = generateEmailContent(
+      actionId,
+      selectedContact.fullName,
+      selectedContact.lead.companyName
+    );
+    
+    setEmailPreview({
+      isOpen: true,
+      actionName,
+      subject,
+      body,
+      actionNumber: actionId
+    });
+  };
+
+  // Fonction pour exécuter l'action après confirmation
+  const executeAction = () => {
+    toast({
+      title: "Action exécutée",
+      description: `${emailPreview.actionName} a été exécutée avec succès`,
+    });
+    setEmailPreview({ ...emailPreview, isOpen: false });
+  };
 
   // Déterminer la taille de l'icône CA
   const getRevenueIcon = (ca: number) => {
@@ -1626,22 +1686,22 @@ const Prospects = () => {
                         
                         {showActions && (
                           <div className="space-y-1.5">
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(1)}>
                               {getActionName(1)}
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(2)}>
                               {getActionName(2)}
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(3)}>
                               {getActionName(3)}
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(4)}>
                               {getActionName(4)}
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(5)}>
                               {getActionName(5)}
                             </Button>
-                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs">
+                            <Button variant="outline" size="sm" className="w-full justify-start h-7 text-xs" onClick={() => handleActionClick(6)}>
                               {getActionName(6)}
                             </Button>
                           </div>
@@ -1697,6 +1757,47 @@ const Prospects = () => {
           <DialogFooter className="mt-6">
             <Button onClick={handleSaveContact}>
               Enregistrer les modifications
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Preview Dialog */}
+      <Dialog open={emailPreview.isOpen} onOpenChange={(open) => setEmailPreview({ ...emailPreview, isOpen: open })}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Prévisualisation de l'email - {emailPreview.actionName}</DialogTitle>
+            <DialogDescription>
+              Vérifiez le contenu de l'email avant de l'envoyer
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Objet</Label>
+              <Input 
+                value={emailPreview.subject} 
+                onChange={(e) => setEmailPreview({ ...emailPreview, subject: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">Message</Label>
+              <Textarea 
+                value={emailPreview.body}
+                onChange={(e) => setEmailPreview({ ...emailPreview, body: e.target.value })}
+                className="mt-1 min-h-[300px] font-mono text-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailPreview({ ...emailPreview, isOpen: false })}>
+              Annuler
+            </Button>
+            <Button onClick={executeAction}>
+              Exécuter l'action
             </Button>
           </DialogFooter>
         </DialogContent>
