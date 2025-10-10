@@ -2,127 +2,133 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
-   All colors MUST be HSL.
-*/
+/* Design system with rich colors and textures */
 
 @layer base {
   :root {
-    /* ====== Core palette (no green, no pink/purple) ====== */
-    --background: 42 30% 97%;             /* ivoire chaud quasi blanc */
-    --foreground: 220 20% 18%;            /* encre/slate foncé */
+    /* ====== Thème unifié 3 couleurs ====== */
+    
+    /* Base: Fond texturé ivoire */
+    --background: 38 45% 92%;             /* ivoire texture #E8DED0 */
+    --foreground: 215 25% 15%;            /* encre profonde #1F2937 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 18%;
+    --card: 38 50% 97%;                   /* carte légèrement teintée */
+    --card-foreground: 215 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 18%;
+    --popover: 38 50% 97%;
+    --popover-foreground: 215 25% 15%;
 
-    /* Signature: Cyan ardoise */
-    --primary: 195 30% 38%;               /* cyan ardoise #4E7B80 */
+    /* 1️⃣ Couleur signature: Teal profond (cyan-vert) */
+    --primary: 175 45% 35%;               /* teal riche #31847A */
     --primary-foreground: 0 0% 100%;
 
-    /* Second ton: Bleu gris profond */
-    --secondary: 210 18% 32%;             /* bleu gris profond */
+    /* 2️⃣ Couleur chaleur: Terracotta/Orange brûlé */
+    --secondary: 18 75% 50%;              /* terracotta vibrant #DF5C2B */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 220 12% 42%;
-
-    /* Accent alternatif: Ambre atténué */
-    --accent: 30 28% 52%;                 /* ambre atténué */
+    /* 3️⃣ Couleur accent: Bleu nuit */
+    --accent: 215 50% 35%;                /* bleu nuit profond #2D5C8C */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 56%;
+    --muted: 38 25% 88%;
+    --muted-foreground: 215 18% 38%;
+
+    --destructive: 0 75% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success sans vert : bleu soutenu (lisible, moderne) */
-    --success: 205 60% 40%;               /* bleu succès */
+    --success: 160 50% 38%;               /* vert succès riche */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 52%;                /* amber lisible */
+    --warning: 38 92% 52%;
     --warning-foreground: 38 60% 12%;
 
-    --border: 220 16% 84%;
-    --input: 0 0% 100%;
-    --ring: 195 30% 38%;
+    --border: 38 30% 75%;                 /* bordure plus visible */
+    --input: 38 50% 97%;
+    --ring: 175 45% 35%;
 
     --radius: 0.75rem;
 
-    /* Sidebar / Header (fonds teintés, pas fades) */
-    --sidebar-background: 42 24% 95%;
-    --sidebar-foreground: 220 20% 18%;
-    --sidebar-primary: 195 30% 38%;
+    /* Sidebar & Header avec texture */
+    --sidebar-background: 38 40% 90%;
+    --sidebar-foreground: 215 25% 15%;
+    --sidebar-primary: 175 45% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 42 18% 92%;
-    --sidebar-accent-foreground: 220 20% 18%;
-    --sidebar-border: 220 16% 82%;
-    --sidebar-ring: 195 30% 38%;
+    --sidebar-accent: 38 35% 85%;
+    --sidebar-accent-foreground: 215 25% 15%;
+    --sidebar-border: 38 30% 72%;
+    --sidebar-ring: 175 45% 35%;
 
-    --header-background: 42 24% 95%;
-    --header-foreground: 220 20% 18%;
+    --header-background: 38 40% 90%;
+    --header-foreground: 215 25% 15%;
 
-    /* Shadows neutres (pas gris sale) */
-    --shadow-sm: 0 1px 2px 0 hsl(220 20% 40% / 0.08);
-    --shadow-md: 0 4px 6px -1px hsl(220 20% 40% / 0.12);
-    --shadow-lg: 0 10px 15px -3px hsl(220 20% 40% / 0.15);
-    --shadow-xl: 0 20px 25px -5px hsl(220 20% 40% / 0.18);
+    /* Ombres profondes avec couleur */
+    --shadow-sm: 0 2px 4px 0 hsl(175 45% 20% / 0.12);
+    --shadow-md: 0 6px 12px -2px hsl(175 45% 20% / 0.18);
+    --shadow-lg: 0 12px 24px -4px hsl(175 45% 20% / 0.22);
+    --shadow-xl: 0 24px 40px -8px hsl(175 45% 20% / 0.28);
 
-    /* Effets */
-    --gradient-primary: linear-gradient(135deg, hsl(195 30% 38%), hsl(195 30% 45%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(42 30% 97%));
-    --glow-primary: 0 0 20px hsl(195 30% 38% / 0.28);
+    /* Gradients riches */
+    --gradient-primary: linear-gradient(135deg, hsl(175 45% 35%), hsl(175 45% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(18 75% 50%), hsl(18 75% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(215 50% 35%), hsl(215 50% 45%));
+    --gradient-card: linear-gradient(180deg, hsl(38 50% 98%), hsl(38 45% 94%));
+    --gradient-bg: radial-gradient(circle at 20% 50%, hsl(175 35% 88% / 0.4), transparent 50%),
+                   radial-gradient(circle at 80% 80%, hsl(18 45% 88% / 0.3), transparent 50%),
+                   hsl(38 45% 92%);
+    --glow-primary: 0 0 30px hsl(175 45% 35% / 0.4);
+    --glow-secondary: 0 0 30px hsl(18 75% 50% / 0.4);
   }
 
   .dark {
-    /* Dark chaleureux, sans noir pur */
-    --background: 220 12% 12%;            /* encre profond */
-    --foreground: 42 30% 96%;             /* ivoire doux */
+    --background: 215 30% 10%;
+    --foreground: 38 45% 95%;
 
-    --card: 220 12% 14%;
-    --card-foreground: 42 30% 96%;
+    --card: 215 28% 14%;
+    --card-foreground: 38 45% 95%;
 
-    --popover: 220 12% 14%;
-    --popover-foreground: 42 30% 96%;
+    --popover: 215 28% 14%;
+    --popover-foreground: 38 45% 95%;
 
-    --primary: 195 30% 45%;               /* cyan ardoise plus clair en dark */
-    --primary-foreground: 0 0% 8%;
+    --primary: 175 45% 45%;
+    --primary-foreground: 215 30% 10%;
 
-    --secondary: 210 18% 40%;             /* bleu gris plus lumineux */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 18 75% 58%;
+    --secondary-foreground: 215 30% 10%;
 
-    --muted: 220 12% 18%;
-    --muted-foreground: 42 18% 78%;
+    --accent: 215 50% 45%;
+    --accent-foreground: 215 30% 10%;
 
-    --accent: 30 28% 58%;
-    --accent-foreground: 0 0% 8%;
+    --muted: 215 25% 18%;
+    --muted-foreground: 38 30% 75%;
 
-    --destructive: 0 70% 56%;
+    --destructive: 0 75% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 205 60% 50%;
-    --success-foreground: 0 0% 8%;
+    --success: 160 50% 45%;
+    --success-foreground: 215 30% 10%;
 
-    --warning: 38 92% 58%;
+    --warning: 38 92% 60%;
     --warning-foreground: 38 60% 10%;
 
-    --border: 220 12% 24%;
-    --input: 220 12% 16%;
-    --ring: 195 30% 45%;
+    --border: 215 25% 28%;
+    --input: 215 28% 16%;
+    --ring: 175 45% 45%;
 
-    --sidebar-background: 220 12% 14%;
-    --sidebar-foreground: 42 30% 96%;
-    --sidebar-primary: 195 30% 45%;
-    --sidebar-primary-foreground: 0 0% 8%;
-    --sidebar-accent: 220 12% 18%;
-    --sidebar-accent-foreground: 42 30% 96%;
-    --sidebar-border: 220 12% 22%;
-    --sidebar-ring: 195 30% 45%;
+    --sidebar-background: 215 28% 12%;
+    --sidebar-foreground: 38 45% 95%;
+    --sidebar-primary: 175 45% 45%;
+    --sidebar-primary-foreground: 215 30% 10%;
+    --sidebar-accent: 215 25% 18%;
+    --sidebar-accent-foreground: 38 45% 95%;
+    --sidebar-border: 215 25% 25%;
+    --sidebar-ring: 175 45% 45%;
 
-    --header-background: 220 12% 14%;
-    --header-foreground: 42 30% 96%;
+    --header-background: 215 28% 12%;
+    --header-foreground: 38 45% 95%;
 
-    --gradient-bg: linear-gradient(135deg, hsl(220 12% 14%), hsl(220 12% 12%));
+    --gradient-bg: radial-gradient(circle at 20% 50%, hsl(175 35% 15% / 0.5), transparent 50%),
+                   radial-gradient(circle at 80% 80%, hsl(18 45% 15% / 0.4), transparent 50%),
+                   hsl(215 30% 10%);
   }
 }
 
@@ -133,46 +139,152 @@
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-bg);
+    background-attachment: fixed;
+  }
+
+  /* Cartes avec relief prononcé */
+  .card, .shadow-card, .ui-surface {
+    box-shadow:
+      0 2px 0 0 hsl(var(--border) / 0.8),
+      var(--shadow-lg);
+    border: 1.5px solid hsl(var(--border) / 0.9);
+    background: var(--gradient-card);
+    border-radius: var(--radius);
+    position: relative;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      transparent, 
+      hsl(var(--primary) / 0.1) 50%, 
+      transparent
+    );
+  }
+
+  /* Header avec profondeur */
+  .app-header {
+    backdrop-filter: saturate(1.15) blur(8px);
+    background: linear-gradient(180deg, 
+      hsl(var(--header-background) / 0.95), 
+      hsl(var(--header-background) / 0.85)
+    );
+    border-bottom: 2px solid hsl(var(--border) / 0.8);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Sidebar avec texture */
+  .app-sidebar {
+    background: linear-gradient(180deg, 
+      hsl(var(--sidebar-background) / 0.98), 
+      hsl(var(--sidebar-background) / 0.95)
+    );
+    border-right: 2px solid hsl(var(--border) / 0.8);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+
+  .app-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: linear-gradient(180deg,
+      hsl(var(--primary) / 0.2),
+      hsl(var(--secondary) / 0.15),
+      hsl(var(--accent) / 0.2)
+    );
+  }
+
+  /* Boutons avec plus de présence */
+  button, .btn {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button:hover, .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  button:active, .btn:active {
+    transform: translateY(0);
+  }
+
+  /* Badges plus visibles */
+  .badge {
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Inputs avec bordure visible */
+  input, textarea, select {
+    border: 1.5px solid hsl(var(--border));
+    background: var(--input);
+    transition: all 0.2s;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+  }
+
+  /* Liens avec effet riche */
+  a {
+    transition: color 0.2s;
+  }
+
+  a:hover {
+    color: hsl(var(--primary));
+  }
+
+  /* Scrollbar personnalisée */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted) / 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.5);
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
   }
 }
 
-/* ===========================
-   Optional: Soft Paper Texture
-   (donne du "corps" au fond quasi blanc, sans bruit visuel)
-   Active avec <body class="bg-texture-paper">
-   =========================== */
-:root {
-  --paper-tint: 42 30% 97%;
-  --paper-spot: 42 18% 94%;
-  --paper-edge: 210 16% 97%;
-}
-.bg-texture-paper {
-  background:
-    radial-gradient(1200px 800px at 20% 0%, hsl(var(--paper-spot) / 0.35), transparent 60%),
-    radial-gradient(1000px 600px at 80% 0%, hsl(var(--paper-spot) / 0.25), transparent 55%),
-    radial-gradient(1600px 900px at 50% 120%, hsl(var(--paper-edge) / 0.7), transparent 60%),
-    hsl(var(--paper-tint));
-  background-attachment: fixed;
+/* Animations de texture */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
 }
 
-/* Cartes plus "matière" (cohérent avec la nouvelle DA) */
-.card, .shadow-card, .ui-surface {
-  box-shadow:
-    0 1px 0 0 hsl(var(--border) / 0.65),
-    0 6px 20px -6px hsl(220 20% 30% / 0.10),
-    0 2px 8px -2px hsl(220 20% 30% / 0.06);
-  border: 1px solid hsl(var(--border));
-  background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 100% / 0.96) 100%);
-  border-radius: var(--radius);
-}
-
-/* Header / Sidebar légèrement détachés du fond */
-.app-header {
-  backdrop-filter: saturate(1.05) blur(2px);
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.85), hsl(0 0% 100% / 0.65));
-  border-bottom: 1px solid hsl(var(--border));
-}
-.app-sidebar {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.90), hsl(0 0% 100% / 0.85));
-  border-right: 1px solid hsl(var(--border));
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary) / 0.05) 50%,
+    transparent
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
 }
