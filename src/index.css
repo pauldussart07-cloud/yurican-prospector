@@ -18,19 +18,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 18%;
 
-    /* Signature: Terracotta (original, chaleureux, pro) */
-    --primary: 16 70% 55%;                /* terracotta */
+    /* Signature: Cyan ardoise */
+    --primary: 195 30% 38%;               /* cyan ardoise #4E7B80 */
     --primary-foreground: 0 0% 100%;
 
-    /* Second ton: Bleu acier (tech sans tirer sur le vert) */
-    --secondary: 205 28% 42%;             /* bleu acier / encre douce */
+    /* Second ton: Bleu gris profond */
+    --secondary: 210 18% 32%;             /* bleu gris profond */
     --secondary-foreground: 0 0% 100%;
 
     --muted: 210 20% 96%;
     --muted-foreground: 220 12% 42%;
 
-    /* Accent alternatif (ambre doux — évite vert/rose/violet) */
-    --accent: 30 70% 55%;                 /* ambre/abricot subtil */
+    /* Accent alternatif: Ambre atténué */
+    --accent: 30 28% 52%;                 /* ambre atténué */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 70% 56%;
@@ -45,19 +45,19 @@
 
     --border: 220 16% 84%;
     --input: 0 0% 100%;
-    --ring: 16 70% 55%;
+    --ring: 195 30% 38%;
 
     --radius: 0.75rem;
 
     /* Sidebar / Header (fonds teintés, pas fades) */
     --sidebar-background: 42 24% 95%;
     --sidebar-foreground: 220 20% 18%;
-    --sidebar-primary: 16 70% 55%;
+    --sidebar-primary: 195 30% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 42 18% 92%;
     --sidebar-accent-foreground: 220 20% 18%;
     --sidebar-border: 220 16% 82%;
-    --sidebar-ring: 16 70% 55%;
+    --sidebar-ring: 195 30% 38%;
 
     --header-background: 42 24% 95%;
     --header-foreground: 220 20% 18%;
@@ -69,9 +69,9 @@
     --shadow-xl: 0 20px 25px -5px hsl(220 20% 40% / 0.18);
 
     /* Effets */
-    --gradient-primary: linear-gradient(135deg, hsl(16 70% 55%), hsl(16 70% 62%));
+    --gradient-primary: linear-gradient(135deg, hsl(195 30% 38%), hsl(195 30% 45%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 100%), hsl(42 30% 97%));
-    --glow-primary: 0 0 20px hsl(16 70% 55% / 0.28);
+    --glow-primary: 0 0 20px hsl(195 30% 38% / 0.28);
   }
 
   .dark {
@@ -85,16 +85,16 @@
     --popover: 220 12% 14%;
     --popover-foreground: 42 30% 96%;
 
-    --primary: 16 70% 60%;                /* terracotta un peu plus clair en dark */
+    --primary: 195 30% 45%;               /* cyan ardoise plus clair en dark */
     --primary-foreground: 0 0% 8%;
 
-    --secondary: 205 28% 52%;             /* bleu acier + lumineux */
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 210 18% 40%;             /* bleu gris plus lumineux */
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 220 12% 18%;
     --muted-foreground: 42 18% 78%;
 
-    --accent: 30 70% 60%;
+    --accent: 30 28% 58%;
     --accent-foreground: 0 0% 8%;
 
     --destructive: 0 70% 56%;
@@ -108,16 +108,16 @@
 
     --border: 220 12% 24%;
     --input: 220 12% 16%;
-    --ring: 16 70% 60%;
+    --ring: 195 30% 45%;
 
     --sidebar-background: 220 12% 14%;
     --sidebar-foreground: 42 30% 96%;
-    --sidebar-primary: 16 70% 60%;
+    --sidebar-primary: 195 30% 45%;
     --sidebar-primary-foreground: 0 0% 8%;
     --sidebar-accent: 220 12% 18%;
     --sidebar-accent-foreground: 42 30% 96%;
     --sidebar-border: 220 12% 22%;
-    --sidebar-ring: 16 70% 60%;
+    --sidebar-ring: 195 30% 45%;
 
     --header-background: 220 12% 14%;
     --header-foreground: 42 30% 96%;
