@@ -198,6 +198,73 @@ const Marche = () => {
     }
   };
 
+  const handleAddToProspects = async () => {
+    if (selectedCompanies.size === 0) return;
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: 'Erreur',
+          description: 'Vous devez être connecté pour ajouter des prospects.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      let addedCount = 0;
+      const companiesToAdd = Array.from(selectedCompanies);
+
+      for (const companyId of companiesToAdd) {
+        const company = companies.find(c => c.id === companyId);
+        if (!company) continue;
+
+        const { error } = await supabase
+          .from('leads')
+          .upsert({
+            user_id: user.id,
+            company_id: company.id,
+            company_name: company.name,
+            company_sector: company.sector,
+            company_department: company.department,
+            company_ca: company.ca,
+            company_headcount: company.headcount,
+            company_website: company.website,
+            company_linkedin: company.linkedin,
+            company_address: company.address,
+            company_siret: company.siret,
+            company_naf: company.naf,
+            status: 'Nouveau',
+            is_hot_signal: viewMode === 'signal',
+          }, {
+            onConflict: 'user_id,company_id'
+          });
+
+        if (!error) {
+          addedCount++;
+        }
+      }
+
+      // Retirer les entreprises ajoutées de la liste
+      setCompanies(companies.filter(c => !selectedCompanies.has(c.id)));
+      setSelectedCompanies(new Set());
+
+      toast({
+        title: 'Entreprises ajoutées',
+        description: `${addedCount} entreprise${addedCount > 1 ? 's ont été ajoutées' : ' a été ajoutée'} à vos prospects.`,
+      });
+
+      navigate('/prospects');
+    } catch (error) {
+      console.error('Error adding to prospects:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de l\'ajout des prospects.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleGo = async (company: Company) => {
     // Déclencher l'animation de swipe vers la gauche
     setSwipingCompanies(prev => new Map(prev).set(company.id, 'left'));
@@ -599,9 +666,9 @@ const Marche = () => {
                 <span className="font-medium text-sm">
                   {selectedCompanies.size} entreprise(s) sélectionnée(s)
                 </span>
-                <Button size="sm" onClick={handleGetContacts}>
-                  <Contact className="h-4 w-4 mr-2" />
-                  Récupérer des contacts
+                <Button size="sm" onClick={handleAddToProspects}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Ajouter aux prospects
                 </Button>
                 <Button
                   variant="ghost"
