@@ -403,11 +403,22 @@ Cordialement,
   const handleActionClick = (actionId: number) => {
     if (!selectedContact) return;
     
+    // Trouver le lead associé au contact
+    const lead = leads.find(l => l.id === selectedContact.companyId);
+    if (!lead) {
+      console.error('Lead not found for contact', selectedContact);
+      return;
+    }
+    
+    // Trouver l'entreprise associée au lead
+    const company = mockCompanies.find(c => c.id === lead.companyId);
+    const companyName = company?.name || 'Entreprise';
+    
     const actionName = getActionName(actionId);
     const { subject, body } = generateEmailContent(
       actionId,
       selectedContact.fullName,
-      selectedContact.lead.companyName
+      companyName
     );
     
     setEmailPreview({
