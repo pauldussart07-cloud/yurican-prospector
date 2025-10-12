@@ -466,8 +466,8 @@ const ProspectsMobile = () => {
               );
               const currentContactIndex = contactLead?.contacts.findIndex(c => c.id === selectedContact.id) ?? -1;
               
-              const hasPrevContact = currentContactIndex > 0;
-              const hasNextContact = contactLead && currentContactIndex < contactLead.contacts.length - 1;
+              const hasPrevContact = contactLead && currentContactIndex > 0;
+              const hasNextContact = contactLead && currentContactIndex >= 0 && currentContactIndex < contactLead.contacts.length - 1;
               
               return (
                 <div className="flex gap-2 mb-3">
