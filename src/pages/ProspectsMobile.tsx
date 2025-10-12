@@ -63,6 +63,9 @@ const ProspectsMobile = () => {
       companyName: lead.company_name,
       companyWebsite: lead.company_website,
       companyLinkedin: lead.company_linkedin,
+      companyHeadcount: lead.company_headcount,
+      companyCa: lead.company_ca,
+      signalSummary: lead.signal_summary,
     }));
 
     const transformedContacts = (contactsData || []).map(contact => ({
@@ -142,11 +145,36 @@ const ProspectsMobile = () => {
               <Card key={lead.id}>
                 <CardContent className="pt-6 space-y-3">
                   {/* En-tête entreprise */}
-                  <div className="space-y-2 pb-3 border-b">
+                  <div className="space-y-3 pb-3 border-b">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                       <span className="font-semibold">{lead.companyName}</span>
                     </div>
+                    
+                    {/* KPI entreprise */}
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {lead.companyHeadcount && (
+                        <div className="bg-muted/50 rounded p-2">
+                          <div className="text-xs text-muted-foreground">Effectif</div>
+                          <div className="font-semibold">{lead.companyHeadcount} pers.</div>
+                        </div>
+                      )}
+                      {lead.companyCa && (
+                        <div className="bg-muted/50 rounded p-2">
+                          <div className="text-xs text-muted-foreground">CA</div>
+                          <div className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Résumé */}
+                    {lead.signalSummary && (
+                      <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2">
+                        {lead.signalSummary}
+                      </div>
+                    )}
+
+                    {/* Actions liens */}
                     <div className="flex gap-2">
                       {lead.companyWebsite && (
                         <Button
