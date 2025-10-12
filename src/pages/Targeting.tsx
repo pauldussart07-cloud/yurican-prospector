@@ -795,7 +795,14 @@ const Targeting = () => {
 
                 <div>
                   <Label htmlFor="service">Service</Label>
-                  <Select value={service} onValueChange={setService}>
+                  <Select value={service} onValueChange={(value) => {
+                    setService(value);
+                    if (value === 'Direction') {
+                      setDecisionLevel('Dirigeant');
+                    } else if (decisionLevel === 'Dirigeant') {
+                      setDecisionLevel('');
+                    }
+                  }}>
                     <SelectTrigger id="service">
                       <SelectValue placeholder="Sélectionner un service" />
                     </SelectTrigger>
@@ -811,17 +818,22 @@ const Targeting = () => {
 
                 <div>
                   <Label htmlFor="decision-level">Niveau de décision</Label>
-                  <Select value={decisionLevel} onValueChange={setDecisionLevel}>
+                  <Select 
+                    value={decisionLevel} 
+                    onValueChange={setDecisionLevel}
+                    disabled={service === 'Direction'}
+                  >
                     <SelectTrigger id="decision-level">
                       <SelectValue placeholder="Sélectionner un niveau" />
                     </SelectTrigger>
                     <SelectContent>
                       {DECISION_LEVELS.filter((level) => {
-                        // "Dirigeant" n'apparaît que si "Direction" est sélectionné
-                        if (level === 'Dirigeant') {
-                          return service === 'Direction';
+                        // Si Direction est sélectionné, n'afficher que "Dirigeant"
+                        if (service === 'Direction') {
+                          return level === 'Dirigeant';
                         }
-                        return true;
+                        // Sinon, exclure "Dirigeant"
+                        return level !== 'Dirigeant';
                       }).map((level) => (
                         <SelectItem key={level} value={level}>
                           {level}
