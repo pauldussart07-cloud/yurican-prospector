@@ -577,7 +577,8 @@ const ProspectsMobile = () => {
                     size="sm"
                     className="flex-1 text-xs h-8"
                     disabled={!hasPrevContact}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (contactLead && hasPrevContact) {
                         const prevContact = contactLead.contacts[currentContactIndex - 1];
                         handleContactClick(prevContact);
@@ -592,7 +593,8 @@ const ProspectsMobile = () => {
                     size="sm"
                     className="flex-1 text-xs h-8"
                     disabled={!hasNextContact}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (contactLead && hasNextContact) {
                         const nextContact = contactLead.contacts[currentContactIndex + 1];
                         handleContactClick(nextContact);
