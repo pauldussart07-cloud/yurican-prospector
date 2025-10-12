@@ -562,13 +562,26 @@ const ProspectsMobile = () => {
                           <div className="font-medium">{contactLead.companyAddress}</div>
                         </div>
                       )}
+                    </CardContent>
+                  </Card>
+                )}
 
-                      {contactLead.signalSummary && (
-                        <div className="pt-2 border-t">
-                          <div className="text-xs text-muted-foreground mb-1">Synthèse:</div>
-                          <div className="text-xs">{contactLead.signalSummary}</div>
-                        </div>
-                      )}
+                {/* Résumé du site web */}
+                {contactLead?.signalSummary && (
+                  <Card>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2">Résumé du site web</div>
+                      <div className="text-xs">{contactLead.signalSummary}</div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Résumé de l'actualité */}
+                {contactLead?.newsContent && (
+                  <Card>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="text-xs font-semibold text-muted-foreground mb-2">Actualité</div>
+                      <div className="text-xs">{contactLead.newsContent}</div>
                     </CardContent>
                   </Card>
                 )}
