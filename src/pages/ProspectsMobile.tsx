@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,6 +59,8 @@ const ProspectsMobile = () => {
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
   const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   useEffect(() => {
     loadData();
@@ -189,6 +191,40 @@ const ProspectsMobile = () => {
     const currentIndex = getCurrentContactIndex(leadId);
     const newIndex = currentIndex === 0 ? totalContacts - 1 : currentIndex - 1;
     setCurrentContactIndices(new Map(currentContactIndices.set(leadId, newIndex)));
+  };
+
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleSwipeMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleSwipeEnd = () => {
+    if (!selectedContact) return;
+    
+    const contactLead = leadsWithContacts.find(l => 
+      l.contacts.some(c => c.id === selectedContact.id)
+    );
+    const currentLeadIndex = leadsWithContacts.findIndex(l => l.id === contactLead?.id);
+    
+    const swipeThreshold = 50;
+    const diff = touchStartX.current - touchEndX.current;
+    
+    // Swipe à droite (entreprise suivante)
+    if (diff > swipeThreshold && currentLeadIndex < leadsWithContacts.length - 1) {
+      const nextLead = leadsWithContacts[currentLeadIndex + 1];
+      const firstContact = nextLead.contacts[0];
+      handleContactClick(firstContact);
+    }
+    
+    // Swipe à gauche (entreprise précédente)
+    if (diff < -swipeThreshold && currentLeadIndex > 0) {
+      const prevLead = leadsWithContacts[currentLeadIndex - 1];
+      const firstContact = prevLead.contacts[0];
+      handleContactClick(firstContact);
+    }
   };
 
   // Grouper les leads avec leurs contacts
@@ -404,7 +440,11 @@ const ProspectsMobile = () => {
 
       {/* Drawer fiche contact */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent>
+        <DrawerContent 
+          onTouchStart={handleSwipeStart}
+          onTouchMove={handleSwipeMove}
+          onTouchEnd={handleSwipeEnd}
+        >
           <DrawerHeader className="text-left">
             {/* Boutons de navigation */}
             {selectedContact && (() => {
@@ -412,13 +452,27 @@ const ProspectsMobile = () => {
                 l.contacts.some(c => c.id === selectedContact.id)
               );
               const currentContactIndex = contactLead?.contacts.findIndex(c => c.id === selectedContact.id) ?? -1;
-              const currentLeadIndex = leadsWithContacts.findIndex(l => l.id === contactLead?.id);
               
+              const hasPrevContact = currentContactIndex > 0;
               const hasNextContact = contactLead && currentContactIndex < contactLead.contacts.length - 1;
-              const hasNextLead = currentLeadIndex < leadsWithContacts.length - 1;
               
               return (
                 <div className="flex gap-2 mb-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs h-8"
+                    disabled={!hasPrevContact}
+                    onClick={() => {
+                      if (contactLead && hasPrevContact) {
+                        const prevContact = contactLead.contacts[currentContactIndex - 1];
+                        handleContactClick(prevContact);
+                      }
+                    }}
+                  >
+                    <ChevronLeft className="h-3 w-3 mr-1" />
+                    Contact précédent
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -431,36 +485,32 @@ const ProspectsMobile = () => {
                       }
                     }}
                   >
-                    <ChevronRight className="h-3 w-3 mr-1" />
                     Contact suivant
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs h-8"
-                    disabled={!hasNextLead}
-                    onClick={() => {
-                      if (hasNextLead) {
-                        const nextLead = leadsWithContacts[currentLeadIndex + 1];
-                        const firstContact = nextLead.contacts[0];
-                        handleContactClick(firstContact);
-                      }
-                    }}
-                  >
-                    <ChevronRight className="h-3 w-3 mr-1" />
-                    Entreprise suivante
+                    <ChevronRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
               );
             })()}
             
-            <DrawerTitle>
-              {selectedContact && 
-                leadsWithContacts.find(l => 
+            <div className="flex items-center justify-between gap-2">
+              <DrawerTitle>
+                {selectedContact && 
+                  leadsWithContacts.find(l => 
+                    l.contacts.some(c => c.id === selectedContact.id)
+                  )?.companyName
+                }
+              </DrawerTitle>
+              {selectedContact && (() => {
+                const contactLead = leadsWithContacts.find(l => 
                   l.contacts.some(c => c.id === selectedContact.id)
-                )?.companyName
-              }
-            </DrawerTitle>
+                );
+                return contactLead && (
+                  <Badge variant={getStatusBadgeVariant(contactLead.status as ContactStatus)} className="text-xs">
+                    {contactLead.status}
+                  </Badge>
+                );
+              })()}
+            </div>
             <DrawerDescription className="text-left">
               {selectedContact && (
                 <div className="flex items-start justify-between gap-2 mt-2">
