@@ -225,7 +225,7 @@ const ProspectsMobile = () => {
               <Card key={lead.id}>
                 <CardContent className="pt-6 space-y-3">
                   {/* Contact affiché */}
-                  <div className="flex items-center gap-2 py-2 pb-3">
+                  <div className="flex items-center gap-2 py-2">
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => handleContactClick(displayedContact)}
@@ -292,7 +292,7 @@ const ProspectsMobile = () => {
 
                   {/* Changer le contact par défaut */}
                   {lead.contacts.length > 1 && (
-                    <div className="pt-2 border-t">
+                    <div className="pt-1">
                       <Select 
                         value={currentIndex.toString()} 
                         onValueChange={(value) => {
