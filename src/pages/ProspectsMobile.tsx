@@ -325,28 +325,27 @@ const ProspectsMobile = () => {
                     </div>
                   </div>
 
-                  {/* Navigation entre contacts */}
+                  {/* Changer le contact par défaut */}
                   {lead.contacts.length > 1 && (
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handlePreviousContact(lead.id, lead.contacts.length)}
+                    <div className="pt-2 border-t">
+                      <Select 
+                        value={currentIndex.toString()} 
+                        onValueChange={(value) => {
+                          const newIndex = parseInt(value);
+                          setCurrentContactIndices(new Map(currentContactIndices.set(lead.id, newIndex)));
+                        }}
                       >
-                        <ChevronLeft className="h-4 w-4 mr-1" />
-                        Précédent
-                      </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {currentIndex + 1} / {lead.contacts.length}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleNextContact(lead.id, lead.contacts.length)}
-                      >
-                        Suivant
-                        <ChevronRight className="h-4 w-4 ml-1" />
-                      </Button>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Changer le contact par défaut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lead.contacts.map((contact, index) => (
+                            <SelectItem key={contact.id} value={index.toString()}>
+                              {contact.fullName} - {contact.role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </CardContent>
