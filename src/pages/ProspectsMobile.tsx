@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,12 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { useActions } from '@/contexts/ActionsContext';
+import { toast } from 'sonner';
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
@@ -27,12 +33,16 @@ const getStatusBadgeVariant = (status: ContactStatus) => {
 };
 
 const ProspectsMobile = () => {
+  const { actions } = useActions();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
+  const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
+  const [editedNote, setEditedNote] = useState('');
+  const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
 
   useEffect(() => {
     loadData();
@@ -78,6 +88,7 @@ const ProspectsMobile = () => {
       linkedin: contact.linkedin || '',
       status: contact.status as ContactStatus,
       note: contact.note || '',
+      followUpDate: contact.follow_up_date || '',
     }));
 
     setLeads(transformedLeads);
@@ -87,7 +98,49 @@ const ProspectsMobile = () => {
 
   const handleContactClick = (contact: any) => {
     setSelectedContact(contact);
+    setEditedStatus(contact.status);
+    setEditedNote(contact.note || '');
+    setEditedFollowUpDate(contact.followUpDate || '');
     setIsDrawerOpen(true);
+  };
+
+  const handleSaveContact = async () => {
+    if (!selectedContact) return;
+
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({
+        status: editedStatus,
+        note: editedNote,
+        follow_up_date: editedFollowUpDate || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', selectedContact.id);
+
+    if (error) {
+      toast.error('Erreur lors de la sauvegarde');
+      return;
+    }
+
+    toast.success('Contact mis à jour');
+    setIsDrawerOpen(false);
+    loadData();
+  };
+
+  const handleActionClick = async (actionId: number) => {
+    const action = actions.find(a => a.id === actionId);
+    if (!action || !selectedContact) return;
+
+    if (action.type === 'email') {
+      const contactLead = leadsWithContacts.find(l => 
+        l.contacts.some(c => c.id === selectedContact.id)
+      );
+      const subject = action.emailSubject || '';
+      const body = action.emailBody || '';
+      window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+    } else if (action.type === 'meeting') {
+      toast.info(`Création de réunion ${action.meetingPlatform}`);
+    }
   };
 
   const handleOpenLink = (url: string) => {
@@ -169,7 +222,7 @@ const ProspectsMobile = () => {
 
                     {/* Résumé */}
                     {lead.signalSummary && (
-                      <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2">
+                      <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2 line-clamp-2">
                         {lead.signalSummary}
                       </div>
                     )}
@@ -279,106 +332,193 @@ const ProspectsMobile = () => {
             </DrawerDescription>
           </DrawerHeader>
 
-          {selectedContact && (
-            <div className="px-4 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
-              {/* Informations du contact */}
-              <Card>
-                <CardContent className="pt-6 space-y-3">
-                  <div>
-                    <div className="text-sm text-muted-foreground">Nom</div>
-                    <div className="font-semibold">{selectedContact.fullName}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">Rôle</div>
-                    <div>{selectedContact.role}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">Statut</div>
-                    <Badge variant={getStatusBadgeVariant(selectedContact.status)}>
-                      {selectedContact.status}
-                    </Badge>
-                  </div>
-                  {selectedContact.note && (
-                    <div>
-                      <div className="text-sm text-muted-foreground">Note</div>
-                      <div className="text-sm">{selectedContact.note}</div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+          {selectedContact && (() => {
+            const contactLead = leadsWithContacts.find(l => 
+              l.contacts.some(c => c.id === selectedContact.id)
+            );
+            
+            return (
+              <div className="px-4 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
+                {/* Informations entreprise */}
+                {contactLead && (
+                  <Card>
+                    <CardContent className="pt-6 space-y-3">
+                      <div className="flex items-center gap-2 pb-2 border-b">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-semibold">{contactLead.companyName}</span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {contactLead.companyHeadcount && (
+                          <div className="bg-muted/50 rounded p-2">
+                            <div className="text-xs text-muted-foreground">Effectif</div>
+                            <div className="font-semibold">{contactLead.companyHeadcount} pers.</div>
+                          </div>
+                        )}
+                        {contactLead.companyCa && (
+                          <div className="bg-muted/50 rounded p-2">
+                            <div className="text-xs text-muted-foreground">CA</div>
+                            <div className="font-semibold">{(contactLead.companyCa / 1000000).toFixed(1)}M€</div>
+                          </div>
+                        )}
+                      </div>
 
-              {/* Actions rapides */}
-              <Card>
-                <CardContent className="pt-6 space-y-2">
-                  <div className="text-sm font-medium mb-3">Actions rapides</div>
-                  
-                  {selectedContact.email && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      {selectedContact.email}
-                    </Button>
-                  )}
+                      {contactLead.signalSummary && (
+                        <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2">
+                          {contactLead.signalSummary}
+                        </div>
+                      )}
 
-                  {selectedContact.phone && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                    >
-                      <Phone className="h-4 w-4 mr-2" />
-                      {selectedContact.phone}
-                    </Button>
-                  )}
-
-                  {selectedContact.linkedin && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleOpenLink(selectedContact.linkedin)}
-                    >
-                      <Linkedin className="h-4 w-4 mr-2" />
-                      LinkedIn du contact
-                    </Button>
-                  )}
-
-                  {(() => {
-                    const contactLead = leadsWithContacts.find(l => 
-                      l.contacts.some(c => c.id === selectedContact.id)
-                    );
-                    return (
-                      <>
-                        {contactLead?.companyWebsite && (
+                      <div className="flex gap-2">
+                        {contactLead.companyWebsite && (
                           <Button
                             variant="outline"
-                            className="w-full justify-start"
+                            size="sm"
                             onClick={() => handleOpenLink(contactLead.companyWebsite)}
                           >
-                            <Globe className="h-4 w-4 mr-2" />
-                            Site web de l'entreprise
+                            <Globe className="h-4 w-4" />
                           </Button>
                         )}
-
-                        {contactLead?.companyLinkedin && (
+                        {contactLead.companyLinkedin && (
                           <Button
                             variant="outline"
-                            className="w-full justify-start"
+                            size="sm"
                             onClick={() => handleOpenLink(contactLead.companyLinkedin)}
                           >
-                            <Linkedin className="h-4 w-4 mr-2" />
-                            LinkedIn de l'entreprise
+                            <Linkedin className="h-4 w-4" />
                           </Button>
                         )}
-                      </>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-            </div>
-          )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Informations du contact */}
+                <Card>
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="text-sm font-medium pb-2 border-b">Informations contact</div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Nom</div>
+                      <div className="font-semibold">{selectedContact.fullName}</div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-sm text-muted-foreground mb-1">Rôle</div>
+                      <div>{selectedContact.role}</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Statut</Label>
+                      <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
+                        <SelectTrigger id="status">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Nouveau">Nouveau</SelectItem>
+                          <SelectItem value="Engagé">Engagé</SelectItem>
+                          <SelectItem value="Discussion">Discussion</SelectItem>
+                          <SelectItem value="RDV">RDV</SelectItem>
+                          <SelectItem value="Exclu">Exclu</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="followUpDate">Date de suivi</Label>
+                      <Input
+                        id="followUpDate"
+                        type="date"
+                        value={editedFollowUpDate}
+                        onChange={(e) => setEditedFollowUpDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="note">Note</Label>
+                      <Textarea
+                        id="note"
+                        value={editedNote}
+                        onChange={(e) => setEditedNote(e.target.value)}
+                        placeholder="Ajoutez une note..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <Button onClick={handleSaveContact} className="w-full">
+                      Sauvegarder
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Actions */}
+                <Card>
+                  <CardContent className="pt-6 space-y-3">
+                    <div className="text-sm font-medium">Actions</div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="action-select">Choisir une action</Label>
+                      <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
+                        <SelectTrigger id="action-select">
+                          <SelectValue placeholder="Sélectionner une action" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {actions.map((action) => (
+                            <SelectItem key={action.id} value={action.id.toString()}>
+                              {action.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Contacts rapides */}
+                <Card>
+                  <CardContent className="pt-6 space-y-2">
+                    <div className="text-sm font-medium mb-2">Contacts rapides</div>
+                    
+                    {selectedContact.email && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        {selectedContact.email}
+                      </Button>
+                    )}
+
+                    {selectedContact.phone && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        {selectedContact.phone}
+                      </Button>
+                    )}
+
+                    {selectedContact.linkedin && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-start"
+                        onClick={() => handleOpenLink(selectedContact.linkedin)}
+                      >
+                        <Linkedin className="h-4 w-4 mr-2" />
+                        LinkedIn
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })()}
         </DrawerContent>
       </Drawer>
     </div>
