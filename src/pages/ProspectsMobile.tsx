@@ -198,55 +198,54 @@ const ProspectsMobile = () => {
               <Card key={lead.id}>
                 <CardContent className="pt-6 space-y-3">
                   {/* En-tête entreprise */}
-                  <div className="space-y-3 pb-3 border-b">
-                    <div className="flex items-center gap-2">
+                  <div className="pb-3 border-b">
+                    <div className="flex items-center gap-2 mb-2">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                       <span className="font-semibold">{lead.companyName}</span>
                     </div>
                     
-                    {/* KPI entreprise */}
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {lead.companyHeadcount && (
-                        <div className="bg-muted/50 rounded p-2">
-                          <div className="text-xs text-muted-foreground">Effectif</div>
-                          <div className="font-semibold">{lead.companyHeadcount} pers.</div>
-                        </div>
-                      )}
-                      {lead.companyCa && (
-                        <div className="bg-muted/50 rounded p-2">
-                          <div className="text-xs text-muted-foreground">CA</div>
-                          <div className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Résumé */}
-                    {lead.signalSummary && (
-                      <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2 line-clamp-2">
-                        {lead.signalSummary}
+                    {/* Ligne unique avec KPI, résumé et liens */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-2 text-xs overflow-hidden">
+                        {lead.companyHeadcount && (
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                            <span className="font-semibold">{lead.companyHeadcount}</span> pers.
+                          </span>
+                        )}
+                        {lead.companyCa && (
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                            <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
+                          </span>
+                        )}
+                        {lead.signalSummary && (
+                          <span className="text-muted-foreground truncate">
+                            {lead.signalSummary}
+                          </span>
+                        )}
                       </div>
-                    )}
-
-                    {/* Actions liens */}
-                    <div className="flex gap-2">
-                      {lead.companyWebsite && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenLink(lead.companyWebsite)}
-                        >
-                          <Globe className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {lead.companyLinkedin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenLink(lead.companyLinkedin)}
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </Button>
-                      )}
+                      
+                      <div className="flex gap-1 flex-shrink-0">
+                        {lead.companyWebsite && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleOpenLink(lead.companyWebsite)}
+                          >
+                            <Globe className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {lead.companyLinkedin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleOpenLink(lead.companyLinkedin)}
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -342,178 +341,154 @@ const ProspectsMobile = () => {
                 {/* Informations entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-6 space-y-3">
-                      <div className="flex items-center gap-2 pb-2 border-b">
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-center gap-2 mb-2">
                         <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-semibold">{contactLead.companyName}</span>
+                        <span className="font-semibold text-sm">{contactLead.companyName}</span>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        {contactLead.companyHeadcount && (
-                          <div className="bg-muted/50 rounded p-2">
-                            <div className="text-xs text-muted-foreground">Effectif</div>
-                            <div className="font-semibold">{contactLead.companyHeadcount} pers.</div>
-                          </div>
-                        )}
-                        {contactLead.companyCa && (
-                          <div className="bg-muted/50 rounded p-2">
-                            <div className="text-xs text-muted-foreground">CA</div>
-                            <div className="font-semibold">{(contactLead.companyCa / 1000000).toFixed(1)}M€</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {contactLead.signalSummary && (
-                        <div className="text-xs text-muted-foreground bg-accent/30 rounded p-2">
-                          {contactLead.signalSummary}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 flex items-center gap-2 text-xs overflow-hidden">
+                          {contactLead.companyHeadcount && (
+                            <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                              <span className="font-semibold">{contactLead.companyHeadcount}</span> pers.
+                            </span>
+                          )}
+                          {contactLead.companyCa && (
+                            <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                              <span className="font-semibold">{(contactLead.companyCa / 1000000).toFixed(1)}M€</span>
+                            </span>
+                          )}
+                          {contactLead.signalSummary && (
+                            <span className="text-muted-foreground truncate">
+                              {contactLead.signalSummary}
+                            </span>
+                          )}
                         </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        {contactLead.companyWebsite && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleOpenLink(contactLead.companyWebsite)}
-                          >
-                            <Globe className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {contactLead.companyLinkedin && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleOpenLink(contactLead.companyLinkedin)}
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </Button>
-                        )}
+                        
+                        <div className="flex gap-1 flex-shrink-0">
+                          {contactLead.companyWebsite && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleOpenLink(contactLead.companyWebsite)}
+                            >
+                              <Globe className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contactLead.companyLinkedin && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleOpenLink(contactLead.companyLinkedin)}
+                            >
+                              <Linkedin className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Informations du contact */}
+                {/* Contact - ligne unique */}
                 <Card>
-                  <CardContent className="pt-6 space-y-4">
-                    <div className="text-sm font-medium pb-2 border-b">Informations contact</div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Nom</div>
-                      <div className="font-semibold">{selectedContact.fullName}</div>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm truncate">{selectedContact.fullName}</div>
+                        <div className="text-xs text-muted-foreground truncate">{selectedContact.role}</div>
+                      </div>
+                      
+                      <div className="flex gap-1 flex-shrink-0">
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                          >
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                          >
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {selectedContact.linkedin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleOpenLink(selectedContact.linkedin)}
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Rôle</div>
-                      <div>{selectedContact.role}</div>
+
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex-1">
+                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nouveau">Nouveau</SelectItem>
+                            <SelectItem value="Engagé">Engagé</SelectItem>
+                            <SelectItem value="Discussion">Discussion</SelectItem>
+                            <SelectItem value="RDV">RDV</SelectItem>
+                            <SelectItem value="Exclu">Exclu</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Action" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {actions.map((action) => (
+                              <SelectItem key={action.id} value={action.id.toString()}>
+                                {action.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="status">Statut</Label>
-                      <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
-                        <SelectTrigger id="status">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Nouveau">Nouveau</SelectItem>
-                          <SelectItem value="Engagé">Engagé</SelectItem>
-                          <SelectItem value="Discussion">Discussion</SelectItem>
-                          <SelectItem value="RDV">RDV</SelectItem>
-                          <SelectItem value="Exclu">Exclu</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="followUpDate">Date de suivi</Label>
                       <Input
-                        id="followUpDate"
                         type="date"
+                        className="h-8 text-xs"
                         value={editedFollowUpDate}
                         onChange={(e) => setEditedFollowUpDate(e.target.value)}
+                        placeholder="Date de suivi"
                       />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="note">Note</Label>
+                      
                       <Textarea
-                        id="note"
                         value={editedNote}
                         onChange={(e) => setEditedNote(e.target.value)}
-                        placeholder="Ajoutez une note..."
-                        rows={3}
+                        placeholder="Note..."
+                        rows={2}
+                        className="text-xs"
                       />
                     </div>
 
-                    <Button onClick={handleSaveContact} className="w-full">
+                    <Button onClick={handleSaveContact} size="sm" className="w-full mt-3">
                       Sauvegarder
                     </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Actions */}
-                <Card>
-                  <CardContent className="pt-6 space-y-3">
-                    <div className="text-sm font-medium">Actions</div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="action-select">Choisir une action</Label>
-                      <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
-                        <SelectTrigger id="action-select">
-                          <SelectValue placeholder="Sélectionner une action" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {actions.map((action) => (
-                            <SelectItem key={action.id} value={action.id.toString()}>
-                              {action.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Contacts rapides */}
-                <Card>
-                  <CardContent className="pt-6 space-y-2">
-                    <div className="text-sm font-medium mb-2">Contacts rapides</div>
-                    
-                    {selectedContact.email && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                      >
-                        <Mail className="h-4 w-4 mr-2" />
-                        {selectedContact.email}
-                      </Button>
-                    )}
-
-                    {selectedContact.phone && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        {selectedContact.phone}
-                      </Button>
-                    )}
-
-                    {selectedContact.linkedin && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start"
-                        onClick={() => handleOpenLink(selectedContact.linkedin)}
-                      >
-                        <Linkedin className="h-4 w-4 mr-2" />
-                        LinkedIn
-                      </Button>
-                    )}
                   </CardContent>
                 </Card>
               </div>
