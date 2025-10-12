@@ -250,19 +250,68 @@ const ProspectsMobile = () => {
                   </div>
 
                   {/* Contact principal */}
-                  <div
-                    className="cursor-pointer hover:bg-accent/50 transition-colors rounded-lg p-3 -mx-3"
-                    onClick={() => handleContactClick(primaryContact)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-semibold">{primaryContact.fullName}</div>
-                        <div className="text-sm text-muted-foreground">{primaryContact.role}</div>
-                        <Badge variant={getStatusBadgeVariant(primaryContact.status)} className="mt-2">
+                  <div className="flex items-center gap-2 py-2">
+                    <div 
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => handleContactClick(primaryContact)}
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm truncate">{primaryContact.fullName}</span>
+                        <span className="text-xs text-muted-foreground truncate">{primaryContact.role}</span>
+                        <Badge variant={getStatusBadgeVariant(primaryContact.status)} className="text-xs">
                           {primaryContact.status}
                         </Badge>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    
+                    <div className="flex gap-1 flex-shrink-0">
+                      {primaryContact.email && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`mailto:${primaryContact.email}`, '_blank');
+                          }}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {primaryContact.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`tel:${primaryContact.phone}`, '_blank');
+                          }}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {primaryContact.linkedin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenLink(primaryContact.linkedin);
+                          }}
+                        >
+                          <Linkedin className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleContactClick(primaryContact)}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
 
@@ -286,20 +335,68 @@ const ProspectsMobile = () => {
                       </CollapsibleTrigger>
                       <CollapsibleContent className="space-y-2 mt-2">
                         {otherContacts.map(contact => (
-                          <div
-                            key={contact.id}
-                            className="cursor-pointer hover:bg-accent/50 transition-colors rounded-lg p-3 border"
-                            onClick={() => handleContactClick(contact)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="font-semibold">{contact.fullName}</div>
-                                <div className="text-sm text-muted-foreground">{contact.role}</div>
-                                <Badge variant={getStatusBadgeVariant(contact.status)} className="mt-2">
+                          <div key={contact.id} className="flex items-center gap-2 py-2 border rounded-lg px-3">
+                            <div 
+                              className="flex-1 min-w-0 cursor-pointer"
+                              onClick={() => handleContactClick(contact)}
+                            >
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold text-sm truncate">{contact.fullName}</span>
+                                <span className="text-xs text-muted-foreground truncate">{contact.role}</span>
+                                <Badge variant={getStatusBadgeVariant(contact.status)} className="text-xs">
                                   {contact.status}
                                 </Badge>
                               </div>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            
+                            <div className="flex gap-1 flex-shrink-0">
+                              {contact.email && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`mailto:${contact.email}`, '_blank');
+                                  }}
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {contact.phone && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.open(`tel:${contact.phone}`, '_blank');
+                                  }}
+                                >
+                                  <Phone className="h-4 w-4" />
+                                </Button>
+                              )}
+                              {contact.linkedin && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenLink(contact.linkedin);
+                                  }}
+                                >
+                                  <Linkedin className="h-4 w-4" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleContactClick(contact)}
+                              >
+                                <ChevronRight className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
                         ))}
