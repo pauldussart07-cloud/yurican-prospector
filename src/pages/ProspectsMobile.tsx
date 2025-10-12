@@ -144,9 +144,12 @@ const ProspectsMobile = () => {
       return;
     }
 
-    toast.success('Contact mis à jour');
-    setIsDrawerOpen(false);
+    toast.success('Sauvegarde automatique');
     loadData();
+  };
+
+  const autoSave = async () => {
+    await handleSaveContact();
   };
 
   const handleActionClick = async (actionId: number) => {
@@ -486,7 +489,10 @@ const ProspectsMobile = () => {
                           type="date"
                           className="h-8 text-xs"
                           value={editedFollowUpDate}
-                          onChange={(e) => setEditedFollowUpDate(e.target.value)}
+                          onChange={(e) => {
+                            setEditedFollowUpDate(e.target.value);
+                            setTimeout(() => autoSave(), 500);
+                          }}
                         />
                       </div>
                     </div>
@@ -494,7 +500,10 @@ const ProspectsMobile = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs text-muted-foreground">Statut</Label>
-                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
+                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                          setEditedStatus(value);
+                          setTimeout(() => autoSave(), 500);
+                        }}>
                           <SelectTrigger className="h-8 text-xs">
                             <SelectValue />
                           </SelectTrigger>
@@ -687,16 +696,15 @@ const ProspectsMobile = () => {
                       <Label className="text-xs text-muted-foreground">Note</Label>
                       <Textarea
                         value={editedNote}
-                        onChange={(e) => setEditedNote(e.target.value)}
+                        onChange={(e) => {
+                          setEditedNote(e.target.value);
+                          setTimeout(() => autoSave(), 1000);
+                        }}
                         placeholder="Ajouter une note..."
                         rows={4}
                         className="text-xs mt-1"
                       />
                     </div>
-
-                    <Button onClick={handleSaveContact} size="sm" className="w-full mt-3">
-                      Sauvegarder
-                    </Button>
                   </CardContent>
                 </Card>
               </div>
