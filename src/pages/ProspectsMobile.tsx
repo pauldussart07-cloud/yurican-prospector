@@ -231,32 +231,29 @@ const ProspectsMobile = () => {
   const handleSwipeEnd = () => {
     if (!selectedContact) return;
     
-    const contactLead = leadsWithContacts.find(l => 
-      l.contacts.some(c => c.id === selectedContact.id)
-    );
-    const currentLeadIndex = leadsWithContacts.findIndex(l => l.id === contactLead?.id);
+    // Créer une liste plate de tous les contacts
+    const allContacts = leadsWithContacts.flatMap(lead => lead.contacts);
+    const currentContactIndex = allContacts.findIndex(c => c.id === selectedContact.id);
     
     const swipeThreshold = 50;
     const diff = touchStartX.current - touchEndX.current;
     
-    // Swipe à droite (entreprise suivante)
-    if (diff > swipeThreshold && currentLeadIndex < leadsWithContacts.length - 1) {
+    // Swipe à droite (contact suivant)
+    if (diff > swipeThreshold && currentContactIndex < allContacts.length - 1) {
       setSwipeDirection('right');
       setTimeout(() => {
-        const nextLead = leadsWithContacts[currentLeadIndex + 1];
-        const firstContact = nextLead.contacts[0];
-        handleContactClick(firstContact);
+        const nextContact = allContacts[currentContactIndex + 1];
+        handleContactClick(nextContact);
         setTimeout(() => setSwipeDirection(null), 100);
       }, 200);
     }
     
-    // Swipe à gauche (entreprise précédente)
-    else if (diff < -swipeThreshold && currentLeadIndex > 0) {
+    // Swipe à gauche (contact précédent)
+    else if (diff < -swipeThreshold && currentContactIndex > 0) {
       setSwipeDirection('left');
       setTimeout(() => {
-        const prevLead = leadsWithContacts[currentLeadIndex - 1];
-        const firstContact = prevLead.contacts[0];
-        handleContactClick(firstContact);
+        const prevContact = allContacts[currentContactIndex - 1];
+        handleContactClick(prevContact);
         setTimeout(() => setSwipeDirection(null), 100);
       }, 200);
     }
@@ -560,54 +557,6 @@ const ProspectsMobile = () => {
           }`}
         >
           <DrawerHeader className="text-left">
-            {/* Boutons de navigation */}
-            {selectedContact && (() => {
-              const contactLead = leadsWithContacts.find(l => 
-                l.contacts.some(c => c.id === selectedContact.id)
-              );
-              const currentContactIndex = contactLead?.contacts.findIndex(c => c.id === selectedContact.id) ?? -1;
-              
-              const hasPrevContact = contactLead && currentContactIndex > 0;
-              const hasNextContact = contactLead && currentContactIndex >= 0 && currentContactIndex < contactLead.contacts.length - 1;
-              
-              return (
-                <div className="flex gap-2 mb-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs h-8"
-                    disabled={!hasPrevContact}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (contactLead && hasPrevContact) {
-                        const prevContact = contactLead.contacts[currentContactIndex - 1];
-                        handleContactClick(prevContact);
-                      }
-                    }}
-                  >
-                    <ChevronLeft className="h-3 w-3 mr-1" />
-                    Contact précédent
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 text-xs h-8"
-                    disabled={!hasNextContact}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (contactLead && hasNextContact) {
-                        const nextContact = contactLead.contacts[currentContactIndex + 1];
-                        handleContactClick(nextContact);
-                      }
-                    }}
-                  >
-                    Contact suivant
-                    <ChevronRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </div>
-              );
-            })()}
-            
             <div className="flex items-center justify-between gap-2">
               <DrawerTitle className="flex-1">
                 {selectedContact && 
