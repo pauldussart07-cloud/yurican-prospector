@@ -1,4 +1,4 @@
-import { Home, Building2, Users, Settings, Target, Calendar, User } from 'lucide-react';
+import { Home, Building2, Users, Settings, Target, Calendar, User, Smartphone } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
@@ -24,6 +24,9 @@ const navItems = [
   { title: 'Ciblage', url: '/targeting', icon: Target },
   { title: 'Profil', url: '/profile', icon: User },
   { title: 'Paramétrage', url: '/parametrage', icon: Settings },
+  { title: 'Prospects Mobile', url: '/prospects-mobile', icon: Smartphone },
+  { title: 'Agenda Mobile', url: '/agenda-mobile', icon: Smartphone },
+  { title: 'Paramétrage Mobile', url: '/parametrage-mobile', icon: Smartphone },
 ];
 
 export function AppSidebar() {

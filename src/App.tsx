@@ -14,6 +14,9 @@ import Prospects from "./pages/Prospects";
 import Agenda from "./pages/Agenda";
 import Targeting from "./pages/Targeting";
 import Parametrage from "./pages/Parametrage";
+import ProspectsMobile from "./pages/ProspectsMobile";
+import AgendaMobile from "./pages/AgendaMobile";
+import ParametrageMobile from "./pages/ParametrageMobile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
@@ -52,6 +55,9 @@ const App = () => (
                               <Route path="/agenda" element={<Agenda />} />
                               <Route path="/targeting" element={<Targeting />} />
                               <Route path="/parametrage" element={<Parametrage />} />
+                              <Route path="/prospects-mobile" element={<ProspectsMobile />} />
+                              <Route path="/agenda-mobile" element={<AgendaMobile />} />
+                              <Route path="/parametrage-mobile" element={<ParametrageMobile />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
