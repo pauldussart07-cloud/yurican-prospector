@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { mockCompanies } from '@/lib/mockData';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Drawer,
   DrawerContent,
@@ -30,10 +29,10 @@ const getStatusBadgeVariant = (status: ContactStatus) => {
 const ProspectsMobile = () => {
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
-  const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadData();
@@ -80,16 +79,8 @@ const ProspectsMobile = () => {
 
     setLeads(transformedLeads);
     setContacts(transformedContacts);
-    
-    if (transformedLeads.length > 0) {
-      setSelectedLeadId(transformedLeads[0].id);
-    }
-    
     setLoading(false);
   };
-
-  const selectedLead = leads.find(l => l.id === selectedLeadId);
-  const leadContacts = contacts.filter(c => c.leadId === selectedLeadId);
 
   const handleContactClick = (contact: any) => {
     setSelectedContact(contact);
@@ -101,6 +92,22 @@ const ProspectsMobile = () => {
       window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
     }
   };
+
+  const toggleLeadExpansion = (leadId: string) => {
+    const newExpanded = new Set(expandedLeads);
+    if (newExpanded.has(leadId)) {
+      newExpanded.delete(leadId);
+    } else {
+      newExpanded.add(leadId);
+    }
+    setExpandedLeads(newExpanded);
+  };
+
+  // Grouper les leads avec leurs contacts
+  const leadsWithContacts = leads.map(lead => ({
+    ...lead,
+    contacts: contacts.filter(c => c.leadId === lead.id)
+  })).filter(lead => lead.contacts.length > 0);
 
   if (loading) {
     return (
@@ -115,88 +122,114 @@ const ProspectsMobile = () => {
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Prospects Mobile</h1>
 
-      {/* Sélecteur d'entreprise */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Entreprise</label>
-            <Select value={selectedLeadId} onValueChange={setSelectedLeadId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionner une entreprise" />
-              </SelectTrigger>
-              <SelectContent>
-                {leads.map(lead => (
-                  <SelectItem key={lead.id} value={lead.id}>
-                    {lead.companyName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedLead && (
-            <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="font-semibold">{selectedLead.companyName}</span>
-              </div>
-              <div className="flex gap-2">
-                {selectedLead.companyWebsite && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenLink(selectedLead.companyWebsite)}
-                  >
-                    <Globe className="h-4 w-4" />
-                  </Button>
-                )}
-                {selectedLead.companyLinkedin && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenLink(selectedLead.companyLinkedin)}
-                  >
-                    <Linkedin className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Liste des contacts */}
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Contacts ({leadContacts.length})</h2>
-        {leadContacts.length === 0 ? (
+      {/* Liste des entreprises avec contacts */}
+      <div className="space-y-3">
+        {leadsWithContacts.length === 0 ? (
           <Card>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground text-center">
-                Aucun contact pour cette entreprise
+                Aucun prospect avec contacts
               </p>
             </CardContent>
           </Card>
         ) : (
-          leadContacts.map(contact => (
-            <Card
-              key={contact.id}
-              className="cursor-pointer hover:bg-accent/50 transition-colors"
-              onClick={() => handleContactClick(contact)}
-            >
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="font-semibold">{contact.fullName}</div>
-                    <div className="text-sm text-muted-foreground">{contact.role}</div>
-                    <Badge variant={getStatusBadgeVariant(contact.status)} className="mt-2">
-                      {contact.status}
-                    </Badge>
+          leadsWithContacts.map(lead => {
+            const isExpanded = expandedLeads.has(lead.id);
+            const primaryContact = lead.contacts[0];
+            const otherContacts = lead.contacts.slice(1);
+
+            return (
+              <Card key={lead.id}>
+                <CardContent className="pt-6 space-y-3">
+                  {/* En-tête entreprise */}
+                  <div className="space-y-2 pb-3 border-b">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-semibold">{lead.companyName}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {lead.companyWebsite && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenLink(lead.companyWebsite)}
+                        >
+                          <Globe className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {lead.companyLinkedin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenLink(lead.companyLinkedin)}
+                        >
+                          <Linkedin className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
-          ))
+
+                  {/* Contact principal */}
+                  <div
+                    className="cursor-pointer hover:bg-accent/50 transition-colors rounded-lg p-3 -mx-3"
+                    onClick={() => handleContactClick(primaryContact)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-semibold">{primaryContact.fullName}</div>
+                        <div className="text-sm text-muted-foreground">{primaryContact.role}</div>
+                        <Badge variant={getStatusBadgeVariant(primaryContact.status)} className="mt-2">
+                          {primaryContact.status}
+                        </Badge>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </div>
+
+                  {/* Bouton pour voir les autres contacts */}
+                  {otherContacts.length > 0 && (
+                    <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpansion(lead.id)}>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="sm" className="w-full">
+                          {isExpanded ? (
+                            <>
+                              <ChevronUp className="h-4 w-4 mr-2" />
+                              Masquer les autres contacts ({otherContacts.length})
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="h-4 w-4 mr-2" />
+                              Voir les autres contacts ({otherContacts.length})
+                            </>
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-2 mt-2">
+                        {otherContacts.map(contact => (
+                          <div
+                            key={contact.id}
+                            className="cursor-pointer hover:bg-accent/50 transition-colors rounded-lg p-3 border"
+                            onClick={() => handleContactClick(contact)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="font-semibold">{contact.fullName}</div>
+                                <div className="text-sm text-muted-foreground">{contact.role}</div>
+                                <Badge variant={getStatusBadgeVariant(contact.status)} className="mt-2">
+                                  {contact.status}
+                                </Badge>
+                              </div>
+                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
 
@@ -206,11 +239,19 @@ const ProspectsMobile = () => {
           <DrawerHeader>
             <DrawerTitle>Fiche Contact</DrawerTitle>
             <DrawerDescription>
-              {selectedContact && selectedLead && `${selectedContact.fullName} - ${selectedLead.companyName}`}
+              {selectedContact && (
+                <>
+                  {selectedContact.fullName} - {
+                    leadsWithContacts.find(l => 
+                      l.contacts.some(c => c.id === selectedContact.id)
+                    )?.companyName
+                  }
+                </>
+              )}
             </DrawerDescription>
           </DrawerHeader>
 
-          {selectedContact && selectedLead && (
+          {selectedContact && (
             <div className="px-4 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
               {/* Informations du contact */}
               <Card>
@@ -276,27 +317,36 @@ const ProspectsMobile = () => {
                     </Button>
                   )}
 
-                  {selectedLead.companyWebsite && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleOpenLink(selectedLead.companyWebsite)}
-                    >
-                      <Globe className="h-4 w-4 mr-2" />
-                      Site web de l'entreprise
-                    </Button>
-                  )}
+                  {(() => {
+                    const contactLead = leadsWithContacts.find(l => 
+                      l.contacts.some(c => c.id === selectedContact.id)
+                    );
+                    return (
+                      <>
+                        {contactLead?.companyWebsite && (
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => handleOpenLink(contactLead.companyWebsite)}
+                          >
+                            <Globe className="h-4 w-4 mr-2" />
+                            Site web de l'entreprise
+                          </Button>
+                        )}
 
-                  {selectedLead.companyLinkedin && (
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => handleOpenLink(selectedLead.companyLinkedin)}
-                    >
-                      <Linkedin className="h-4 w-4 mr-2" />
-                      LinkedIn de l'entreprise
-                    </Button>
-                  )}
+                        {contactLead?.companyLinkedin && (
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => handleOpenLink(contactLead.companyLinkedin)}
+                          >
+                            <Linkedin className="h-4 w-4 mr-2" />
+                            LinkedIn de l'entreprise
+                          </Button>
+                        )}
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             </div>
