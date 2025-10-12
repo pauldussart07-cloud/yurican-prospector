@@ -224,8 +224,74 @@ const ProspectsMobile = () => {
             return (
               <Card key={lead.id}>
                 <CardContent className="pt-6 space-y-3">
+                  {/* Contact affiché */}
+                  <div className="flex items-center gap-2 py-2 pb-3 border-b">
+                    <div 
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => handleContactClick(displayedContact)}
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm truncate">{displayedContact.fullName}</span>
+                        <span className="text-xs text-muted-foreground truncate">{displayedContact.role}</span>
+                        <Badge variant={getStatusBadgeVariant(displayedContact.status)} className="text-xs">
+                          {displayedContact.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-1 flex-shrink-0">
+                      {displayedContact.email && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`mailto:${displayedContact.email}`, '_blank');
+                          }}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {displayedContact.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`tel:${displayedContact.phone}`, '_blank');
+                          }}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {displayedContact.linkedin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenLink(displayedContact.linkedin);
+                          }}
+                        >
+                          <Linkedin className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleContactClick(displayedContact)}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* En-tête entreprise */}
-                  <div className="pb-3 border-b">
+                  <div className="pt-3 border-t">
                     <div className="flex items-center gap-2 mb-2">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                       <span className="font-semibold">{lead.companyName}</span>
@@ -299,72 +365,6 @@ const ProspectsMobile = () => {
                           </Button>
                         )}
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Contact affiché */}
-                  <div className="flex items-center gap-2 py-2">
-                    <div 
-                      className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => handleContactClick(displayedContact)}
-                    >
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm truncate">{displayedContact.fullName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{displayedContact.role}</span>
-                        <Badge variant={getStatusBadgeVariant(displayedContact.status)} className="text-xs">
-                          {displayedContact.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-1 flex-shrink-0">
-                      {displayedContact.email && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`mailto:${displayedContact.email}`, '_blank');
-                          }}
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {displayedContact.phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`tel:${displayedContact.phone}`, '_blank');
-                          }}
-                        >
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {displayedContact.linkedin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenLink(displayedContact.linkedin);
-                          }}
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleContactClick(displayedContact)}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
 
