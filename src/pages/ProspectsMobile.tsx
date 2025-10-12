@@ -648,6 +648,25 @@ const ProspectsMobile = () => {
                   </CardContent>
                 </Card>
 
+                {/* Note */}
+                <Card>
+                  <CardContent className="pt-4 pb-4">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Note</Label>
+                      <Textarea
+                        value={editedNote}
+                        onChange={(e) => {
+                          setEditedNote(e.target.value);
+                          setTimeout(() => autoSave(), 1000);
+                        }}
+                        placeholder="Ajouter une note..."
+                        rows={4}
+                        className="text-xs mt-1"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Informations entreprise */}
                 {contactLead && (
                   <Card>
@@ -798,25 +817,6 @@ const ProspectsMobile = () => {
                     ) : (
                       <p className="text-xs text-muted-foreground italic">Aucune actualité disponible</p>
                     )}
-                  </CardContent>
-                </Card>
-
-                {/* Note */}
-                <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Note</Label>
-                      <Textarea
-                        value={editedNote}
-                        onChange={(e) => {
-                          setEditedNote(e.target.value);
-                          setTimeout(() => autoSave(), 1000);
-                        }}
-                        placeholder="Ajouter une note..."
-                        rows={4}
-                        className="text-xs mt-1"
-                      />
-                    </div>
                   </CardContent>
                 </Card>
               </div>
