@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -428,6 +428,26 @@ const ProspectsMobile = () => {
                     <span className="text-muted-foreground"> - {selectedContact.role}</span>
                   </div>
                   <div className="flex gap-1 flex-shrink-0 ml-2">
+                    {selectedContact.phone && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {selectedContact.phone && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     {selectedContact.email && (
                       <Button
                         variant="ghost"
@@ -438,24 +458,14 @@ const ProspectsMobile = () => {
                         <Mail className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    {selectedContact.phone && (
+                    {selectedContact.linkedin && (
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                        onClick={() => handleOpenLink(selectedContact.linkedin)}
                       >
-                        <Mail className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                    {selectedContact.phone && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                      >
-                        <Phone className="h-3.5 w-3.5" />
+                        <Linkedin className="h-3.5 w-3.5" />
                       </Button>
                     )}
                   </div>
