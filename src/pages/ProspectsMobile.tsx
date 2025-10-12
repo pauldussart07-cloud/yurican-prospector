@@ -359,14 +359,20 @@ const ProspectsMobile = () => {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Entreprise</DrawerTitle>
+            <DrawerTitle>
+              {selectedContact && 
+                leadsWithContacts.find(l => 
+                  l.contacts.some(c => c.id === selectedContact.id)
+                )?.companyName
+              }
+            </DrawerTitle>
             <DrawerDescription>
               {selectedContact && (
                 <div className="flex flex-col gap-2 mt-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-sm">{selectedContact.fullName}</div>
-                      <div className="text-xs text-muted-foreground">{selectedContact.role}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{selectedContact.role}</div>
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
