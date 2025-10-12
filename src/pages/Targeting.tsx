@@ -816,7 +816,13 @@ const Targeting = () => {
                       <SelectValue placeholder="Sélectionner un niveau" />
                     </SelectTrigger>
                     <SelectContent>
-                      {DECISION_LEVELS.map((level) => (
+                      {DECISION_LEVELS.filter((level) => {
+                        // "Dirigeant" n'apparaît que si "Direction" est sélectionné
+                        if (level === 'Dirigeant') {
+                          return service === 'Direction';
+                        }
+                        return true;
+                      }).map((level) => (
                         <SelectItem key={level} value={level}>
                           {level}
                         </SelectItem>
