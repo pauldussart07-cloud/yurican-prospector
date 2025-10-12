@@ -149,6 +149,7 @@ const ProspectsMobile = () => {
   };
 
   const autoSave = async () => {
+    if (!selectedContact || !isDrawerOpen) return;
     await handleSaveContact();
   };
 
