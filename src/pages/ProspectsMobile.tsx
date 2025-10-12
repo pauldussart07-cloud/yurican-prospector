@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,20 @@ const getStatusBadgeVariant = (status: ContactStatus) => {
     case 'Exclu': return 'destructive' as any;
     default: return 'outline';
   }
+};
+
+// Déterminer la taille de l'icône CA
+const getRevenueIcon = (ca: number) => {
+  if (ca >= 50000000) return <TrendingUp className="h-5 w-5 text-green-600" />;
+  if (ca >= 10000000) return <TrendingUp className="h-4 w-4 text-green-500" />;
+  return <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />;
+};
+
+// Déterminer la taille de l'icône effectif
+const getHeadcountIcon = (headcount: number) => {
+  if (headcount >= 250) return <Users className="h-5 w-5 text-blue-600" />;
+  if (headcount >= 50) return <Users className="h-4 w-4 text-blue-500" />;
+  return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
 };
 
 const ProspectsMobile = () => {
@@ -80,6 +94,7 @@ const ProspectsMobile = () => {
       companyAddress: lead.company_address,
       companySector: lead.company_sector,
       signalSummary: lead.signal_summary,
+      newsContent: (lead as any).news_content,
       created_at: lead.created_at,
     }));
 
@@ -218,12 +233,14 @@ const ProspectsMobile = () => {
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex items-center gap-2 text-xs overflow-hidden">
                         {lead.companyHeadcount && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1">
+                            {getHeadcountIcon(lead.companyHeadcount)}
                             <span className="font-semibold">{lead.companyHeadcount}</span> pers.
                           </span>
                         )}
                         {lead.companyCa && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1">
+                            {getRevenueIcon(lead.companyCa)}
                             <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
                           </span>
                         )}
@@ -533,13 +550,19 @@ const ProspectsMobile = () => {
                         {contactLead.companyHeadcount && (
                           <div>
                             <span className="text-muted-foreground">Effectif:</span>
-                            <div className="font-medium">{contactLead.companyHeadcount} pers.</div>
+                            <div className="font-medium flex items-center gap-1">
+                              {getHeadcountIcon(contactLead.companyHeadcount)}
+                              {contactLead.companyHeadcount} pers.
+                            </div>
                           </div>
                         )}
                         {contactLead.companyCa && (
                           <div>
-                            <span className="text-muted-foreground">CA:</span>
-                            <div className="font-medium">{(contactLead.companyCa / 1000000).toFixed(1)}M€</div>
+                            <span className="text-muted-foreground">Chiffre d'affaires:</span>
+                            <div className="font-medium flex items-center gap-1">
+                              {getRevenueIcon(contactLead.companyCa)}
+                              {(contactLead.companyCa / 1000000).toFixed(1)}M€
+                            </div>
                           </div>
                         )}
                       </div>
