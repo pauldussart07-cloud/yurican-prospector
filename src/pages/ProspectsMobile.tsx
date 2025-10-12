@@ -419,16 +419,47 @@ const ProspectsMobile = () => {
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Fiche Contact</DrawerTitle>
+            <DrawerTitle>Entreprise</DrawerTitle>
             <DrawerDescription>
               {selectedContact && (
-                <>
-                  {selectedContact.fullName} - {
-                    leadsWithContacts.find(l => 
-                      l.contacts.some(c => c.id === selectedContact.id)
-                    )?.companyName
-                  }
-                </>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold">{selectedContact.fullName}</span>
+                    <span className="text-muted-foreground"> - {selectedContact.role}</span>
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0 ml-2">
+                    {selectedContact.email && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {selectedContact.phone && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                      >
+                        <Mail className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {selectedContact.phone && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               )}
             </DrawerDescription>
           </DrawerHeader>
@@ -581,60 +612,18 @@ const ProspectsMobile = () => {
                   </Card>
                 )}
 
-                {/* Informations contact */}
+                {/* Note */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm truncate">{selectedContact.fullName}</div>
-                        <div className="text-xs text-muted-foreground truncate">{selectedContact.role}</div>
-                      </div>
-                      
-                      <div className="flex gap-1 flex-shrink-0">
-                        {selectedContact.email && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                          >
-                            <Mail className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {selectedContact.phone && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                          >
-                            <Phone className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {selectedContact.linkedin && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleOpenLink(selectedContact.linkedin)}
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Note</Label>
-                        <Textarea
-                          value={editedNote}
-                          onChange={(e) => setEditedNote(e.target.value)}
-                          placeholder="Ajouter une note..."
-                          rows={3}
-                          className="text-xs mt-1"
-                        />
-                      </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Note</Label>
+                      <Textarea
+                        value={editedNote}
+                        onChange={(e) => setEditedNote(e.target.value)}
+                        placeholder="Ajouter une note..."
+                        rows={4}
+                        className="text-xs mt-1"
+                      />
                     </div>
 
                     <Button onClick={handleSaveContact} size="sm" className="w-full mt-3">
