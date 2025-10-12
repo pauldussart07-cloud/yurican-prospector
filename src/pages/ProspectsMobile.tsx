@@ -61,6 +61,7 @@ const ProspectsMobile = () => {
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
 
   useEffect(() => {
     loadData();
@@ -214,16 +215,24 @@ const ProspectsMobile = () => {
     
     // Swipe à droite (entreprise suivante)
     if (diff > swipeThreshold && currentLeadIndex < leadsWithContacts.length - 1) {
-      const nextLead = leadsWithContacts[currentLeadIndex + 1];
-      const firstContact = nextLead.contacts[0];
-      handleContactClick(firstContact);
+      setSwipeDirection('right');
+      setTimeout(() => {
+        const nextLead = leadsWithContacts[currentLeadIndex + 1];
+        const firstContact = nextLead.contacts[0];
+        handleContactClick(firstContact);
+        setTimeout(() => setSwipeDirection(null), 100);
+      }, 200);
     }
     
     // Swipe à gauche (entreprise précédente)
-    if (diff < -swipeThreshold && currentLeadIndex > 0) {
-      const prevLead = leadsWithContacts[currentLeadIndex - 1];
-      const firstContact = prevLead.contacts[0];
-      handleContactClick(firstContact);
+    else if (diff < -swipeThreshold && currentLeadIndex > 0) {
+      setSwipeDirection('left');
+      setTimeout(() => {
+        const prevLead = leadsWithContacts[currentLeadIndex - 1];
+        const firstContact = prevLead.contacts[0];
+        handleContactClick(firstContact);
+        setTimeout(() => setSwipeDirection(null), 100);
+      }, 200);
     }
   };
 
@@ -457,6 +466,11 @@ const ProspectsMobile = () => {
           onTouchStart={handleSwipeStart}
           onTouchMove={handleSwipeMove}
           onTouchEnd={handleSwipeEnd}
+          className={`transition-all duration-200 ${
+            swipeDirection === 'left' ? 'translate-x-4 opacity-80' : 
+            swipeDirection === 'right' ? '-translate-x-4 opacity-80' : 
+            ''
+          }`}
         >
           <DrawerHeader className="text-left">
             {/* Boutons de navigation */}
