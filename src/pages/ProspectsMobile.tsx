@@ -290,6 +290,30 @@ const ProspectsMobile = () => {
                     </div>
                   </div>
 
+                  {/* Changer le contact par défaut */}
+                  {lead.contacts.length > 1 && (
+                    <div className="pt-2 border-t">
+                      <Select 
+                        value={currentIndex.toString()} 
+                        onValueChange={(value) => {
+                          const newIndex = parseInt(value);
+                          setCurrentContactIndices(new Map(currentContactIndices.set(lead.id, newIndex)));
+                        }}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Changer le contact par défaut" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lead.contacts.map((contact, index) => (
+                            <SelectItem key={contact.id} value={index.toString()}>
+                              {contact.fullName} - {contact.role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
                   {/* En-tête entreprise */}
                   <div className="pt-3 border-t">
                     <div className="flex items-center gap-2 mb-2">
@@ -367,30 +391,6 @@ const ProspectsMobile = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Changer le contact par défaut */}
-                  {lead.contacts.length > 1 && (
-                    <div className="pt-2 border-t">
-                      <Select 
-                        value={currentIndex.toString()} 
-                        onValueChange={(value) => {
-                          const newIndex = parseInt(value);
-                          setCurrentContactIndices(new Map(currentContactIndices.set(lead.id, newIndex)));
-                        }}
-                      >
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="Changer le contact par défaut" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {lead.contacts.map((contact, index) => (
-                            <SelectItem key={contact.id} value={index.toString()}>
-                              {contact.fullName} - {contact.role}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             );
