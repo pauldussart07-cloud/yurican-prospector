@@ -46,6 +46,30 @@ const getHeadcountIcon = (headcount: number) => {
   return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
 };
 
+// Déterminer le statut le plus avancé
+const getLeadStatus = (contacts: any[]): ContactStatus => {
+  const statusPriority: Record<ContactStatus, number> = {
+    'Exclu': 0,
+    'Nouveau': 1,
+    'Engagé': 2,
+    'Discussion': 3,
+    'RDV': 4
+  };
+  
+  let highestStatus: ContactStatus = 'Nouveau';
+  let highestPriority = 0;
+  
+  contacts.forEach(contact => {
+    const priority = statusPriority[contact.status as ContactStatus] || 0;
+    if (priority > highestPriority) {
+      highestPriority = priority;
+      highestStatus = contact.status as ContactStatus;
+    }
+  });
+  
+  return highestStatus;
+};
+
 const ProspectsMobile = () => {
   const { actions } = useActions();
   const [leads, setLeads] = useState<any[]>([]);
@@ -431,9 +455,14 @@ const ProspectsMobile = () => {
 
                   {/* En-tête entreprise */}
                   <div className="pt-3 border-t">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-semibold">{lead.companyName}</span>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-semibold">{lead.companyName}</span>
+                      </div>
+                      <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.contacts))} className="text-xs">
+                        {getLeadStatus(lead.contacts)}
+                      </Badge>
                     </div>
                     
                     {/* KPI */}
@@ -573,7 +602,7 @@ const ProspectsMobile = () => {
             })()}
             
             <div className="flex items-center justify-between gap-2">
-              <DrawerTitle>
+              <DrawerTitle className="flex-1">
                 {selectedContact && 
                   leadsWithContacts.find(l => 
                     l.contacts.some(c => c.id === selectedContact.id)
@@ -585,8 +614,8 @@ const ProspectsMobile = () => {
                   l.contacts.some(c => c.id === selectedContact.id)
                 );
                 return contactLead && (
-                  <Badge variant={getStatusBadgeVariant(contactLead.status as ContactStatus)} className="text-xs">
-                    {contactLead.status}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(contactLead.contacts))} className="text-xs">
+                    {getLeadStatus(contactLead.contacts)}
                   </Badge>
                 );
               })()}
