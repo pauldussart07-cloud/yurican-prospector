@@ -362,50 +362,56 @@ const ProspectsMobile = () => {
             <DrawerTitle>Entreprise</DrawerTitle>
             <DrawerDescription>
               {selectedContact && (
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex-1 min-w-0">
-                    <span className="font-semibold">{selectedContact.fullName}</span>
-                    <span className="text-muted-foreground"> - {selectedContact.role}</span>
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm">{selectedContact.fullName}</div>
+                      <div className="text-xs text-muted-foreground">{selectedContact.role}</div>
+                    </div>
                   </div>
-                  <div className="flex gap-1 flex-shrink-0 ml-2">
+                  <div className="flex gap-2 flex-wrap">
                     {selectedContact.phone && (
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 flex-1 min-w-[80px]"
                         onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
                       >
-                        <Phone className="h-3.5 w-3.5" />
+                        <Phone className="h-3.5 w-3.5 mr-1" />
+                        Tel
                       </Button>
                     )}
                     {selectedContact.phone && (
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 flex-1 min-w-[80px]"
                         onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
                       >
-                        <MessageSquare className="h-3.5 w-3.5" />
+                        <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                        SMS
                       </Button>
                     )}
                     {selectedContact.email && (
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 flex-1 min-w-[80px]"
                         onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
                       >
-                        <Mail className="h-3.5 w-3.5" />
+                        <Mail className="h-3.5 w-3.5 mr-1" />
+                        Mail
                       </Button>
                     )}
                     {selectedContact.linkedin && (
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 flex-1 min-w-[80px]"
                         onClick={() => handleOpenLink(selectedContact.linkedin)}
                       >
-                        <Linkedin className="h-3.5 w-3.5" />
+                        <Linkedin className="h-3.5 w-3.5 mr-1" />
+                        LinkedIn
                       </Button>
                     )}
                   </div>
