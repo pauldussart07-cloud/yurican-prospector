@@ -435,6 +435,63 @@ const ProspectsMobile = () => {
             
             return (
               <div className="px-4 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
+                {/* Dates, Statut et Actions */}
+                <Card>
+                  <CardContent className="pt-4 pb-4 space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Date d'ajout</Label>
+                        <div className="text-sm">
+                          {contactLead && new Date(contactLead.created_at || '').toLocaleDateString('fr-FR')}
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Date de suivi</Label>
+                        <Input
+                          type="date"
+                          className="h-8 text-xs"
+                          value={editedFollowUpDate}
+                          onChange={(e) => setEditedFollowUpDate(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Statut</Label>
+                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nouveau">Nouveau</SelectItem>
+                            <SelectItem value="Engagé">Engagé</SelectItem>
+                            <SelectItem value="Discussion">Discussion</SelectItem>
+                            <SelectItem value="RDV">RDV</SelectItem>
+                            <SelectItem value="Exclu">Exclu</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Action</Label>
+                        <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Choisir" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {actions.map((action) => (
+                              <SelectItem key={action.id} value={action.id.toString()}>
+                                {action.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Informations entreprise */}
                 {contactLead && (
                   <Card>
@@ -490,7 +547,7 @@ const ProspectsMobile = () => {
                   </Card>
                 )}
 
-                {/* Contact - ligne unique */}
+                {/* Informations contact */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-center gap-2 mb-3">
@@ -500,12 +557,12 @@ const ProspectsMobile = () => {
                       </div>
                       
                       <div className="flex gap-1 flex-shrink-0">
-                        {selectedContact.phone && (
+                        {selectedContact.email && (
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                            onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
                           >
                             <Mail className="h-4 w-4" />
                           </Button>
@@ -533,54 +590,17 @@ const ProspectsMobile = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex-1">
-                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => setEditedStatus(value)}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nouveau">Nouveau</SelectItem>
-                            <SelectItem value="Engagé">Engagé</SelectItem>
-                            <SelectItem value="Discussion">Discussion</SelectItem>
-                            <SelectItem value="RDV">RDV</SelectItem>
-                            <SelectItem value="Exclu">Exclu</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="flex-1">
-                        <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Action" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {actions.map((action) => (
-                              <SelectItem key={action.id} value={action.id.toString()}>
-                                {action.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
-                      <Input
-                        type="date"
-                        className="h-8 text-xs"
-                        value={editedFollowUpDate}
-                        onChange={(e) => setEditedFollowUpDate(e.target.value)}
-                        placeholder="Date de suivi"
-                      />
-                      
-                      <Textarea
-                        value={editedNote}
-                        onChange={(e) => setEditedNote(e.target.value)}
-                        placeholder="Note..."
-                        rows={2}
-                        className="text-xs"
-                      />
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Note</Label>
+                        <Textarea
+                          value={editedNote}
+                          onChange={(e) => setEditedNote(e.target.value)}
+                          placeholder="Ajouter une note..."
+                          rows={3}
+                          className="text-xs mt-1"
+                        />
+                      </div>
                     </div>
 
                     <Button onClick={handleSaveContact} size="sm" className="w-full mt-3">
