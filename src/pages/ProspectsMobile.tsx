@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -62,6 +62,8 @@ const ProspectsMobile = () => {
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ContactStatus | 'Tous'>('Tous');
 
   useEffect(() => {
     loadData();
@@ -236,11 +238,31 @@ const ProspectsMobile = () => {
     }
   };
 
-  // Grouper les leads avec leurs contacts
+  // Grouper les leads avec leurs contacts et appliquer les filtres
   const leadsWithContacts = leads.map(lead => ({
     ...lead,
     contacts: contacts.filter(c => c.leadId === lead.id)
-  })).filter(lead => lead.contacts.length > 0);
+  }))
+    .filter(lead => lead.contacts.length > 0)
+    .filter(lead => {
+      // Filtre de recherche sémantique
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchCompany = lead.companyName.toLowerCase().includes(query);
+        const matchContact = lead.contacts.some(contact => 
+          contact.fullName.toLowerCase().includes(query)
+        );
+        return matchCompany || matchContact;
+      }
+      return true;
+    })
+    .filter(lead => {
+      // Filtre de statut
+      if (statusFilter !== 'Tous') {
+        return lead.contacts.some(contact => contact.status === statusFilter);
+      }
+      return true;
+    });
 
   if (loading) {
     return (
@@ -253,7 +275,38 @@ const ProspectsMobile = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Prospects Mobile</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-bold">Prospects Mobile</h1>
+        
+        <div className="flex-1 flex gap-2 items-center justify-end">
+          {/* Recherche sémantique */}
+          <div className="relative flex-1 max-w-[200px]">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 h-9 text-sm"
+            />
+          </div>
+          
+          {/* Filtre statut */}
+          <Select value={statusFilter} onValueChange={(value: ContactStatus | 'Tous') => setStatusFilter(value)}>
+            <SelectTrigger className="h-9 w-[120px] text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Tous">Tous</SelectItem>
+              <SelectItem value="Nouveau">Nouveau</SelectItem>
+              <SelectItem value="Engagé">Engagé</SelectItem>
+              <SelectItem value="Discussion">Discussion</SelectItem>
+              <SelectItem value="RDV">RDV</SelectItem>
+              <SelectItem value="Exclu">Exclu</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* Liste des entreprises avec contacts */}
       <div className="space-y-3">
