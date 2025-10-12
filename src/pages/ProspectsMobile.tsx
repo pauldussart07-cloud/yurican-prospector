@@ -225,7 +225,7 @@ const ProspectsMobile = () => {
               <Card key={lead.id}>
                 <CardContent className="pt-6 space-y-3">
                   {/* Contact affiché */}
-                  <div className="flex items-center gap-2 py-2 pb-3 border-b">
+                  <div className="flex items-center gap-2 py-2 pb-3">
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => handleContactClick(displayedContact)}
