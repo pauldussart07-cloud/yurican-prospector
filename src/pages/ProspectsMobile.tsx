@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +39,7 @@ const ProspectsMobile = () => {
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [expandedLeads, setExpandedLeads] = useState<Set<string>>(new Set());
+  const [currentContactIndices, setCurrentContactIndices] = useState<Map<string, number>>(new Map());
   const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
   const [editedNote, setEditedNote] = useState('');
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
@@ -154,14 +154,20 @@ const ProspectsMobile = () => {
     }
   };
 
-  const toggleLeadExpansion = (leadId: string) => {
-    const newExpanded = new Set(expandedLeads);
-    if (newExpanded.has(leadId)) {
-      newExpanded.delete(leadId);
-    } else {
-      newExpanded.add(leadId);
-    }
-    setExpandedLeads(newExpanded);
+  const getCurrentContactIndex = (leadId: string) => {
+    return currentContactIndices.get(leadId) || 0;
+  };
+
+  const handleNextContact = (leadId: string, totalContacts: number) => {
+    const currentIndex = getCurrentContactIndex(leadId);
+    const newIndex = (currentIndex + 1) % totalContacts;
+    setCurrentContactIndices(new Map(currentContactIndices.set(leadId, newIndex)));
+  };
+
+  const handlePreviousContact = (leadId: string, totalContacts: number) => {
+    const currentIndex = getCurrentContactIndex(leadId);
+    const newIndex = currentIndex === 0 ? totalContacts - 1 : currentIndex - 1;
+    setCurrentContactIndices(new Map(currentContactIndices.set(leadId, newIndex)));
   };
 
   // Grouper les leads avec leurs contacts
@@ -195,9 +201,8 @@ const ProspectsMobile = () => {
           </Card>
         ) : (
           leadsWithContacts.map(lead => {
-            const isExpanded = expandedLeads.has(lead.id);
-            const primaryContact = lead.contacts[0];
-            const otherContacts = lead.contacts.slice(1);
+            const currentIndex = getCurrentContactIndex(lead.id);
+            const displayedContact = lead.contacts[currentIndex];
 
             return (
               <Card key={lead.id}>
@@ -223,7 +228,7 @@ const ProspectsMobile = () => {
                           </span>
                         )}
                         {lead.signalSummary && (
-                          <span className="text-muted-foreground truncate">
+                          <span className="text-muted-foreground truncate line-clamp-2">
                             {lead.signalSummary}
                           </span>
                         )}
@@ -254,56 +259,56 @@ const ProspectsMobile = () => {
                     </div>
                   </div>
 
-                  {/* Contact principal */}
+                  {/* Contact affiché */}
                   <div className="flex items-center gap-2 py-2">
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => handleContactClick(primaryContact)}
+                      onClick={() => handleContactClick(displayedContact)}
                     >
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm truncate">{primaryContact.fullName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{primaryContact.role}</span>
-                        <Badge variant={getStatusBadgeVariant(primaryContact.status)} className="text-xs">
-                          {primaryContact.status}
+                        <span className="font-semibold text-sm truncate">{displayedContact.fullName}</span>
+                        <span className="text-xs text-muted-foreground truncate">{displayedContact.role}</span>
+                        <Badge variant={getStatusBadgeVariant(displayedContact.status)} className="text-xs">
+                          {displayedContact.status}
                         </Badge>
                       </div>
                     </div>
                     
                     <div className="flex gap-1 flex-shrink-0">
-                      {primaryContact.email && (
+                      {displayedContact.email && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`mailto:${primaryContact.email}`, '_blank');
+                            window.open(`mailto:${displayedContact.email}`, '_blank');
                           }}
                         >
                           <Mail className="h-4 w-4" />
                         </Button>
                       )}
-                      {primaryContact.phone && (
+                      {displayedContact.phone && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
-                            window.open(`tel:${primaryContact.phone}`, '_blank');
+                            window.open(`tel:${displayedContact.phone}`, '_blank');
                           }}
                         >
                           <Phone className="h-4 w-4" />
                         </Button>
                       )}
-                      {primaryContact.linkedin && (
+                      {displayedContact.linkedin && (
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleOpenLink(primaryContact.linkedin);
+                            handleOpenLink(displayedContact.linkedin);
                           }}
                         >
                           <Linkedin className="h-4 w-4" />
@@ -313,100 +318,36 @@ const ProspectsMobile = () => {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => handleContactClick(primaryContact)}
+                        onClick={() => handleContactClick(displayedContact)}
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
 
-                  {/* Bouton pour voir les autres contacts */}
-                  {otherContacts.length > 0 && (
-                    <Collapsible open={isExpanded} onOpenChange={() => toggleLeadExpansion(lead.id)}>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-full">
-                          {isExpanded ? (
-                            <>
-                              <ChevronUp className="h-4 w-4 mr-2" />
-                              Masquer les autres contacts ({otherContacts.length})
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-4 w-4 mr-2" />
-                              Voir les autres contacts ({otherContacts.length})
-                            </>
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="space-y-2 mt-2">
-                        {otherContacts.map(contact => (
-                          <div key={contact.id} className="flex items-center gap-2 py-2 border rounded-lg px-3">
-                            <div 
-                              className="flex-1 min-w-0 cursor-pointer"
-                              onClick={() => handleContactClick(contact)}
-                            >
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-semibold text-sm truncate">{contact.fullName}</span>
-                                <span className="text-xs text-muted-foreground truncate">{contact.role}</span>
-                                <Badge variant={getStatusBadgeVariant(contact.status)} className="text-xs">
-                                  {contact.status}
-                                </Badge>
-                              </div>
-                            </div>
-                            
-                            <div className="flex gap-1 flex-shrink-0">
-                              {contact.email && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    window.open(`mailto:${contact.email}`, '_blank');
-                                  }}
-                                >
-                                  <Mail className="h-4 w-4" />
-                                </Button>
-                              )}
-                              {contact.phone && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    window.open(`tel:${contact.phone}`, '_blank');
-                                  }}
-                                >
-                                  <Phone className="h-4 w-4" />
-                                </Button>
-                              )}
-                              {contact.linkedin && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenLink(contact.linkedin);
-                                  }}
-                                >
-                                  <Linkedin className="h-4 w-4" />
-                                </Button>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => handleContactClick(contact)}
-                              >
-                                <ChevronRight className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
+                  {/* Navigation entre contacts */}
+                  {lead.contacts.length > 1 && (
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePreviousContact(lead.id, lead.contacts.length)}
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Précédent
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        {currentIndex + 1} / {lead.contacts.length}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleNextContact(lead.id, lead.contacts.length)}
+                      >
+                        Suivant
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
                   )}
                 </CardContent>
               </Card>
