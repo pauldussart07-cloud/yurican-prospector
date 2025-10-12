@@ -158,6 +158,25 @@ const ProspectsMobile = () => {
   const handleSaveContact = async () => {
     if (!selectedContact) return;
 
+    // Mettre à jour l'état local immédiatement
+    const updatedContact = {
+      ...selectedContact,
+      status: editedStatus,
+      note: editedNote,
+      followUpDate: editedFollowUpDate,
+    };
+    setSelectedContact(updatedContact);
+
+    // Mettre à jour dans la liste locale
+    setContacts(prevContacts => 
+      prevContacts.map(c => 
+        c.id === selectedContact.id 
+          ? updatedContact 
+          : c
+      )
+    );
+
+    // Sauvegarder en arrière-plan
     const { error } = await supabase
       .from('lead_contacts')
       .update({
@@ -170,11 +189,9 @@ const ProspectsMobile = () => {
 
     if (error) {
       toast.error('Erreur lors de la sauvegarde');
-      return;
+      // Recharger les données en cas d'erreur
+      loadData();
     }
-
-    toast.success('Sauvegarde automatique');
-    loadData();
   };
 
   const autoSave = async () => {
