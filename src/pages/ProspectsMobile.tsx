@@ -57,6 +57,8 @@ const ProspectsMobile = () => {
   const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
   const [editedNote, setEditedNote] = useState('');
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
+  const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
+  const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadData();
@@ -229,27 +231,51 @@ const ProspectsMobile = () => {
                       <span className="font-semibold">{lead.companyName}</span>
                     </div>
                     
-                    {/* Ligne unique avec KPI, résumé et liens */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-2 text-xs overflow-hidden">
-                        {lead.companyHeadcount && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1">
-                            {getHeadcountIcon(lead.companyHeadcount)}
-                            <span className="font-semibold">{lead.companyHeadcount}</span> pers.
-                          </span>
-                        )}
-                        {lead.companyCa && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1">
-                            {getRevenueIcon(lead.companyCa)}
-                            <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
-                          </span>
-                        )}
-                        {lead.signalSummary && (
-                          <span className="text-muted-foreground truncate line-clamp-2">
-                            {lead.signalSummary}
-                          </span>
+                    {/* KPI */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {lead.companyHeadcount && (
+                        <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
+                          {getHeadcountIcon(lead.companyHeadcount)}
+                          <span className="font-semibold">{lead.companyHeadcount}</span> pers.
+                        </span>
+                      )}
+                      {lead.companyCa && (
+                        <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
+                          {getRevenueIcon(lead.companyCa)}
+                          <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Résumé avec bouton afficher plus */}
+                    {lead.signalSummary && (
+                      <div className="w-full">
+                        <p className={`text-xs text-muted-foreground break-words ${expandedSummaries.has(lead.id) ? '' : 'line-clamp-2'}`}>
+                          {lead.signalSummary}
+                        </p>
+                        {lead.signalSummary.length > 100 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs mt-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newExpanded = new Set(expandedSummaries);
+                              if (expandedSummaries.has(lead.id)) {
+                                newExpanded.delete(lead.id);
+                              } else {
+                                newExpanded.add(lead.id);
+                              }
+                              setExpandedSummaries(newExpanded);
+                            }}
+                          >
+                            {expandedSummaries.has(lead.id) ? 'Afficher moins' : 'Afficher plus'}
+                          </Button>
                         )}
                       </div>
+                    )}
+                    
+                    <div className="flex items-center gap-2">
                       
                       <div className="flex gap-1 flex-shrink-0">
                         {lead.companyWebsite && (
@@ -585,24 +611,74 @@ const ProspectsMobile = () => {
                 )}
 
                 {/* Résumé du site web */}
-                {contactLead?.signalSummary && (
-                  <Card>
-                    <CardContent className="pt-4 pb-4">
-                      <div className="text-xs font-semibold text-muted-foreground mb-2">Résumé du site web</div>
-                      <div className="text-xs">{contactLead.signalSummary}</div>
-                    </CardContent>
-                  </Card>
-                )}
+                <Card>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="text-xs font-semibold text-muted-foreground mb-2">Résumé du site web</div>
+                    {contactLead?.signalSummary ? (
+                      <>
+                        <p className={`text-xs break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                          {contactLead.signalSummary}
+                        </p>
+                        {contactLead.signalSummary.length > 150 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs mt-2"
+                            onClick={() => {
+                              const newExpanded = new Set(expandedSummaries);
+                              const key = `drawer-${contactLead.id}`;
+                              if (expandedSummaries.has(key)) {
+                                newExpanded.delete(key);
+                              } else {
+                                newExpanded.add(key);
+                              }
+                              setExpandedSummaries(newExpanded);
+                            }}
+                          >
+                            {expandedSummaries.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">Aucune synthèse disponible</p>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Résumé de l'actualité */}
-                {contactLead?.newsContent && (
-                  <Card>
-                    <CardContent className="pt-4 pb-4">
-                      <div className="text-xs font-semibold text-muted-foreground mb-2">Actualité</div>
-                      <div className="text-xs">{contactLead.newsContent}</div>
-                    </CardContent>
-                  </Card>
-                )}
+                <Card>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="text-xs font-semibold text-muted-foreground mb-2">Actualité</div>
+                    {contactLead?.newsContent ? (
+                      <>
+                        <p className={`text-xs break-words ${expandedNews.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                          {contactLead.newsContent}
+                        </p>
+                        {contactLead.newsContent.length > 150 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs mt-2"
+                            onClick={() => {
+                              const newExpanded = new Set(expandedNews);
+                              const key = `drawer-${contactLead.id}`;
+                              if (expandedNews.has(key)) {
+                                newExpanded.delete(key);
+                              } else {
+                                newExpanded.add(key);
+                              }
+                              setExpandedNews(newExpanded);
+                            }}
+                          >
+                            {expandedNews.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">Aucune actualité disponible</p>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Note */}
                 <Card>
