@@ -582,16 +582,11 @@ const ProspectsMobile = () => {
                   )?.companyName
                 }
               </DrawerTitle>
-              {selectedContact && (() => {
-                const contactLead = leadsWithContacts.find(l => 
-                  l.contacts.some(c => c.id === selectedContact.id)
-                );
-                return contactLead && (
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(contactLead.contacts))} className="text-xs">
-                    {getLeadStatus(contactLead.contacts)}
-                  </Badge>
-                );
-              })()}
+              {selectedContact && (
+                <Badge variant={getStatusBadgeVariant(editedStatus)} className="text-xs">
+                  {editedStatus}
+                </Badge>
+              )}
             </div>
             <DrawerDescription className="text-left">
               {selectedContact && (
