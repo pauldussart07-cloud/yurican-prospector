@@ -171,6 +171,9 @@ const Targeting = () => {
   const [maxHeadcount, setMaxHeadcount] = useState('');
   const [minRevenue, setMinRevenue] = useState('');
   const [maxRevenue, setMaxRevenue] = useState('');
+  const [semanticQuery, setSemanticQuery] = useState('');
+  const [semanticSuggestions, setSemanticSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
   // Contact form state
   const [contactName, setContactName] = useState('');
@@ -361,6 +364,51 @@ const Targeting = () => {
     setMaxHeadcount('');
     setMinRevenue('');
     setMaxRevenue('');
+    setSemanticQuery('');
+    setSemanticSuggestions([]);
+  };
+
+  const handleSemanticSearch = async () => {
+    if (!semanticQuery.trim()) {
+      toast({
+        title: 'Erreur',
+        description: 'Veuillez saisir une description',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('semantic-search-sectors', {
+        body: { query: semanticQuery }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestions && data.suggestions.length > 0) {
+        setSemanticSuggestions(data.suggestions);
+        toast({
+          title: 'Suggestions trouvées',
+          description: `${data.suggestions.length} secteur(s) trouvé(s)`,
+        });
+      } else {
+        setSemanticSuggestions([]);
+        toast({
+          title: 'Aucun résultat',
+          description: 'Aucun secteur correspondant trouvé',
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de rechercher les secteurs',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
   };
 
   const resetContactForm = () => {
@@ -613,6 +661,65 @@ const Targeting = () => {
 
                 <div className="space-y-2">
                   <Label>Secteurs d'activité</Label>
+                  
+                  {/* Recherche sémantique */}
+                  <div className="bg-muted/50 border rounded-md p-3 space-y-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="semantic-search" className="text-sm font-medium">
+                        Recherche intelligente par description
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="semantic-search"
+                          value={semanticQuery}
+                          onChange={(e) => setSemanticQuery(e.target.value)}
+                          placeholder="Ex: entreprises qui fabriquent des composants électroniques..."
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleSemanticSearch();
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleSemanticSearch}
+                          disabled={isLoadingSuggestions}
+                          size="sm"
+                        >
+                          {isLoadingSuggestions ? 'Recherche...' : 'Rechercher'}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {semanticSuggestions.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Suggestions :</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {semanticSuggestions.map((suggestion) => (
+                            <Badge
+                              key={suggestion}
+                              variant={selectedSectors.includes(suggestion) ? "default" : "outline"}
+                              className="cursor-pointer"
+                              onClick={() => {
+                                if (selectedSectors.includes(suggestion)) {
+                                  setSelectedSectors(selectedSectors.filter(s => s !== suggestion));
+                                } else {
+                                  setSelectedSectors([...selectedSectors, suggestion]);
+                                }
+                              }}
+                            >
+                              {suggestion}
+                              {selectedSectors.includes(suggestion) && (
+                                <Check className="h-3 w-3 ml-1" />
+                              )}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Liste complète des secteurs */}
                   <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
                     {SECTORS.map((sector) => (
                       <label key={sector} className="flex items-center gap-2 cursor-pointer">
