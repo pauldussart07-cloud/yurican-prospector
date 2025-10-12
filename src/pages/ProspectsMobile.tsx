@@ -75,7 +75,12 @@ const ProspectsMobile = () => {
       companyLinkedin: lead.company_linkedin,
       companyHeadcount: lead.company_headcount,
       companyCa: lead.company_ca,
+      companyDepartment: lead.company_department,
+      companySiret: lead.company_siret,
+      companyAddress: lead.company_address,
+      companySector: lead.company_sector,
       signalSummary: lead.signal_summary,
+      created_at: lead.created_at,
     }));
 
     const transformedContacts = (contactsData || []).map(contact => ({
@@ -495,54 +500,83 @@ const ProspectsMobile = () => {
                 {/* Informations entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-4 pb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-semibold text-sm">{contactLead.companyName}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 flex items-center gap-2 text-xs overflow-hidden">
-                          {contactLead.companyHeadcount && (
-                            <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
-                              <span className="font-semibold">{contactLead.companyHeadcount}</span> pers.
-                            </span>
-                          )}
-                          {contactLead.companyCa && (
-                            <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1">
-                              <span className="font-semibold">{(contactLead.companyCa / 1000000).toFixed(1)}M€</span>
-                            </span>
-                          )}
-                          {contactLead.signalSummary && (
-                            <span className="text-muted-foreground truncate">
-                              {contactLead.signalSummary}
-                            </span>
-                          )}
+                    <CardContent className="pt-4 pb-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-semibold text-sm">{contactLead.companyName}</span>
                         </div>
-                        
                         <div className="flex gap-1 flex-shrink-0">
                           {contactLead.companyWebsite && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8"
+                              className="h-7 w-7"
                               onClick={() => handleOpenLink(contactLead.companyWebsite)}
                             >
-                              <Globe className="h-4 w-4" />
+                              <Globe className="h-3.5 w-3.5" />
                             </Button>
                           )}
                           {contactLead.companyLinkedin && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8"
+                              className="h-7 w-7"
                               onClick={() => handleOpenLink(contactLead.companyLinkedin)}
                             >
-                              <Linkedin className="h-4 w-4" />
+                              <Linkedin className="h-3.5 w-3.5" />
                             </Button>
                           )}
                         </div>
                       </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {contactLead.companyDepartment && (
+                          <div>
+                            <span className="text-muted-foreground">Département:</span>
+                            <div className="font-medium">{contactLead.companyDepartment}</div>
+                          </div>
+                        )}
+                        {contactLead.companySiret && (
+                          <div>
+                            <span className="text-muted-foreground">SIRET:</span>
+                            <div className="font-medium">{contactLead.companySiret}</div>
+                          </div>
+                        )}
+                        {contactLead.companyHeadcount && (
+                          <div>
+                            <span className="text-muted-foreground">Effectif:</span>
+                            <div className="font-medium">{contactLead.companyHeadcount} pers.</div>
+                          </div>
+                        )}
+                        {contactLead.companyCa && (
+                          <div>
+                            <span className="text-muted-foreground">CA:</span>
+                            <div className="font-medium">{(contactLead.companyCa / 1000000).toFixed(1)}M€</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {contactLead.companySector && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Secteur:</span>
+                          <div className="font-medium">{contactLead.companySector}</div>
+                        </div>
+                      )}
+
+                      {contactLead.companyAddress && (
+                        <div className="text-xs">
+                          <span className="text-muted-foreground">Adresse:</span>
+                          <div className="font-medium">{contactLead.companyAddress}</div>
+                        </div>
+                      )}
+
+                      {contactLead.signalSummary && (
+                        <div className="pt-2 border-t">
+                          <div className="text-xs text-muted-foreground mb-1">Synthèse:</div>
+                          <div className="text-xs">{contactLead.signalSummary}</div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 )}
