@@ -445,7 +445,12 @@ const ProspectsMobile = () => {
                         <SelectContent>
                           {lead.contacts.map((contact, index) => (
                             <SelectItem key={contact.id} value={index.toString()}>
-                              {contact.fullName} - {contact.role}
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span>{contact.fullName} - {contact.role}</span>
+                                <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
+                                  {contact.status}
+                                </Badge>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
