@@ -306,6 +306,19 @@ const ProspectsMobile = () => {
                           <Phone className="h-4 w-4" />
                         </Button>
                       )}
+                      {displayedContact.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`sms:${displayedContact.phone}`, '_blank');
+                          }}
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      )}
                       {displayedContact.linkedin && (
                         <Button
                           variant="ghost"
