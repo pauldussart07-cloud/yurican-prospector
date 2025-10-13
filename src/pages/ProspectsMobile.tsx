@@ -81,6 +81,7 @@ const ProspectsMobile = () => {
   const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
   const [editedNote, setEditedNote] = useState('');
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
+  const [editedEngagementDate, setEditedEngagementDate] = useState('');
   const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
   const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
   const touchStartX = useRef<number>(0);
@@ -140,6 +141,7 @@ const ProspectsMobile = () => {
       status: contact.status as ContactStatus,
       note: contact.note || '',
       followUpDate: contact.follow_up_date || '',
+      engagementDate: contact.engagement_date || '',
     }));
 
     setLeads(transformedLeads);
@@ -152,6 +154,7 @@ const ProspectsMobile = () => {
     setEditedStatus(contact.status);
     setEditedNote(contact.note || '');
     setEditedFollowUpDate(contact.followUpDate || '');
+    setEditedEngagementDate(contact.engagementDate || '');
     setIsDrawerOpen(true);
   };
 
@@ -164,6 +167,7 @@ const ProspectsMobile = () => {
       status: editedStatus,
       note: editedNote,
       followUpDate: editedFollowUpDate,
+      engagementDate: editedEngagementDate,
     };
     setSelectedContact(updatedContact);
 
@@ -183,6 +187,7 @@ const ProspectsMobile = () => {
         status: editedStatus,
         note: editedNote,
         follow_up_date: editedFollowUpDate || null,
+        engagement_date: editedEngagementDate || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', selectedContact.id);
@@ -656,9 +661,15 @@ const ProspectsMobile = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Date engagement</Label>
-                        <div className="text-sm font-medium mt-1">
-                          {contactLead && new Date(contactLead.created_at || '').toLocaleDateString('fr-FR')}
-                        </div>
+                        <Input
+                          type="date"
+                          className="h-9 text-sm mt-1"
+                          value={editedEngagementDate}
+                          onChange={(e) => {
+                            setEditedEngagementDate(e.target.value);
+                            setTimeout(() => autoSave(), 500);
+                          }}
+                        />
                       </div>
                       <div>
                         <Label className="text-xs text-muted-foreground">Date suivi</Label>

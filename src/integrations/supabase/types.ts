@@ -39,6 +39,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          engagement_date: string | null
           follow_up_date: string | null
           full_name: string
           id: string
@@ -57,6 +58,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email?: string | null
+          engagement_date?: string | null
           follow_up_date?: string | null
           full_name: string
           id?: string
@@ -75,6 +77,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string | null
+          engagement_date?: string | null
           follow_up_date?: string | null
           full_name?: string
           id?: string
@@ -116,6 +119,7 @@ export type Database = {
           created_at: string
           id: string
           is_hot_signal: boolean | null
+          news_content: string | null
           signal_summary: string | null
           status: string
           updated_at: string
@@ -136,6 +140,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_hot_signal?: boolean | null
+          news_content?: string | null
           signal_summary?: string | null
           status?: string
           updated_at?: string
@@ -156,6 +161,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_hot_signal?: boolean | null
+          news_content?: string | null
           signal_summary?: string | null
           status?: string
           updated_at?: string
