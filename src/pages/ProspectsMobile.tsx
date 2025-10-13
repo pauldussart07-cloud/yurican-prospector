@@ -573,73 +573,8 @@ const ProspectsMobile = () => {
             ''
           }`}
         >
-          <DrawerHeader className="text-left">
-            <div className="flex items-center justify-between gap-2">
-              <DrawerTitle className="flex-1">
-                {selectedContact && 
-                  leadsWithContacts.find(l => 
-                    l.contacts.some(c => c.id === selectedContact.id)
-                  )?.companyName
-                }
-              </DrawerTitle>
-              {selectedContact && (
-                <Badge variant={getStatusBadgeVariant(editedStatus)} className="text-xs">
-                  {editedStatus}
-                </Badge>
-              )}
-            </div>
-            <DrawerDescription className="text-left">
-              {selectedContact && (
-                <div className="flex items-start justify-between gap-2 mt-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm">{selectedContact.fullName}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{selectedContact.role}</div>
-                  </div>
-                  <div className="flex gap-1 flex-shrink-0">
-                    {selectedContact.phone && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                      >
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {selectedContact.phone && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {selectedContact.email && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                      >
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {selectedContact.linkedin && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleOpenLink(selectedContact.linkedin)}
-                      >
-                        <Linkedin className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </DrawerDescription>
+          <DrawerHeader className="text-left pb-2">
+            <DrawerTitle className="text-lg font-bold">Fiche Contact</DrawerTitle>
           </DrawerHeader>
 
           {selectedContact && (() => {
@@ -648,22 +583,88 @@ const ProspectsMobile = () => {
             );
             
             return (
-              <div className="px-4 pb-6 space-y-4 overflow-y-auto max-h-[70vh]">
-                {/* Dates, Statut et Actions */}
+              <div className="px-4 pb-6 space-y-3 overflow-y-auto max-h-[75vh]">
+                {/* BLOC 1 - Entreprise */}
+                {contactLead && (
+                  <Card>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 space-y-2">
+                          <div className="font-semibold text-base">{contactLead.companyName}</div>
+                          
+                          <div className="text-xs space-y-1">
+                            {(contactLead.companyDepartment || contactLead.companySector) && (
+                              <div className="text-muted-foreground">
+                                {contactLead.companyDepartment && <span>{contactLead.companyDepartment}</span>}
+                                {contactLead.companyDepartment && contactLead.companySector && <span> • </span>}
+                                {contactLead.companySector && <span>{contactLead.companySector}</span>}
+                              </div>
+                            )}
+                            
+                            <div className="flex items-center gap-3 flex-wrap">
+                              {contactLead.companyHeadcount && (
+                                <span className="flex items-center gap-1">
+                                  {getHeadcountIcon(contactLead.companyHeadcount)}
+                                  <span className="font-medium">{contactLead.companyHeadcount} pers.</span>
+                                </span>
+                              )}
+                              {contactLead.companyCa && (
+                                <span className="flex items-center gap-1">
+                                  {getRevenueIcon(contactLead.companyCa)}
+                                  <span className="font-medium">{(contactLead.companyCa / 1000000).toFixed(1)}M€</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end gap-2">
+                          <Badge variant={getStatusBadgeVariant(getLeadStatus(contactLead.contacts))} className="text-xs">
+                            {getLeadStatus(contactLead.contacts)}
+                          </Badge>
+                          <div className="flex gap-1">
+                            {contactLead.companyWebsite && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleOpenLink(contactLead.companyWebsite)}
+                              >
+                                <Globe className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {contactLead.companyLinkedin && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => handleOpenLink(contactLead.companyLinkedin)}
+                              >
+                                <Linkedin className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* BLOC 2 - Dates */}
                 <Card>
-                  <CardContent className="pt-4 pb-4 space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date d'ajout</Label>
-                        <div className="text-sm">
+                        <Label className="text-xs text-muted-foreground">Date engagement</Label>
+                        <div className="text-sm font-medium mt-1">
                           {contactLead && new Date(contactLead.created_at || '').toLocaleDateString('fr-FR')}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date de suivi</Label>
+                        <Label className="text-xs text-muted-foreground">Date suivi</Label>
                         <Input
                           type="date"
-                          className="h-8 text-xs"
+                          className="h-9 text-sm mt-1"
                           value={editedFollowUpDate}
                           onChange={(e) => {
                             setEditedFollowUpDate(e.target.value);
@@ -672,214 +673,250 @@ const ProspectsMobile = () => {
                         />
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* BLOC 3 - Contact */}
+                <Card>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1">
+                        <div className="font-semibold text-base">{selectedContact.fullName}</div>
+                        <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                      </div>
+                      
+                      <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                        setEditedStatus(value);
+                        setTimeout(() => autoSave(), 500);
+                      }}>
+                        <SelectTrigger className="h-9 w-[130px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Nouveau">Nouveau</SelectItem>
+                          <SelectItem value="Engagé">Engagé</SelectItem>
+                          <SelectItem value="Discussion">Discussion</SelectItem>
+                          <SelectItem value="RDV">RDV</SelectItem>
+                          <SelectItem value="Exclu">Exclu</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Statut</Label>
-                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
-                          setEditedStatus(value);
-                          setTimeout(() => autoSave(), 500);
-                        }}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nouveau">Nouveau</SelectItem>
-                            <SelectItem value="Engagé">Engagé</SelectItem>
-                            <SelectItem value="Discussion">Discussion</SelectItem>
-                            <SelectItem value="RDV">RDV</SelectItem>
-                            <SelectItem value="Exclu">Exclu</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Action</Label>
-                        <Select onValueChange={(value) => handleActionClick(parseInt(value))}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Choisir" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {actions.map((action) => (
-                              <SelectItem key={action.id} value={action.id.toString()}>
-                                {action.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      {selectedContact.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {selectedContact.phone && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {selectedContact.email && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {selectedContact.linkedin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9"
+                          onClick={() => handleOpenLink(selectedContact.linkedin)}
+                        >
+                          <Linkedin className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Note */}
-                <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Note</Label>
-                      <Textarea
-                        value={editedNote}
-                        onChange={(e) => {
-                          setEditedNote(e.target.value);
-                          setTimeout(() => autoSave(), 1000);
+                    
+                    {contactLead && contactLead.contacts.length > 1 && (
+                      <Select 
+                        value={selectedContact.id} 
+                        onValueChange={(contactId) => {
+                          const newContact = contactLead.contacts.find(c => c.id === contactId);
+                          if (newContact) {
+                            handleContactClick(newContact);
+                          }
                         }}
-                        placeholder="Ajouter une note..."
-                        rows={4}
-                        className="text-xs mt-1"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Informations entreprise */}
-                {contactLead && (
-                  <Card>
-                    <CardContent className="pt-4 pb-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-semibold text-sm">{contactLead.companyName}</span>
-                        </div>
-                        <div className="flex gap-1 flex-shrink-0">
-                          {contactLead.companyWebsite && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleOpenLink(contactLead.companyWebsite)}
-                            >
-                              <Globe className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                          {contactLead.companyLinkedin && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleOpenLink(contactLead.companyLinkedin)}
-                            >
-                              <Linkedin className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        {contactLead.companyDepartment && (
-                          <div>
-                            <span className="text-muted-foreground">Département:</span>
-                            <div className="font-medium">{contactLead.companyDepartment}</div>
-                          </div>
-                        )}
-                        {contactLead.companySiret && (
-                          <div>
-                            <span className="text-muted-foreground">SIRET:</span>
-                            <div className="font-medium">{contactLead.companySiret}</div>
-                          </div>
-                        )}
-                        {contactLead.companyHeadcount && (
-                          <div>
-                            <span className="text-muted-foreground">Effectif:</span>
-                            <div className="font-medium flex items-center gap-1">
-                              {getHeadcountIcon(contactLead.companyHeadcount)}
-                              {contactLead.companyHeadcount} pers.
-                            </div>
-                          </div>
-                        )}
-                        {contactLead.companyCa && (
-                          <div>
-                            <span className="text-muted-foreground">Chiffre d'affaires:</span>
-                            <div className="font-medium flex items-center gap-1">
-                              {getRevenueIcon(contactLead.companyCa)}
-                              {(contactLead.companyCa / 1000000).toFixed(1)}M€
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {contactLead.companySector && (
-                        <div className="text-xs">
-                          <span className="text-muted-foreground">Secteur:</span>
-                          <div className="font-medium">{contactLead.companySector}</div>
-                        </div>
-                      )}
-
-                      {contactLead.companyAddress && (
-                        <div className="text-xs">
-                          <span className="text-muted-foreground">Adresse:</span>
-                          <div className="font-medium">{contactLead.companyAddress}</div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Résumé du site web */}
-                <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="text-xs font-semibold text-muted-foreground mb-2">Résumé du site web</div>
-                    {contactLead?.signalSummary ? (
-                      <>
-                        <p className={`text-xs break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
-                          {contactLead.signalSummary}
-                        </p>
-                        {contactLead.signalSummary.length > 150 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2 text-xs mt-2"
-                            onClick={() => {
-                              const newExpanded = new Set(expandedSummaries);
-                              const key = `drawer-${contactLead.id}`;
-                              if (expandedSummaries.has(key)) {
-                                newExpanded.delete(key);
-                              } else {
-                                newExpanded.add(key);
-                              }
-                              setExpandedSummaries(newExpanded);
-                            }}
-                          >
-                            {expandedSummaries.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
-                          </Button>
-                        )}
-                      </>
-                    ) : (
-                      <p className="text-xs text-muted-foreground italic">Aucune synthèse disponible</p>
+                      >
+                        <SelectTrigger className="h-9 text-sm">
+                          <SelectValue placeholder="Changer de contact" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contactLead.contacts.map((contact) => (
+                            <SelectItem key={contact.id} value={contact.id}>
+                              <div className="flex items-center justify-between gap-2 w-full">
+                                <span>{contact.fullName} - {contact.role}</span>
+                                <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs ml-2">
+                                  {contact.status}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   </CardContent>
                 </Card>
 
-                {/* Résumé de l'actualité */}
+                {/* BLOC 4 - Actions */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
-                    <div className="text-xs font-semibold text-muted-foreground mb-2">Actualité</div>
-                    {contactLead?.newsContent ? (
-                      <>
-                        <p className={`text-xs break-words ${expandedNews.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
-                          {contactLead.newsContent}
-                        </p>
-                        {contactLead.newsContent.length > 150 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2 text-xs mt-2"
-                            onClick={() => {
-                              const newExpanded = new Set(expandedNews);
-                              const key = `drawer-${contactLead.id}`;
-                              if (expandedNews.has(key)) {
-                                newExpanded.delete(key);
-                              } else {
-                                newExpanded.add(key);
-                              }
-                              setExpandedNews(newExpanded);
-                            }}
-                          >
-                            {expandedNews.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
-                          </Button>
+                    <div className="flex items-center gap-2">
+                      <Select onValueChange={(value) => {
+                        const actionId = parseInt(value);
+                        const action = actions.find(a => a.id === actionId);
+                        if (action) {
+                          if (action.type === 'email') {
+                            const subject = action.emailSubject || '';
+                            const body = action.emailBody || '';
+                            window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+                            toast.success('Email ouvert avec succès');
+                          } else if (action.type === 'meeting') {
+                            toast.success(`Réunion ${action.meetingPlatform} créée`);
+                          }
+                        }
+                      }}>
+                        <SelectTrigger className="flex-1 h-10">
+                          <SelectValue placeholder="Sélectionner une action" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {actions.map((action) => (
+                            <SelectItem key={action.id} value={action.id.toString()}>
+                              {action.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* BLOC 5 - Synthèse et Note */}
+                <Card>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex border-b mb-3">
+                      <button
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                          !expandedNews.has('note-tab') 
+                            ? 'border-b-2 border-primary text-primary' 
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                        onClick={() => {
+                          const newExpanded = new Set(expandedNews);
+                          newExpanded.delete('note-tab');
+                          setExpandedNews(newExpanded);
+                        }}
+                      >
+                        Synthèse
+                      </button>
+                      <button
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                          expandedNews.has('note-tab') 
+                            ? 'border-b-2 border-primary text-primary' 
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                        onClick={() => {
+                          const newExpanded = new Set(expandedNews);
+                          newExpanded.add('note-tab');
+                          setExpandedNews(newExpanded);
+                        }}
+                      >
+                        Note
+                      </button>
+                    </div>
+                    
+                    {!expandedNews.has('note-tab') ? (
+                      <div className="space-y-3">
+                        {contactLead?.signalSummary && (
+                          <div>
+                            <div className="text-xs font-semibold text-muted-foreground mb-1">Site web</div>
+                            <p className={`text-xs break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                              {contactLead.signalSummary}
+                            </p>
+                            {contactLead.signalSummary.length > 150 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs mt-1"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedSummaries);
+                                  const key = `drawer-${contactLead.id}`;
+                                  if (expandedSummaries.has(key)) {
+                                    newExpanded.delete(key);
+                                  } else {
+                                    newExpanded.add(key);
+                                  }
+                                  setExpandedSummaries(newExpanded);
+                                }}
+                              >
+                                {expandedSummaries.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
+                              </Button>
+                            )}
+                          </div>
                         )}
-                      </>
+                        
+                        {contactLead?.newsContent && (
+                          <div>
+                            <div className="text-xs font-semibold text-muted-foreground mb-1">Actualité</div>
+                            <p className={`text-xs break-words ${expandedSummaries.has(`drawer-news-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                              {contactLead.newsContent}
+                            </p>
+                            {contactLead.newsContent.length > 150 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs mt-1"
+                                onClick={() => {
+                                  const newExpanded = new Set(expandedSummaries);
+                                  const key = `drawer-news-${contactLead.id}`;
+                                  if (expandedSummaries.has(key)) {
+                                    newExpanded.delete(key);
+                                  } else {
+                                    newExpanded.add(key);
+                                  }
+                                  setExpandedSummaries(newExpanded);
+                                }}
+                              >
+                                {expandedSummaries.has(`drawer-news-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                        
+                        {!contactLead?.signalSummary && !contactLead?.newsContent && (
+                          <p className="text-xs text-muted-foreground italic">Aucune synthèse disponible</p>
+                        )}
+                      </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">Aucune actualité disponible</p>
+                      <div>
+                        <Textarea
+                          value={editedNote}
+                          onChange={(e) => {
+                            setEditedNote(e.target.value);
+                            setTimeout(() => autoSave(), 1000);
+                          }}
+                          placeholder="Ajouter une note..."
+                          rows={6}
+                          className="text-sm"
+                        />
+                      </div>
                     )}
                   </CardContent>
                 </Card>
