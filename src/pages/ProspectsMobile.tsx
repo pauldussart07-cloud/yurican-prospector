@@ -835,12 +835,14 @@ const ProspectsMobile = () => {
                         >
                           GO
                         </Button>
-                        {lastAction && (
-                          <div className="text-[10px] text-muted-foreground text-center leading-tight">
-                            <div className="font-medium">Dernière:</div>
-                            <div className="line-clamp-2">{lastAction}</div>
-                          </div>
-                        )}
+                        <div className="bg-muted/50 rounded-md p-2 min-h-[50px]">
+                          <div className="text-[10px] font-semibold text-muted-foreground mb-1">Dernière action:</div>
+                          {lastAction ? (
+                            <div className="text-xs line-clamp-2 text-foreground">{lastAction}</div>
+                          ) : (
+                            <div className="text-xs text-muted-foreground italic">Aucune</div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </CardContent>
