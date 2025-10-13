@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import WhatsAppIcon from '@/components/WhatsAppIcon';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -771,7 +772,7 @@ const ProspectsMobile = () => {
                       </div>
                       
                       {/* Centre - Boutons de communication (icônes seulement) */}
-                      <div className="flex gap-1">
+                      <div className="flex flex-col gap-1">
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
@@ -789,7 +790,7 @@ const ProspectsMobile = () => {
                             className="h-8 w-8"
                             onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
                           >
-                            <MessageSquare className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4" />
                           </Button>
                         )}
                         {selectedContact.phone && (
