@@ -750,8 +750,8 @@ const ProspectsMobile = () => {
                 <Card>
                   <CardContent className="pt-2 pb-2">
                     <div className="flex gap-2 items-center">
-                      {/* Partie gauche - Roulette d'action */}
-                      <div className="flex-1">
+                      {/* Partie gauche - Roulette d'action (-15%) */}
+                      <div className="w-[40%]">
                         <Select 
                           value={selectedAction?.toString() || ""} 
                           onValueChange={(value) => {
@@ -771,13 +771,13 @@ const ProspectsMobile = () => {
                         </Select>
                       </div>
                       
-                      {/* Centre - Boutons de communication (icônes seulement) */}
+                      {/* Centre - Boutons de communication (+5% largeur) */}
                       <div className="flex flex-col gap-1">
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-8 w-[34px]"
                             onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
                           >
                             <Phone className="h-4 w-4" />
@@ -787,7 +787,7 @@ const ProspectsMobile = () => {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-8 w-[34px]"
                             onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
                           >
                             <WhatsAppIcon className="h-4 w-4" />
@@ -797,7 +797,7 @@ const ProspectsMobile = () => {
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-8 w-[34px]"
                             onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
                           >
                             <MessageSquare className="h-4 w-4" />
@@ -805,8 +805,8 @@ const ProspectsMobile = () => {
                         )}
                       </div>
                       
-                      {/* Droite - Bouton GO et dernière action */}
-                      <div className="flex flex-col gap-1.5 min-w-[70px]">
+                      {/* Droite - Bouton GO et dernière action (+10% largeur) */}
+                      <div className="flex flex-col gap-1.5 min-w-[77px]">
                         <Button
                           className="h-8 w-full font-semibold text-xs"
                           disabled={!selectedAction}
