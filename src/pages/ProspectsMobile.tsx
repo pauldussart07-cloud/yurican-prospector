@@ -91,6 +91,8 @@ const ProspectsMobile = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | 'Tous'>('Tous');
   const [isContactSelectorOpen, setIsContactSelectorOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<number | null>(null);
+  const [lastAction, setLastAction] = useState<string>('');
 
   useEffect(() => {
     loadData();
@@ -751,63 +753,93 @@ const ProspectsMobile = () => {
                 {/* BLOC 4 - Actions */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-2">
-                      <Select onValueChange={(value) => {
-                        const actionId = parseInt(value);
-                        const action = actions.find(a => a.id === actionId);
-                        if (action) {
-                          if (action.type === 'email') {
-                            const subject = action.emailSubject || '';
-                            const body = action.emailBody || '';
-                            window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
-                            toast.success('Email ouvert avec succès');
-                          } else if (action.type === 'meeting') {
-                            toast.success(`Réunion ${action.meetingPlatform} créée`);
-                          }
-                        }
-                      }}>
-                        <SelectTrigger className="flex-1 h-10">
-                          <SelectValue placeholder="Sélectionner une action" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {actions.map((action) => (
-                            <SelectItem key={action.id} value={action.id.toString()}>
-                              {action.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-start">
+                      {/* Partie gauche - Roulette d'action */}
+                      <div>
+                        <Select 
+                          value={selectedAction?.toString() || ""} 
+                          onValueChange={(value) => {
+                            setSelectedAction(parseInt(value));
+                          }}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Sélectionner une action" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {actions.map((action) => (
+                              <SelectItem key={action.id} value={action.id.toString()}>
+                                {action.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                       
-                      <div className="flex gap-1 flex-shrink-0">
+                      {/* Centre - Boutons de communication */}
+                      <div className="flex flex-col gap-2">
                         {selectedContact.phone && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10"
+                            variant="outline"
+                            size="sm"
+                            className="h-9 px-3 text-xs whitespace-nowrap"
                             onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
                           >
-                            <Phone className="h-4 w-4" />
+                            <Phone className="h-3.5 w-3.5 mr-1" />
+                            Tel
                           </Button>
                         )}
                         {selectedContact.phone && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10"
-                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                            variant="outline"
+                            size="sm"
+                            className="h-9 px-3 text-xs whitespace-nowrap"
+                            onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
                           >
-                            <MessageSquare className="h-4 w-4" />
+                            <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                            WhatsApp
                           </Button>
                         )}
-                        {selectedContact.email && (
+                        {selectedContact.phone && (
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-10 w-10"
-                            onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                            variant="outline"
+                            size="sm"
+                            className="h-9 px-3 text-xs whitespace-nowrap"
+                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
                           >
-                            <Mail className="h-4 w-4" />
+                            <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                            SMS
                           </Button>
+                        )}
+                      </div>
+                      
+                      {/* Droite - Bouton GO et dernière action */}
+                      <div className="flex flex-col gap-2 min-w-[80px]">
+                        <Button
+                          className="h-10 w-full font-semibold"
+                          disabled={!selectedAction}
+                          onClick={() => {
+                            if (!selectedAction) return;
+                            const action = actions.find(a => a.id === selectedAction);
+                            if (action) {
+                              if (action.type === 'email') {
+                                const subject = action.emailSubject || '';
+                                const body = action.emailBody || '';
+                                window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+                              } else if (action.type === 'meeting') {
+                                // Logique de création de réunion
+                              }
+                              setLastAction(action.name);
+                              toast.success('Action effectuée !');
+                            }
+                          }}
+                        >
+                          GO
+                        </Button>
+                        {lastAction && (
+                          <div className="text-[10px] text-muted-foreground text-center leading-tight">
+                            <div className="font-medium">Dernière:</div>
+                            <div className="line-clamp-2">{lastAction}</div>
+                          </div>
                         )}
                       </div>
                     </div>
