@@ -542,14 +542,14 @@ const ProspectsMobile = () => {
           onTouchStart={handleSwipeStart}
           onTouchMove={handleSwipeMove}
           onTouchEnd={handleSwipeEnd}
-          className={`transition-all duration-200 ${
+          className={`h-screen transition-all duration-200 ${
             swipeDirection === 'left' ? 'translate-x-4 opacity-80' : 
             swipeDirection === 'right' ? '-translate-x-4 opacity-80' : 
             ''
           }`}
         >
-          <DrawerHeader className="text-left pb-2">
-            <DrawerTitle className="text-lg font-bold">Fiche Contact</DrawerTitle>
+          <DrawerHeader className="text-left pb-1 pt-2 px-4">
+            <DrawerTitle className="text-base font-bold">Fiche Contact</DrawerTitle>
           </DrawerHeader>
 
           {selectedContact && (() => {
@@ -558,16 +558,16 @@ const ProspectsMobile = () => {
             );
             
             return (
-              <div className="px-4 pb-6 space-y-3 overflow-y-auto max-h-[75vh]">
+              <div className="px-3 pb-3 space-y-2 flex-1 overflow-y-auto">
                 {/* BLOC 1 - Entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-4 pb-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 space-y-2">
-                          <div className="font-semibold text-base">{contactLead.companyName}</div>
+                    <CardContent className="pt-2 pb-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 space-y-1">
+                          <div className="font-semibold text-sm">{contactLead.companyName}</div>
                           
-                          <div className="text-xs space-y-1">
+                          <div className="text-xs space-y-0.5">
                             {(contactLead.companyDepartment || contactLead.companySector) && (
                               <div className="text-muted-foreground">
                                 {contactLead.companyDepartment && <span>{contactLead.companyDepartment}</span>}
@@ -627,13 +627,13 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 2 - Dates */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="grid grid-cols-2 gap-3">
+                  <CardContent className="pt-2 pb-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date engagement</Label>
+                        <Label className="text-[10px] text-muted-foreground">Date engagement</Label>
                         <Input
                           type="date"
-                          className="h-9 text-sm mt-1"
+                          className="h-8 text-xs mt-0.5"
                           value={editedEngagementDate}
                           onChange={(e) => {
                             setEditedEngagementDate(e.target.value);
@@ -642,10 +642,10 @@ const ProspectsMobile = () => {
                         />
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date suivi</Label>
+                        <Label className="text-[10px] text-muted-foreground">Date suivi</Label>
                         <Input
                           type="date"
-                          className="h-9 text-sm mt-1"
+                          className="h-8 text-xs mt-0.5"
                           value={editedFollowUpDate}
                           onChange={(e) => {
                             setEditedFollowUpDate(e.target.value);
@@ -659,25 +659,25 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 3 - Contact */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-2 pb-2">
                     {contactLead && contactLead.contacts.length > 1 ? (
                       <Popover open={isContactSelectorOpen} onOpenChange={setIsContactSelectorOpen}>
                         <PopoverTrigger asChild>
-                          <div className="cursor-pointer hover:bg-accent/50 -mx-4 -mt-4 px-4 pt-4 pb-3 rounded-t-lg transition-colors">
-                            <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="cursor-pointer hover:bg-accent/50 -mx-4 -mt-2 px-4 pt-2 pb-2 rounded-t-lg transition-colors">
+                            <div className="flex items-start justify-between gap-2 mb-2">
                               <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="font-semibold text-base">{selectedContact.fullName}</div>
-                                  <User className="h-4 w-4 text-muted-foreground" />
+                                <div className="flex items-center gap-1.5">
+                                  <div className="font-semibold text-sm">{selectedContact.fullName}</div>
+                                  <User className="h-3.5 w-3.5 text-muted-foreground" />
                                 </div>
-                                <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                                <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
                               </div>
                               
                               <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
                                 setEditedStatus(value);
                                 setTimeout(() => autoSave(), 500);
                               }}>
-                                <SelectTrigger className="h-9 w-[130px] text-xs" onClick={(e) => e.stopPropagation()}>
+                                <SelectTrigger className="h-7 w-[110px] text-[10px]" onClick={(e) => e.stopPropagation()}>
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -719,17 +719,17 @@ const ProspectsMobile = () => {
                         </PopoverContent>
                       </Popover>
                     ) : (
-                      <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex-1">
-                          <div className="font-semibold text-base">{selectedContact.fullName}</div>
-                          <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                          <div className="font-semibold text-sm">{selectedContact.fullName}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
                         </div>
                         
                         <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
                           setEditedStatus(value);
                           setTimeout(() => autoSave(), 500);
                         }}>
-                          <SelectTrigger className="h-9 w-[130px] text-xs">
+                          <SelectTrigger className="h-7 w-[110px] text-[10px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -747,8 +747,8 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 4 - Actions */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="grid grid-cols-3 gap-3 items-start">
+                  <CardContent className="pt-2 pb-2">
+                    <div className="grid grid-cols-3 gap-2 items-start">
                       {/* Partie gauche - Roulette d'action */}
                       <div>
                         <Select 
@@ -757,7 +757,7 @@ const ProspectsMobile = () => {
                             setSelectedAction(parseInt(value));
                           }}
                         >
-                          <SelectTrigger className="h-10">
+                          <SelectTrigger className="h-8 text-xs">
                             <SelectValue placeholder="Sélectionner une action" />
                           </SelectTrigger>
                           <SelectContent>
@@ -771,15 +771,15 @@ const ProspectsMobile = () => {
                       </div>
                       
                       {/* Centre - Boutons de communication */}
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1">
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 text-xs whitespace-nowrap"
+                            className="h-7 px-2 text-[10px] whitespace-nowrap"
                             onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
                           >
-                            <Phone className="h-3.5 w-3.5 mr-1" />
+                            <Phone className="h-3 w-3 mr-0.5" />
                             Tel
                           </Button>
                         )}
@@ -787,10 +787,10 @@ const ProspectsMobile = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 text-xs whitespace-nowrap"
+                            className="h-7 px-2 text-[10px] whitespace-nowrap"
                             onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
                           >
-                            <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                            <MessageSquare className="h-3 w-3 mr-0.5" />
                             WhatsApp
                           </Button>
                         )}
@@ -798,19 +798,19 @@ const ProspectsMobile = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 text-xs whitespace-nowrap"
+                            className="h-7 px-2 text-[10px] whitespace-nowrap"
                             onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
                           >
-                            <MessageSquare className="h-3.5 w-3.5 mr-1" />
+                            <MessageSquare className="h-3 w-3 mr-0.5" />
                             SMS
                           </Button>
                         )}
                       </div>
                       
                       {/* Droite - Bouton GO et dernière action */}
-                      <div className="flex flex-col gap-2 min-w-[80px]">
+                      <div className="flex flex-col gap-1.5 min-w-[70px]">
                         <Button
-                          className="h-10 w-full font-semibold"
+                          className="h-8 w-full font-semibold text-xs"
                           disabled={!selectedAction}
                           onClick={() => {
                             if (!selectedAction) return;
@@ -830,12 +830,12 @@ const ProspectsMobile = () => {
                         >
                           GO
                         </Button>
-                        <div className="bg-muted/50 rounded-md p-2 min-h-[50px]">
-                          <div className="text-[10px] font-semibold text-muted-foreground mb-1">Dernière action:</div>
+                        <div className="bg-muted/50 rounded-md p-1.5 min-h-[40px]">
+                          <div className="text-[9px] font-semibold text-muted-foreground mb-0.5">Dernière:</div>
                           {lastAction ? (
-                            <div className="text-xs line-clamp-2 text-foreground">{lastAction}</div>
+                            <div className="text-[10px] line-clamp-2 text-foreground">{lastAction}</div>
                           ) : (
-                            <div className="text-xs text-muted-foreground italic">Aucune</div>
+                            <div className="text-[10px] text-muted-foreground italic">Aucune</div>
                           )}
                         </div>
                       </div>
@@ -845,10 +845,10 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 5 - Synthèse et Note */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex border-b mb-3">
+                  <CardContent className="pt-2 pb-2">
+                    <div className="flex border-b mb-2">
                       <button
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                           !expandedNews.has('note-tab') 
                             ? 'border-b-2 border-primary text-primary' 
                             : 'text-muted-foreground hover:text-foreground'
@@ -862,7 +862,7 @@ const ProspectsMobile = () => {
                         Synthèse
                       </button>
                       <button
-                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${
                           expandedNews.has('note-tab') 
                             ? 'border-b-2 border-primary text-primary' 
                             : 'text-muted-foreground hover:text-foreground'
@@ -878,18 +878,18 @@ const ProspectsMobile = () => {
                     </div>
                     
                     {!expandedNews.has('note-tab') ? (
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         {contactLead?.signalSummary && (
                           <div>
-                            <div className="text-xs font-semibold text-muted-foreground mb-1">Site web</div>
-                            <p className={`text-xs break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                            <div className="text-[10px] font-semibold text-muted-foreground mb-0.5">Site web</div>
+                            <p className={`text-[10px] break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-2'}`}>
                               {contactLead.signalSummary}
                             </p>
                             {contactLead.signalSummary.length > 150 && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 px-2 text-xs mt-1"
+                                className="h-5 px-1.5 text-[9px] mt-0.5"
                                 onClick={() => {
                                   const newExpanded = new Set(expandedSummaries);
                                   const key = `drawer-${contactLead.id}`;
@@ -909,15 +909,15 @@ const ProspectsMobile = () => {
                         
                         {contactLead?.newsContent && (
                           <div>
-                            <div className="text-xs font-semibold text-muted-foreground mb-1">Actualité</div>
-                            <p className={`text-xs break-words ${expandedSummaries.has(`drawer-news-${contactLead.id}`) ? '' : 'line-clamp-3'}`}>
+                            <div className="text-[10px] font-semibold text-muted-foreground mb-0.5">Actualité</div>
+                            <p className={`text-[10px] break-words ${expandedSummaries.has(`drawer-news-${contactLead.id}`) ? '' : 'line-clamp-2'}`}>
                               {contactLead.newsContent}
                             </p>
                             {contactLead.newsContent.length > 150 && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-6 px-2 text-xs mt-1"
+                                className="h-5 px-1.5 text-[9px] mt-0.5"
                                 onClick={() => {
                                   const newExpanded = new Set(expandedSummaries);
                                   const key = `drawer-news-${contactLead.id}`;
@@ -936,7 +936,7 @@ const ProspectsMobile = () => {
                         )}
                         
                         {!contactLead?.signalSummary && !contactLead?.newsContent && (
-                          <p className="text-xs text-muted-foreground italic">Aucune synthèse disponible</p>
+                          <p className="text-[10px] text-muted-foreground italic">Aucune synthèse disponible</p>
                         )}
                       </div>
                     ) : (
@@ -948,8 +948,8 @@ const ProspectsMobile = () => {
                             setTimeout(() => autoSave(), 1000);
                           }}
                           placeholder="Ajouter une note..."
-                          rows={6}
-                          className="text-sm"
+                          rows={4}
+                          className="text-xs"
                         />
                       </div>
                     )}
