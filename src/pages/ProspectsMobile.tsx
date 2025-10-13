@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -72,6 +73,7 @@ const getLeadStatus = (contacts: any[]): ContactStatus => {
 };
 
 const ProspectsMobile = () => {
+  const navigate = useNavigate();
   const { actions } = useActions();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
@@ -257,29 +259,22 @@ const ProspectsMobile = () => {
   const handleSwipeEnd = () => {
     if (!selectedContact) return;
     
-    // Créer une liste plate de tous les contacts
-    const allContacts = leadsWithContacts.flatMap(lead => lead.contacts);
-    const currentContactIndex = allContacts.findIndex(c => c.id === selectedContact.id);
-    
     const swipeThreshold = 50;
     const diff = touchStartX.current - touchEndX.current;
     
-    // Swipe à droite (contact suivant)
-    if (diff > swipeThreshold && currentContactIndex < allContacts.length - 1) {
-      setSwipeDirection('right');
+    // Swipe à droite (ouvrir la page des listes)
+    if (diff > swipeThreshold) {
+      setIsDrawerOpen(false);
       setTimeout(() => {
-        const nextContact = allContacts[currentContactIndex + 1];
-        handleContactClick(nextContact);
-        setTimeout(() => setSwipeDirection(null), 100);
-      }, 200);
+        navigate('/lists');
+      }, 300);
     }
     
-    // Swipe à gauche (contact précédent)
-    else if (diff < -swipeThreshold && currentContactIndex > 0) {
+    // Swipe à gauche (fermer le drawer)
+    else if (diff < -swipeThreshold) {
       setSwipeDirection('left');
       setTimeout(() => {
-        const prevContact = allContacts[currentContactIndex - 1];
-        handleContactClick(prevContact);
+        setIsDrawerOpen(false);
         setTimeout(() => setSwipeDirection(null), 100);
       }, 200);
     }
