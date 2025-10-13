@@ -745,49 +745,6 @@ const ProspectsMobile = () => {
                         </Select>
                       </div>
                     )}
-                    
-                    <div className="flex items-center gap-2">
-                      {selectedContact.phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9"
-                          onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                        >
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {selectedContact.phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9"
-                          onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {selectedContact.email && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9"
-                          onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {selectedContact.linkedin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9"
-                          onClick={() => handleOpenLink(selectedContact.linkedin)}
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -820,6 +777,39 @@ const ProspectsMobile = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                      
+                      <div className="flex gap-1 flex-shrink-0">
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                          >
+                            <Phone className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {selectedContact.email && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                          >
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
