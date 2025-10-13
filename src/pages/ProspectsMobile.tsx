@@ -481,61 +481,32 @@ const ProspectsMobile = () => {
 
                   {/* En-tête entreprise */}
                   <div className="pt-3 border-t">
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-semibold">{lead.companyName}</span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="font-semibold truncate">{lead.companyName}</span>
                       </div>
+                      
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {lead.companyHeadcount && (
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
+                            {getHeadcountIcon(lead.companyHeadcount)}
+                            <span className="font-semibold">{lead.companyHeadcount}</span>
+                          </span>
+                        )}
+                        {lead.companyCa && (
+                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
+                            {getRevenueIcon(lead.companyCa)}
+                            <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between gap-2 mt-2">
                       <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.contacts))} className="text-xs">
                         {getLeadStatus(lead.contacts)}
                       </Badge>
-                    </div>
-                    
-                    {/* KPI */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {lead.companyHeadcount && (
-                        <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
-                          {getHeadcountIcon(lead.companyHeadcount)}
-                          <span className="font-semibold">{lead.companyHeadcount}</span> pers.
-                        </span>
-                      )}
-                      {lead.companyCa && (
-                        <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
-                          {getRevenueIcon(lead.companyCa)}
-                          <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Résumé avec bouton afficher plus */}
-                    {lead.signalSummary && (
-                      <div className="w-full">
-                        <p className={`text-xs text-muted-foreground break-words ${expandedSummaries.has(lead.id) ? '' : 'line-clamp-2'}`}>
-                          {lead.signalSummary}
-                        </p>
-                        {lead.signalSummary.length > 100 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2 text-xs mt-1"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const newExpanded = new Set(expandedSummaries);
-                              if (expandedSummaries.has(lead.id)) {
-                                newExpanded.delete(lead.id);
-                              } else {
-                                newExpanded.add(lead.id);
-                              }
-                              setExpandedSummaries(newExpanded);
-                            }}
-                          >
-                            {expandedSummaries.has(lead.id) ? 'Afficher moins' : 'Afficher plus'}
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2">
                       
                       <div className="flex gap-1 flex-shrink-0">
                         {lead.companyWebsite && (
