@@ -753,7 +753,7 @@ const ProspectsMobile = () => {
                 {/* BLOC 4 - Actions */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-start">
+                    <div className="grid grid-cols-3 gap-3 items-start">
                       {/* Partie gauche - Roulette d'action */}
                       <div>
                         <Select 
