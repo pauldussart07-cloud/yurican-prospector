@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search } from 'lucide-react';
+import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -89,6 +90,7 @@ const ProspectsMobile = () => {
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | 'Tous'>('Tous');
+  const [isContactSelectorOpen, setIsContactSelectorOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -690,30 +692,90 @@ const ProspectsMobile = () => {
                 {/* BLOC 3 - Contact */}
                 <Card>
                   <CardContent className="pt-4 pb-4">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex-1">
-                        <div className="font-semibold text-base">{selectedContact.fullName}</div>
-                        <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                    {contactLead && contactLead.contacts.length > 1 ? (
+                      <Popover open={isContactSelectorOpen} onOpenChange={setIsContactSelectorOpen}>
+                        <PopoverTrigger asChild>
+                          <div className="cursor-pointer hover:bg-accent/50 -mx-4 -mt-4 px-4 pt-4 pb-3 rounded-t-lg transition-colors">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <div className="font-semibold text-base">{selectedContact.fullName}</div>
+                                  <User className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                              </div>
+                              
+                              <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                                setEditedStatus(value);
+                                setTimeout(() => autoSave(), 500);
+                              }}>
+                                <SelectTrigger className="h-9 w-[130px] text-xs" onClick={(e) => e.stopPropagation()}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Nouveau">Nouveau</SelectItem>
+                                  <SelectItem value="Engagé">Engagé</SelectItem>
+                                  <SelectItem value="Discussion">Discussion</SelectItem>
+                                  <SelectItem value="RDV">RDV</SelectItem>
+                                  <SelectItem value="Exclu">Exclu</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <div className="max-h-[300px] overflow-y-auto">
+                            {contactLead.contacts.map((contact) => (
+                              <button
+                                key={contact.id}
+                                className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
+                                  contact.id === selectedContact.id ? 'bg-accent/50' : ''
+                                }`}
+                                onClick={() => {
+                                  handleContactClick(contact);
+                                  setIsContactSelectorOpen(false);
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-sm">{contact.fullName}</div>
+                                    <div className="text-xs text-muted-foreground">{contact.role}</div>
+                                  </div>
+                                  <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
+                                    {contact.status}
+                                  </Badge>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1">
+                          <div className="font-semibold text-base">{selectedContact.fullName}</div>
+                          <div className="text-sm text-muted-foreground mt-1">{selectedContact.role}</div>
+                        </div>
+                        
+                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                          setEditedStatus(value);
+                          setTimeout(() => autoSave(), 500);
+                        }}>
+                          <SelectTrigger className="h-9 w-[130px] text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nouveau">Nouveau</SelectItem>
+                            <SelectItem value="Engagé">Engagé</SelectItem>
+                            <SelectItem value="Discussion">Discussion</SelectItem>
+                            <SelectItem value="RDV">RDV</SelectItem>
+                            <SelectItem value="Exclu">Exclu</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      
-                      <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
-                        setEditedStatus(value);
-                        setTimeout(() => autoSave(), 500);
-                      }}>
-                        <SelectTrigger className="h-9 w-[130px] text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Nouveau">Nouveau</SelectItem>
-                          <SelectItem value="Engagé">Engagé</SelectItem>
-                          <SelectItem value="Discussion">Discussion</SelectItem>
-                          <SelectItem value="RDV">RDV</SelectItem>
-                          <SelectItem value="Exclu">Exclu</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    )}
                     
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2">
                       {selectedContact.phone && (
                         <Button
                           variant="ghost"
@@ -755,34 +817,6 @@ const ProspectsMobile = () => {
                         </Button>
                       )}
                     </div>
-                    
-                    {contactLead && contactLead.contacts.length > 1 && (
-                      <Select 
-                        value={selectedContact.id} 
-                        onValueChange={(contactId) => {
-                          const newContact = contactLead.contacts.find(c => c.id === contactId);
-                          if (newContact) {
-                            handleContactClick(newContact);
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-9 text-sm">
-                          <SelectValue placeholder="Changer de contact" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {contactLead.contacts.map((contact) => (
-                            <SelectItem key={contact.id} value={contact.id}>
-                              <div className="flex items-center justify-between gap-2 w-full">
-                                <span>{contact.fullName} - {contact.role}</span>
-                                <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs ml-2">
-                                  {contact.status}
-                                </Badge>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
                   </CardContent>
                 </Card>
 
