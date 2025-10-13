@@ -748,9 +748,9 @@ const ProspectsMobile = () => {
                 {/* BLOC 4 - Actions */}
                 <Card>
                   <CardContent className="pt-2 pb-2">
-                    <div className="grid grid-cols-3 gap-2 items-start">
+                    <div className="flex gap-2 items-center">
                       {/* Partie gauche - Roulette d'action */}
-                      <div>
+                      <div className="flex-1">
                         <Select 
                           value={selectedAction?.toString() || ""} 
                           onValueChange={(value) => {
@@ -770,39 +770,36 @@ const ProspectsMobile = () => {
                         </Select>
                       </div>
                       
-                      {/* Centre - Boutons de communication */}
-                      <div className="flex flex-col gap-1">
+                      {/* Centre - Boutons de communication (icônes seulement) */}
+                      <div className="flex gap-1">
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-[10px] whitespace-nowrap"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
                           >
-                            <Phone className="h-3 w-3 mr-0.5" />
-                            Tel
+                            <Phone className="h-4 w-4" />
                           </Button>
                         )}
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-[10px] whitespace-nowrap"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
                           >
-                            <MessageSquare className="h-3 w-3 mr-0.5" />
-                            WhatsApp
+                            <MessageSquare className="h-4 w-4" />
                           </Button>
                         )}
                         {selectedContact.phone && (
                           <Button
                             variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-[10px] whitespace-nowrap"
+                            size="icon"
+                            className="h-8 w-8"
                             onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
                           >
-                            <MessageSquare className="h-3 w-3 mr-0.5" />
-                            SMS
+                            <MessageSquare className="h-4 w-4" />
                           </Button>
                         )}
                       </div>
