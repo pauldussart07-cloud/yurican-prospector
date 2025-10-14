@@ -126,17 +126,26 @@ const ProspectsMobile = () => {
   };
 
   const handleLeadClick = (lead: any) => {
+    console.log('Lead clicked:', lead);
     // Trouver tous les contacts de cette entreprise
     const leadContacts = contacts.filter(c => c.lead_id === lead.id);
-    if (leadContacts.length === 0) return;
+    console.log('Lead contacts found:', leadContacts);
+    
+    if (leadContacts.length === 0) {
+      console.log('No contacts found for this lead');
+      toast.error('Aucun contact pour cette entreprise');
+      return;
+    }
     
     // Trouver le contact avec le plus haut niveau de décision
     const highestContact = leadContacts.reduce((prev, current) => {
       const prevLevel = getDecisionLevel(prev.role);
       const currentLevel = getDecisionLevel(current.role);
+      console.log(`Comparing ${prev.full_name} (${prevLevel}) vs ${current.full_name} (${currentLevel})`);
       return currentLevel > prevLevel ? current : prev;
     });
     
+    console.log('Highest decision level contact:', highestContact);
     handleContactClick(highestContact);
   };
 
