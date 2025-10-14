@@ -27,6 +27,26 @@ const getStatusBadgeVariant = (status: ContactStatus) => {
   }
 };
 
+// Déterminer le niveau de décision basé sur le rôle
+const getDecisionLevel = (role: string): number => {
+  const roleLower = role.toLowerCase();
+  
+  // Niveau 5 - Direction générale
+  if (roleLower.includes('directeur général') || roleLower.includes('dg') || roleLower.includes('président') || roleLower.includes('ceo')) return 5;
+  
+  // Niveau 4 - Direction adjointe / C-level
+  if (roleLower.includes('dg adjoint') || roleLower.includes('directeur adjoint') || roleLower.includes('cfo') || roleLower.includes('cto') || roleLower.includes('coo')) return 4;
+  
+  // Niveau 3 - Directeur de département
+  if (roleLower.includes('directeur')) return 3;
+  
+  // Niveau 2 - Chef / Responsable
+  if (roleLower.includes('chef') || roleLower.includes('responsable')) return 2;
+  
+  // Niveau 1 - Autres
+  return 1;
+};
+
 // Déterminer le statut le plus avancé
 const getLeadStatus = (contacts: any[]): ContactStatus => {
   const statusPriority: Record<ContactStatus, number> = {
@@ -110,19 +130,11 @@ const ProspectsMobile = () => {
     const leadContacts = contacts.filter(c => c.lead_id === lead.id);
     if (leadContacts.length === 0) return;
     
-    // Trouver le contact avec le statut le plus élevé
-    const statusPriority: Record<ContactStatus, number> = {
-      'Exclu': 0,
-      'Nouveau': 1,
-      'Engagé': 2,
-      'Discussion': 3,
-      'RDV': 4
-    };
-    
+    // Trouver le contact avec le plus haut niveau de décision
     const highestContact = leadContacts.reduce((prev, current) => {
-      const prevPriority = statusPriority[prev.status as ContactStatus] || 0;
-      const currentPriority = statusPriority[current.status as ContactStatus] || 0;
-      return currentPriority > prevPriority ? current : prev;
+      const prevLevel = getDecisionLevel(prev.role);
+      const currentLevel = getDecisionLevel(current.role);
+      return currentLevel > prevLevel ? current : prev;
     });
     
     handleContactClick(highestContact);
