@@ -1,26 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
-import { Phone, Mail, Linkedin, Globe, Building2, ChevronDown, ChevronRight, ChevronUp, Calendar, MessageSquare, ChevronLeft, TrendingUp, Users, Search, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import WhatsAppIcon from '@/components/WhatsAppIcon';
+import { useState, useEffect } from 'react';
+import { Search, Building2, User, Phone, Mail, Linkedin, Globe, ChevronRight, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerDescription,
-} from '@/components/ui/drawer';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useActions } from '@/contexts/ActionsContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { supabase } from '@/integrations/supabase/client';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { useActions } from '@/contexts/ActionsContext';
+import WhatsAppIcon from '@/components/WhatsAppIcon';
 
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
 
@@ -35,18 +27,24 @@ const getStatusBadgeVariant = (status: ContactStatus) => {
   }
 };
 
-// Déterminer la taille de l'icône CA
-const getRevenueIcon = (ca: number) => {
-  if (ca >= 50000000) return <TrendingUp className="h-5 w-5 text-green-600" />;
-  if (ca >= 10000000) return <TrendingUp className="h-4 w-4 text-green-500" />;
-  return <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />;
-};
-
-// Déterminer la taille de l'icône effectif
-const getHeadcountIcon = (headcount: number) => {
-  if (headcount >= 250) return <Users className="h-5 w-5 text-blue-600" />;
-  if (headcount >= 50) return <Users className="h-4 w-4 text-blue-500" />;
-  return <Users className="h-3.5 w-3.5 text-muted-foreground" />;
+// Déterminer le niveau de décision basé sur le rôle
+const getDecisionLevel = (role: string): number => {
+  const roleLower = role.toLowerCase();
+  
+  // Niveau 5 - Direction générale
+  if (roleLower.includes('directeur général') || roleLower.includes('dg') || roleLower.includes('président') || roleLower.includes('ceo')) return 5;
+  
+  // Niveau 4 - Direction adjointe / C-level
+  if (roleLower.includes('dg adjoint') || roleLower.includes('directeur adjoint') || roleLower.includes('cfo') || roleLower.includes('cto') || roleLower.includes('coo')) return 4;
+  
+  // Niveau 3 - Directeur de département
+  if (roleLower.includes('directeur')) return 3;
+  
+  // Niveau 2 - Chef / Responsable
+  if (roleLower.includes('chef') || roleLower.includes('responsable')) return 2;
+  
+  // Niveau 1 - Autres
+  return 1;
 };
 
 // Déterminer le statut le plus avancé
@@ -74,26 +72,19 @@ const getLeadStatus = (contacts: any[]): ContactStatus => {
 };
 
 const ProspectsMobile = () => {
-  const navigate = useNavigate();
   const { actions } = useActions();
+  const [activeTab, setActiveTab] = useState('companies');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ContactStatus | 'Tous'>('Tous');
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [currentContactIndices, setCurrentContactIndices] = useState<Map<string, number>>(new Map());
   const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
   const [editedNote, setEditedNote] = useState('');
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
   const [editedEngagementDate, setEditedEngagementDate] = useState('');
-  const [expandedSummaries, setExpandedSummaries] = useState<Set<string>>(new Set());
-  const [expandedNews, setExpandedNews] = useState<Set<string>>(new Set());
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ContactStatus | 'Tous'>('Tous');
-  const [isContactSelectorOpen, setIsContactSelectorOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<number | null>(null);
   const [lastAction, setLastAction] = useState<string>('');
 
@@ -120,39 +111,8 @@ const ProspectsMobile = () => {
       .select('*')
       .eq('user_id', user.id);
 
-    const transformedLeads = (leadsData || []).map(lead => ({
-      id: lead.id,
-      companyId: lead.company_id,
-      companyName: lead.company_name,
-      companyWebsite: lead.company_website,
-      companyLinkedin: lead.company_linkedin,
-      companyHeadcount: lead.company_headcount,
-      companyCa: lead.company_ca,
-      companyDepartment: lead.company_department,
-      companySiret: lead.company_siret,
-      companyAddress: lead.company_address,
-      companySector: lead.company_sector,
-      signalSummary: lead.signal_summary,
-      newsContent: (lead as any).news_content,
-      created_at: lead.created_at,
-    }));
-
-    const transformedContacts = (contactsData || []).map(contact => ({
-      id: contact.id,
-      leadId: contact.lead_id,
-      fullName: contact.full_name,
-      role: contact.role,
-      email: contact.email || '',
-      phone: contact.phone || '',
-      linkedin: contact.linkedin || '',
-      status: contact.status as ContactStatus,
-      note: contact.note || '',
-      followUpDate: contact.follow_up_date || '',
-      engagementDate: contact.engagement_date || '',
-    }));
-
-    setLeads(transformedLeads);
-    setContacts(transformedContacts);
+    setLeads(leadsData || []);
+    setContacts(contactsData || []);
     setLoading(false);
   };
 
@@ -160,25 +120,38 @@ const ProspectsMobile = () => {
     setSelectedContact(contact);
     setEditedStatus(contact.status);
     setEditedNote(contact.note || '');
-    setEditedFollowUpDate(contact.followUpDate || '');
-    setEditedEngagementDate(contact.engagementDate || '');
+    setEditedFollowUpDate(contact.follow_up_date || '');
+    setEditedEngagementDate(contact.engagement_date || '');
     setIsDrawerOpen(true);
+  };
+
+  const handleLeadClick = (lead: any) => {
+    // Trouver tous les contacts de cette entreprise
+    const leadContacts = contacts.filter(c => c.lead_id === lead.id);
+    if (leadContacts.length === 0) return;
+    
+    // Trouver le contact avec le plus haut niveau de décision
+    const highestContact = leadContacts.reduce((prev, current) => {
+      const prevLevel = getDecisionLevel(prev.role);
+      const currentLevel = getDecisionLevel(current.role);
+      return currentLevel > prevLevel ? current : prev;
+    });
+    
+    handleContactClick(highestContact);
   };
 
   const handleSaveContact = async () => {
     if (!selectedContact) return;
 
-    // Mettre à jour l'état local immédiatement
     const updatedContact = {
       ...selectedContact,
       status: editedStatus,
       note: editedNote,
-      followUpDate: editedFollowUpDate,
-      engagementDate: editedEngagementDate,
+      follow_up_date: editedFollowUpDate,
+      engagement_date: editedEngagementDate,
     };
     setSelectedContact(updatedContact);
 
-    // Mettre à jour dans la liste locale
     setContacts(prevContacts => 
       prevContacts.map(c => 
         c.id === selectedContact.id 
@@ -187,7 +160,6 @@ const ProspectsMobile = () => {
       )
     );
 
-    // Sauvegarder en arrière-plan
     const { error } = await supabase
       .from('lead_contacts')
       .update({
@@ -201,7 +173,6 @@ const ProspectsMobile = () => {
 
     if (error) {
       toast.error('Erreur lors de la sauvegarde');
-      // Recharger les données en cas d'erreur
       loadData();
     }
   };
@@ -211,132 +182,55 @@ const ProspectsMobile = () => {
     await handleSaveContact();
   };
 
-  const handleActionClick = async (actionId: number) => {
-    const action = actions.find(a => a.id === actionId);
-    if (!action || !selectedContact) return;
-
-    if (action.type === 'email') {
-      const contactLead = leadsWithContacts.find(l => 
-        l.contacts.some(c => c.id === selectedContact.id)
-      );
-      const subject = action.emailSubject || '';
-      const body = action.emailBody || '';
-      window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
-    } else if (action.type === 'meeting') {
-      toast.info(`Création de réunion ${action.meetingPlatform}`);
-    }
-  };
-
   const handleOpenLink = (url: string) => {
     if (url) {
       window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
     }
   };
 
-  const getCurrentContactIndex = (leadId: string) => {
-    return currentContactIndices.get(leadId) || 0;
-  };
+  // Filtrer les entreprises
+  const filteredLeads = leads.filter(lead => {
+    const matchSearch = !searchQuery || lead.company_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = statusFilter === 'Tous' || lead.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
 
-  const handleNextContact = (leadId: string, totalContacts: number) => {
-    const currentIndex = getCurrentContactIndex(leadId);
-    const newIndex = (currentIndex + 1) % totalContacts;
-    setCurrentContactIndices(new Map(currentContactIndices.set(leadId, newIndex)));
-  };
-
-  const handlePreviousContact = (leadId: string, totalContacts: number) => {
-    const currentIndex = getCurrentContactIndex(leadId);
-    const newIndex = currentIndex === 0 ? totalContacts - 1 : currentIndex - 1;
-    setCurrentContactIndices(new Map(currentContactIndices.set(leadId, newIndex)));
-  };
-
-  const handleSwipeStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleSwipeMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-
-  const handleSwipeEnd = () => {
-    if (!selectedContact) return;
-    
-    const swipeThreshold = 50;
-    const diff = touchStartX.current - touchEndX.current;
-    
-    // Swipe à droite (ouvrir la page des listes)
-    if (diff > swipeThreshold) {
-      setIsDrawerOpen(false);
-      setTimeout(() => {
-        navigate('/lists');
-      }, 300);
-    }
-    
-    // Swipe à gauche (fermer le drawer)
-    else if (diff < -swipeThreshold) {
-      setSwipeDirection('left');
-      setTimeout(() => {
-        setIsDrawerOpen(false);
-        setTimeout(() => setSwipeDirection(null), 100);
-      }, 200);
-    }
-  };
-
-  // Grouper les leads avec leurs contacts et appliquer les filtres
-  const leadsWithContacts = leads.map(lead => ({
-    ...lead,
-    contacts: contacts.filter(c => c.leadId === lead.id)
-  }))
-    .filter(lead => lead.contacts.length > 0)
-    .filter(lead => {
-      // Filtre de recherche sémantique
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchCompany = lead.companyName.toLowerCase().includes(query);
-        const matchContact = lead.contacts.some(contact => 
-          contact.fullName.toLowerCase().includes(query)
-        );
-        return matchCompany || matchContact;
-      }
-      return true;
-    })
-    .filter(lead => {
-      // Filtre de statut
-      if (statusFilter !== 'Tous') {
-        return lead.contacts.some(contact => contact.status === statusFilter);
-      }
-      return true;
-    });
+  // Filtrer les contacts
+  const filteredContacts = contacts.filter(contact => {
+    const matchSearch = !searchQuery || contact.full_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = statusFilter === 'Tous' || contact.status === statusFilter;
+    return matchSearch && matchStatus;
+  });
 
   if (loading) {
     return (
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Prospects Mobile</h1>
         <p className="text-muted-foreground">Chargement...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-bold">Prospects Mobile</h1>
-        
-        <div className="flex-1 flex gap-2 items-center justify-end">
-          {/* Recherche sémantique */}
-          <div className="relative flex-1 max-w-[200px]">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background border-b p-4">
+        <h1 className="text-xl font-bold mb-4">Prospects</h1>
+
+        {/* Recherche et filtre */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Rechercher..."
+              placeholder={activeTab === 'companies' ? 'Rechercher une entreprise...' : 'Rechercher un contact...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 h-9 text-sm"
+              className="pl-9 h-10"
             />
           </div>
           
-          {/* Filtre statut */}
           <Select value={statusFilter} onValueChange={(value: ContactStatus | 'Tous') => setStatusFilter(value)}>
-            <SelectTrigger className="h-9 w-[120px] text-sm">
+            <SelectTrigger className="h-10 w-[130px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -351,275 +245,170 @@ const ProspectsMobile = () => {
         </div>
       </div>
 
-      {/* Liste des entreprises avec contacts */}
-      <div className="space-y-3">
-        {leadsWithContacts.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground text-center">
-                Aucun prospect avec contacts
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          leadsWithContacts.map(lead => {
-            const currentIndex = getCurrentContactIndex(lead.id);
-            const displayedContact = lead.contacts[currentIndex];
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full rounded-none border-b bg-transparent p-0">
+          <TabsTrigger 
+            value="companies" 
+            className="flex-1 rounded-none border-b-2 data-[state=active]:border-primary"
+          >
+            <Building2 className="h-4 w-4 mr-2" />
+            Entreprises ({filteredLeads.length})
+          </TabsTrigger>
+          <TabsTrigger 
+            value="contacts"
+            className="flex-1 rounded-none border-b-2 data-[state=active]:border-primary"
+          >
+            <User className="h-4 w-4 mr-2" />
+            Contacts ({filteredContacts.length})
+          </TabsTrigger>
+        </TabsList>
 
-            return (
-              <Card key={lead.id}>
-                <CardContent className="pt-6 space-y-3">
-                  {/* Contact affiché */}
-                  <div className="flex items-center gap-2 py-2">
-                    <div 
-                      className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => handleContactClick(displayedContact)}
-                    >
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm truncate">{displayedContact.fullName}</span>
-                        <span className="text-xs text-muted-foreground truncate">{displayedContact.role}</span>
-                        <Badge variant={getStatusBadgeVariant(displayedContact.status)} className="text-xs">
-                          {displayedContact.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-1 flex-shrink-0">
-                      {displayedContact.email && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`mailto:${displayedContact.email}`, '_blank');
-                          }}
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
+        <TabsContent value="companies" className="p-4 space-y-3 mt-0">
+          {filteredLeads.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground text-center">
+                  Aucune entreprise trouvée
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredLeads.map(lead => (
+              <Card key={lead.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleLeadClick(lead)}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{lead.company_name}</div>
+                      {lead.company_sector && (
+                        <div className="text-xs text-muted-foreground mt-1">{lead.company_sector}</div>
                       )}
-                      {displayedContact.phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`tel:${displayedContact.phone}`, '_blank');
-                          }}
-                        >
-                          <Phone className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {displayedContact.phone && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`sms:${displayedContact.phone}`, '_blank');
-                          }}
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {displayedContact.linkedin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenLink(displayedContact.linkedin);
-                          }}
-                        >
-                          <Linkedin className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleContactClick(displayedContact)}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Changer le contact par défaut */}
-                  {lead.contacts.length > 1 && (
-                    <div className="pt-1">
-                      <Select 
-                        value={currentIndex.toString()} 
-                        onValueChange={(value) => {
-                          const newIndex = parseInt(value);
-                          setCurrentContactIndices(new Map(currentContactIndices.set(lead.id, newIndex)));
-                        }}
-                      >
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="Changer le contact par défaut" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {lead.contacts.map((contact, index) => (
-                            <SelectItem key={contact.id} value={index.toString()}>
-                              <div className="flex items-center justify-between gap-2 w-full">
-                                <span>{contact.fullName} - {contact.role}</span>
-                                <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
-                                  {contact.status}
-                                </Badge>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* En-tête entreprise */}
-                  <div className="pt-3 border-t">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="font-semibold truncate">{lead.companyName}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {lead.companyHeadcount && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
-                            {getHeadcountIcon(lead.companyHeadcount)}
-                            <span className="font-semibold">{lead.companyHeadcount}</span>
+                      <div className="flex items-center gap-2 mt-2">
+                        {lead.company_headcount && (
+                          <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                            {lead.company_headcount} pers.
                           </span>
                         )}
-                        {lead.companyCa && (
-                          <span className="whitespace-nowrap bg-muted/50 rounded px-2 py-1 flex items-center gap-1 text-xs">
-                            {getRevenueIcon(lead.companyCa)}
-                            <span className="font-semibold">{(lead.companyCa / 1000000).toFixed(1)}M€</span>
+                        {lead.company_ca && (
+                          <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                            {(lead.company_ca / 1000000).toFixed(1)}M€
                           </span>
                         )}
                       </div>
                     </div>
-                    
-                    <div className="flex items-center justify-between gap-2 mt-2">
-                      <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.contacts))} className="text-xs">
-                        {getLeadStatus(lead.contacts)}
-                      </Badge>
-                      
-                      <div className="flex gap-1 flex-shrink-0">
-                        {lead.companyWebsite && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleOpenLink(lead.companyWebsite)}
-                          >
-                            <Globe className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {lead.companyLinkedin && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleOpenLink(lead.companyLinkedin)}
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                    <Badge variant={getStatusBadgeVariant(lead.status as ContactStatus)} className="text-xs">
+                      {lead.status}
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
-            );
-          })
-        )}
-      </div>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="contacts" className="p-4 space-y-3 mt-0">
+          {filteredContacts.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm text-muted-foreground text-center">
+                  Aucun contact trouvé
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredContacts.map(contact => {
+              const contactLead = leads.find(l => l.id === contact.lead_id);
+              return (
+                <Card key={contact.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleContactClick(contact)}>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold truncate">{contact.full_name}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{contact.role}</div>
+                        {contactLead && (
+                          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                            <Building2 className="h-3 w-3" />
+                            {contactLead.company_name}
+                          </div>
+                        )}
+                      </div>
+                      <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
+                        {contact.status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Drawer fiche contact */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent 
-          onTouchStart={handleSwipeStart}
-          onTouchMove={handleSwipeMove}
-          onTouchEnd={handleSwipeEnd}
-          className={`h-screen transition-all duration-200 ${
-            swipeDirection === 'left' ? 'translate-x-4 opacity-80' : 
-            swipeDirection === 'right' ? '-translate-x-4 opacity-80' : 
-            ''
-          }`}
-        >
-          <DrawerHeader className="text-left pb-1 pt-2 px-4">
+        <DrawerContent className="h-[90vh]">
+          <DrawerHeader className="text-left pb-2 pt-3 px-4">
             <DrawerTitle className="text-base font-bold">Fiche Contact</DrawerTitle>
           </DrawerHeader>
 
           {selectedContact && (() => {
-            const contactLead = leadsWithContacts.find(l => 
-              l.contacts.some(c => c.id === selectedContact.id)
-            );
+            const contactLead = leads.find(l => l.id === selectedContact.lead_id);
             
             return (
               <div className="px-3 pb-3 space-y-2 flex-1 overflow-y-auto">
                 {/* BLOC 1 - Entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-2 pb-2">
+                    <CardContent className="pt-3 pb-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 space-y-1">
-                          <div className="font-semibold text-sm">{contactLead.companyName}</div>
+                          <div className="font-semibold text-sm">{contactLead.company_name}</div>
                           
                           <div className="text-xs space-y-0.5">
-                            {(contactLead.companyDepartment || contactLead.companySector) && (
+                            {(contactLead.company_department || contactLead.company_sector) && (
                               <div className="text-muted-foreground">
-                                {contactLead.companyDepartment && <span>{contactLead.companyDepartment}</span>}
-                                {contactLead.companyDepartment && contactLead.companySector && <span> • </span>}
-                                {contactLead.companySector && <span>{contactLead.companySector}</span>}
+                                {contactLead.company_department && <span>{contactLead.company_department}</span>}
+                                {contactLead.company_department && contactLead.company_sector && <span> • </span>}
+                                {contactLead.company_sector && <span>{contactLead.company_sector}</span>}
                               </div>
                             )}
                             
                             <div className="flex items-center gap-3 flex-wrap">
-                              {contactLead.companyHeadcount && (
-                                <span className="flex items-center gap-1">
-                                  {getHeadcountIcon(contactLead.companyHeadcount)}
-                                  <span className="font-medium">{contactLead.companyHeadcount} pers.</span>
+                              {contactLead.company_headcount && (
+                                <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                                  {contactLead.company_headcount} pers.
                                 </span>
                               )}
-                              {contactLead.companyCa && (
-                                <span className="flex items-center gap-1">
-                                  {getRevenueIcon(contactLead.companyCa)}
-                                  <span className="font-medium">{(contactLead.companyCa / 1000000).toFixed(1)}M€</span>
+                              {contactLead.company_ca && (
+                                <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                                  {(contactLead.company_ca / 1000000).toFixed(1)}M€
                                 </span>
                               )}
                             </div>
                           </div>
                         </div>
                         
-                        <div className="flex flex-col items-end gap-2">
-                          <Badge variant={getStatusBadgeVariant(getLeadStatus(contactLead.contacts))} className="text-xs">
-                            {getLeadStatus(contactLead.contacts)}
-                          </Badge>
-                          <div className="flex gap-1">
-                            {contactLead.companyWebsite && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => handleOpenLink(contactLead.companyWebsite)}
-                              >
-                                <Globe className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {contactLead.companyLinkedin && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => handleOpenLink(contactLead.companyLinkedin)}
-                              >
-                                <Linkedin className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
+                        <div className="flex gap-1">
+                          {contactLead.company_website && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleOpenLink(contactLead.company_website)}
+                            >
+                              <Globe className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contactLead.company_linkedin && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleOpenLink(contactLead.company_linkedin)}
+                            >
+                              <Linkedin className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -628,13 +417,13 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 2 - Dates */}
                 <Card>
-                  <CardContent className="pt-2 pb-2">
+                  <CardContent className="pt-3 pb-3">
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-[10px] text-muted-foreground">Date engagement</Label>
+                        <Label className="text-xs text-muted-foreground">Date engagement</Label>
                         <Input
                           type="date"
-                          className="h-8 text-xs mt-0.5"
+                          className="h-9 text-xs mt-1"
                           value={editedEngagementDate}
                           onChange={(e) => {
                             setEditedEngagementDate(e.target.value);
@@ -643,10 +432,10 @@ const ProspectsMobile = () => {
                         />
                       </div>
                       <div>
-                        <Label className="text-[10px] text-muted-foreground">Date suivi</Label>
+                        <Label className="text-xs text-muted-foreground">Date suivi</Label>
                         <Input
                           type="date"
-                          className="h-8 text-xs mt-0.5"
+                          className="h-9 text-xs mt-1"
                           value={editedFollowUpDate}
                           onChange={(e) => {
                             setEditedFollowUpDate(e.target.value);
@@ -660,297 +449,151 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 3 - Contact */}
                 <Card>
-                  <CardContent className="pt-2 pb-2">
-                    {contactLead && contactLead.contacts.length > 1 ? (
-                      <Popover open={isContactSelectorOpen} onOpenChange={setIsContactSelectorOpen}>
-                        <PopoverTrigger asChild>
-                          <div className="cursor-pointer hover:bg-accent/50 -mx-4 -mt-2 px-4 pt-2 pb-2 rounded-t-lg transition-colors">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-1.5">
-                                  <div className="font-semibold text-sm">{selectedContact.fullName}</div>
-                                  <User className="h-3.5 w-3.5 text-muted-foreground" />
-                                </div>
-                                <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
-                              </div>
-                              
-                              <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
-                                setEditedStatus(value);
-                                setTimeout(() => autoSave(), 500);
-                              }}>
-                                <SelectTrigger className="h-7 w-[110px] text-[10px]" onClick={(e) => e.stopPropagation()}>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Nouveau">Nouveau</SelectItem>
-                                  <SelectItem value="Engagé">Engagé</SelectItem>
-                                  <SelectItem value="Discussion">Discussion</SelectItem>
-                                  <SelectItem value="RDV">RDV</SelectItem>
-                                  <SelectItem value="Exclu">Exclu</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-full p-0" align="start">
-                          <div className="max-h-[300px] overflow-y-auto">
-                            {contactLead.contacts.map((contact) => (
-                              <button
-                                key={contact.id}
-                                className={`w-full text-left px-4 py-3 hover:bg-accent transition-colors ${
-                                  contact.id === selectedContact.id ? 'bg-accent/50' : ''
-                                }`}
-                                onClick={() => {
-                                  handleContactClick(contact);
-                                  setIsContactSelectorOpen(false);
-                                }}
-                              >
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex-1">
-                                    <div className="font-medium text-sm">{contact.fullName}</div>
-                                    <div className="text-xs text-muted-foreground">{contact.role}</div>
-                                  </div>
-                                  <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
-                                    {contact.status}
-                                  </Badge>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    ) : (
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
-                          <div className="font-semibold text-sm">{selectedContact.fullName}</div>
-                          <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
-                        </div>
-                        
-                        <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
-                          setEditedStatus(value);
-                          setTimeout(() => autoSave(), 500);
-                        }}>
-                          <SelectTrigger className="h-7 w-[110px] text-[10px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Nouveau">Nouveau</SelectItem>
-                            <SelectItem value="Engagé">Engagé</SelectItem>
-                            <SelectItem value="Discussion">Discussion</SelectItem>
-                            <SelectItem value="RDV">RDV</SelectItem>
-                            <SelectItem value="Exclu">Exclu</SelectItem>
-                          </SelectContent>
-                        </Select>
+                  <CardContent className="pt-3 pb-3">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex-1">
+                        <div className="font-semibold text-sm">{selectedContact.full_name}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
                       </div>
-                    )}
+                      
+                      <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                        setEditedStatus(value);
+                        setTimeout(() => autoSave(), 500);
+                      }}>
+                        <SelectTrigger className="h-8 w-[110px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Nouveau">Nouveau</SelectItem>
+                          <SelectItem value="Engagé">Engagé</SelectItem>
+                          <SelectItem value="Discussion">Discussion</SelectItem>
+                          <SelectItem value="RDV">RDV</SelectItem>
+                          <SelectItem value="Exclu">Exclu</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap">
+                      {selectedContact.email && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                        >
+                          <Mail className="h-3 w-3 mr-1" />
+                          Email
+                        </Button>
+                      )}
+                      {selectedContact.phone && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                          >
+                            <Phone className="h-3 w-3 mr-1" />
+                            Tel
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
+                          >
+                            <WhatsAppIcon className="h-3 w-3 mr-1" />
+                            WhatsApp
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
+                          >
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            SMS
+                          </Button>
+                        </>
+                      )}
+                      {selectedContact.linkedin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs"
+                          onClick={() => handleOpenLink(selectedContact.linkedin)}
+                        >
+                          <Linkedin className="h-3 w-3 mr-1" />
+                          LinkedIn
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* BLOC 4 - Actions */}
                 <Card>
-                  <CardContent className="pt-2 pb-2">
-                    <div className="flex gap-2 items-center">
-                      {/* Partie gauche - Roulette d'action (-15%) */}
-                      <div className="w-[40%]">
-                        <Select 
-                          value={selectedAction?.toString() || ""} 
-                          onValueChange={(value) => {
-                            setSelectedAction(parseInt(value));
-                          }}
-                        >
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue placeholder="Sélectionner une action" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {actions.map((action) => (
-                              <SelectItem key={action.id} value={action.id.toString()}>
-                                {action.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      {/* Centre - Boutons de communication (+5% largeur) */}
-                      <div className="flex flex-col gap-1">
-                        {selectedContact.phone && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-[34px]"
-                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                          >
-                            <Phone className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {selectedContact.phone && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-[34px]"
-                            onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
-                          >
-                            <WhatsAppIcon className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {selectedContact.phone && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-[34px]"
-                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
-                          >
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                      
-                      {/* Droite - Bouton GO et dernière action (+10% largeur) */}
-                      <div className="flex flex-col gap-1.5 min-w-[77px]">
-                        <Button
-                          className="h-8 w-full font-semibold text-xs"
-                          disabled={!selectedAction}
-                          onClick={() => {
-                            if (!selectedAction) return;
-                            const action = actions.find(a => a.id === selectedAction);
-                            if (action) {
-                              if (action.type === 'email') {
-                                const subject = action.emailSubject || '';
-                                const body = action.emailBody || '';
-                                window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
-                              } else if (action.type === 'meeting') {
-                                // Logique de création de réunion
-                              }
-                              setLastAction(action.name);
-                              toast.success('Action effectuée !');
+                  <CardContent className="pt-3 pb-3">
+                    <div className="space-y-2">
+                      <Select 
+                        value={selectedAction?.toString() || ""} 
+                        onValueChange={(value) => setSelectedAction(parseInt(value))}
+                      >
+                        <SelectTrigger className="h-9 text-xs">
+                          <SelectValue placeholder="Sélectionner une action" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {actions.map((action) => (
+                            <SelectItem key={action.id} value={action.id.toString()}>
+                              {action.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Button
+                        className="w-full h-9 font-semibold text-xs"
+                        disabled={!selectedAction}
+                        onClick={() => {
+                          if (!selectedAction) return;
+                          const action = actions.find(a => a.id === selectedAction);
+                          if (action) {
+                            if (action.type === 'email') {
+                              const subject = action.emailSubject || '';
+                              const body = action.emailBody || '';
+                              window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
                             }
-                          }}
-                        >
-                          GO
-                        </Button>
-                        <div className="bg-muted/50 rounded-md p-1.5 min-h-[40px]">
-                          <div className="text-[9px] font-semibold text-muted-foreground mb-0.5">Dernière:</div>
-                          {lastAction ? (
-                            <div className="text-[10px] line-clamp-2 text-foreground">{lastAction}</div>
-                          ) : (
-                            <div className="text-[10px] text-muted-foreground italic">Aucune</div>
-                          )}
+                            setLastAction(action.name);
+                            toast.success('Action effectuée !');
+                          }
+                        }}
+                      >
+                        Exécuter l'action
+                      </Button>
+
+                      {lastAction && (
+                        <div className="bg-muted/50 rounded-md p-2">
+                          <div className="text-xs font-semibold text-muted-foreground mb-1">Dernière action:</div>
+                          <div className="text-xs text-foreground">{lastAction}</div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* BLOC 5 - Synthèse et Note */}
+                {/* BLOC 5 - Note */}
                 <Card>
-                  <CardContent className="pt-2 pb-2">
-                    <div className="flex border-b mb-2">
-                      <button
-                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                          !expandedNews.has('note-tab') 
-                            ? 'border-b-2 border-primary text-primary' 
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                        onClick={() => {
-                          const newExpanded = new Set(expandedNews);
-                          newExpanded.delete('note-tab');
-                          setExpandedNews(newExpanded);
-                        }}
-                      >
-                        Synthèse
-                      </button>
-                      <button
-                        className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                          expandedNews.has('note-tab') 
-                            ? 'border-b-2 border-primary text-primary' 
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                        onClick={() => {
-                          const newExpanded = new Set(expandedNews);
-                          newExpanded.add('note-tab');
-                          setExpandedNews(newExpanded);
-                        }}
-                      >
-                        Note
-                      </button>
-                    </div>
-                    
-                    {!expandedNews.has('note-tab') ? (
-                      <div className="space-y-2">
-                        {contactLead?.signalSummary && (
-                          <div>
-                            <div className="text-[10px] font-semibold text-muted-foreground mb-0.5">Site web</div>
-                            <p className={`text-[10px] break-words ${expandedSummaries.has(`drawer-${contactLead.id}`) ? '' : 'line-clamp-2'}`}>
-                              {contactLead.signalSummary}
-                            </p>
-                            {contactLead.signalSummary.length > 150 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 px-1.5 text-[9px] mt-0.5"
-                                onClick={() => {
-                                  const newExpanded = new Set(expandedSummaries);
-                                  const key = `drawer-${contactLead.id}`;
-                                  if (expandedSummaries.has(key)) {
-                                    newExpanded.delete(key);
-                                  } else {
-                                    newExpanded.add(key);
-                                  }
-                                  setExpandedSummaries(newExpanded);
-                                }}
-                              >
-                                {expandedSummaries.has(`drawer-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                        
-                        {contactLead?.newsContent && (
-                          <div>
-                            <div className="text-[10px] font-semibold text-muted-foreground mb-0.5">Actualité</div>
-                            <p className={`text-[10px] break-words ${expandedSummaries.has(`drawer-news-${contactLead.id}`) ? '' : 'line-clamp-2'}`}>
-                              {contactLead.newsContent}
-                            </p>
-                            {contactLead.newsContent.length > 150 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 px-1.5 text-[9px] mt-0.5"
-                                onClick={() => {
-                                  const newExpanded = new Set(expandedSummaries);
-                                  const key = `drawer-news-${contactLead.id}`;
-                                  if (expandedSummaries.has(key)) {
-                                    newExpanded.delete(key);
-                                  } else {
-                                    newExpanded.add(key);
-                                  }
-                                  setExpandedSummaries(newExpanded);
-                                }}
-                              >
-                                {expandedSummaries.has(`drawer-news-${contactLead.id}`) ? 'Afficher moins' : 'Afficher plus'}
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                        
-                        {!contactLead?.signalSummary && !contactLead?.newsContent && (
-                          <p className="text-[10px] text-muted-foreground italic">Aucune synthèse disponible</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div>
-                        <Textarea
-                          value={editedNote}
-                          onChange={(e) => {
-                            setEditedNote(e.target.value);
-                            setTimeout(() => autoSave(), 1000);
-                          }}
-                          placeholder="Ajouter une note..."
-                          rows={4}
-                          className="text-xs"
-                        />
-                      </div>
-                    )}
+                  <CardContent className="pt-3 pb-3">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Note</Label>
+                    <Textarea
+                      placeholder="Ajouter une note..."
+                      className="min-h-[100px] text-xs"
+                      value={editedNote}
+                      onChange={(e) => {
+                        setEditedNote(e.target.value);
+                        setTimeout(() => autoSave(), 500);
+                      }}
+                    />
                   </CardContent>
                 </Card>
               </div>
