@@ -355,60 +355,66 @@ const ProspectsMobile = () => {
             const contactLead = leads.find(l => l.id === selectedContact.lead_id);
             
             return (
-              <div className="px-3 pb-3 space-y-2 flex-1 overflow-y-auto">
+              <div className="px-4 pb-4 space-y-3 flex-1 overflow-y-auto">
                 {/* BLOC 1 - Entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-3 pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 space-y-1">
-                          <div className="font-semibold text-sm">{contactLead.company_name}</div>
-                          
-                          <div className="text-xs space-y-0.5">
-                            {(contactLead.company_department || contactLead.company_sector) && (
-                              <div className="text-muted-foreground">
-                                {contactLead.company_department && <span>{contactLead.company_department}</span>}
-                                {contactLead.company_department && contactLead.company_sector && <span> • </span>}
-                                {contactLead.company_sector && <span>{contactLead.company_sector}</span>}
-                              </div>
-                            )}
-                            
-                            <div className="flex items-center gap-3 flex-wrap">
-                              {contactLead.company_headcount && (
-                                <span className="text-xs bg-muted/50 rounded px-2 py-1">
-                                  {contactLead.company_headcount} pers.
-                                </span>
-                              )}
-                              {contactLead.company_ca && (
-                                <span className="text-xs bg-muted/50 rounded px-2 py-1">
-                                  {(contactLead.company_ca / 1000000).toFixed(1)}M€
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                    <CardContent className="pt-4 pb-4">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1">
+                          <div className="font-semibold text-base">{contactLead.company_name}</div>
                         </div>
+                        <Badge variant={getStatusBadgeVariant(selectedContact.status as ContactStatus)}>
+                          {selectedContact.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {(contactLead.company_department || contactLead.company_sector) && (
+                          <div className="text-sm text-muted-foreground">
+                            {contactLead.company_department && <span>{contactLead.company_department}</span>}
+                            {contactLead.company_department && contactLead.company_sector && <span> • </span>}
+                            {contactLead.company_sector && <span>{contactLead.company_sector}</span>}
+                          </div>
+                        )}
                         
-                        <div className="flex gap-1">
-                          {contactLead.company_website && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleOpenLink(contactLead.company_website)}
-                            >
-                              <Globe className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {contactLead.company_linkedin && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => handleOpenLink(contactLead.company_linkedin)}
-                            >
-                              <Linkedin className="h-4 w-4" />
-                            </Button>
-                          )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {contactLead.company_headcount && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {contactLead.company_headcount} pers.
+                              </span>
+                            )}
+                            {contactLead.company_ca && (
+                              <span className="text-xs text-muted-foreground">
+                                {(contactLead.company_ca / 1000000).toFixed(1)}M€
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            {contactLead.company_website && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleOpenLink(contactLead.company_website)}
+                              >
+                                <Globe className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {contactLead.company_linkedin && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                onClick={() => handleOpenLink(contactLead.company_linkedin)}
+                              >
+                                <Linkedin className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -417,13 +423,13 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 2 - Dates */}
                 <Card>
-                  <CardContent className="pt-3 pb-3">
-                    <div className="grid grid-cols-2 gap-2">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date engagement</Label>
+                        <Label className="text-xs text-muted-foreground mb-1.5 block">Date engagement</Label>
                         <Input
                           type="date"
-                          className="h-9 text-xs mt-1"
+                          className="h-10"
                           value={editedEngagementDate}
                           onChange={(e) => {
                             setEditedEngagementDate(e.target.value);
@@ -432,10 +438,11 @@ const ProspectsMobile = () => {
                         />
                       </div>
                       <div>
-                        <Label className="text-xs text-muted-foreground">Date suivi</Label>
+                        <Label className="text-xs text-muted-foreground mb-1.5 block">Date suivi</Label>
                         <Input
                           type="date"
-                          className="h-9 text-xs mt-1"
+                          className="h-10"
+                          placeholder="jj/mm/aaaa"
                           value={editedFollowUpDate}
                           onChange={(e) => {
                             setEditedFollowUpDate(e.target.value);
@@ -449,18 +456,18 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 3 - Contact */}
                 <Card>
-                  <CardContent className="pt-3 pb-3">
-                    <div className="flex items-start justify-between gap-2 mb-3">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <div className="font-semibold text-sm">{selectedContact.full_name}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
+                        <div className="font-semibold text-base">{selectedContact.full_name}</div>
+                        <div className="text-sm text-muted-foreground mt-0.5">{selectedContact.role}</div>
                       </div>
                       
                       <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
                         setEditedStatus(value);
                         setTimeout(() => autoSave(), 500);
                       }}>
-                        <SelectTrigger className="h-8 w-[110px] text-xs">
+                        <SelectTrigger className="h-9 w-[120px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -472,74 +479,79 @@ const ProspectsMobile = () => {
                         </SelectContent>
                       </Select>
                     </div>
-
-                    <div className="flex gap-2 flex-wrap">
-                      {selectedContact.email && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
-                        >
-                          <Mail className="h-3 w-3 mr-1" />
-                          Email
-                        </Button>
-                      )}
-                      {selectedContact.phone && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
-                          >
-                            <Phone className="h-3 w-3 mr-1" />
-                            Tel
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
-                          >
-                            <WhatsAppIcon className="h-3 w-3 mr-1" />
-                            WhatsApp
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 text-xs"
-                            onClick={() => window.open(`sms:${selectedContact.phone}`, '_blank')}
-                          >
-                            <MessageSquare className="h-3 w-3 mr-1" />
-                            SMS
-                          </Button>
-                        </>
-                      )}
-                      {selectedContact.linkedin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => handleOpenLink(selectedContact.linkedin)}
-                        >
-                          <Linkedin className="h-3 w-3 mr-1" />
-                          LinkedIn
-                        </Button>
-                      )}
-                    </div>
                   </CardContent>
                 </Card>
 
-                {/* BLOC 4 - Actions */}
+                {/* BLOC 4 - Moyens de contact et Actions */}
                 <Card>
-                  <CardContent className="pt-3 pb-3">
-                    <div className="space-y-2">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex gap-2 flex-1">
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`tel:${selectedContact.phone}`, '_blank')}
+                          >
+                            <Phone className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {selectedContact.phone && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`https://wa.me/${selectedContact.phone.replace(/\s/g, '')}`, '_blank')}
+                          >
+                            <WhatsAppIcon className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {selectedContact.email && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => window.open(`mailto:${selectedContact.email}`, '_blank')}
+                          >
+                            <Mail className="h-5 w-5" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col items-center">
+                        <Button
+                          className="h-14 w-20 text-lg font-bold"
+                          disabled={!selectedAction}
+                          onClick={() => {
+                            if (!selectedAction) return;
+                            const action = actions.find(a => a.id === selectedAction);
+                            if (action) {
+                              if (action.type === 'email') {
+                                const subject = action.emailSubject || '';
+                                const body = action.emailBody || '';
+                                window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+                              }
+                              setLastAction(action.name);
+                              toast.success('Action effectuée !');
+                            }
+                          }}
+                        >
+                          GO
+                        </Button>
+                        <div className="text-xs text-center mt-1">
+                          <div className="text-muted-foreground">Dernière</div>
+                          <div className="font-medium">{lastAction || 'Aucune'}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
                       <Select 
                         value={selectedAction?.toString() || ""} 
                         onValueChange={(value) => setSelectedAction(parseInt(value))}
                       >
-                        <SelectTrigger className="h-9 text-xs">
+                        <SelectTrigger className="h-10">
                           <SelectValue placeholder="Sélectionner une action" />
                         </SelectTrigger>
                         <SelectContent>
@@ -550,50 +562,57 @@ const ProspectsMobile = () => {
                           ))}
                         </SelectContent>
                       </Select>
-
-                      <Button
-                        className="w-full h-9 font-semibold text-xs"
-                        disabled={!selectedAction}
-                        onClick={() => {
-                          if (!selectedAction) return;
-                          const action = actions.find(a => a.id === selectedAction);
-                          if (action) {
-                            if (action.type === 'email') {
-                              const subject = action.emailSubject || '';
-                              const body = action.emailBody || '';
-                              window.open(`mailto:${selectedContact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
-                            }
-                            setLastAction(action.name);
-                            toast.success('Action effectuée !');
-                          }
-                        }}
-                      >
-                        Exécuter l'action
-                      </Button>
-
-                      {lastAction && (
-                        <div className="bg-muted/50 rounded-md p-2">
-                          <div className="text-xs font-semibold text-muted-foreground mb-1">Dernière action:</div>
-                          <div className="text-xs text-foreground">{lastAction}</div>
-                        </div>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* BLOC 5 - Note */}
+                {/* BLOC 5 - Synthèse/Note */}
                 <Card>
-                  <CardContent className="pt-3 pb-3">
-                    <Label className="text-xs text-muted-foreground mb-2 block">Note</Label>
-                    <Textarea
-                      placeholder="Ajouter une note..."
-                      className="min-h-[100px] text-xs"
-                      value={editedNote}
-                      onChange={(e) => {
-                        setEditedNote(e.target.value);
-                        setTimeout(() => autoSave(), 500);
-                      }}
-                    />
+                  <CardContent className="pt-4 pb-4">
+                    <Tabs defaultValue="synthese" className="w-full">
+                      <TabsList className="w-full mb-3">
+                        <TabsTrigger value="synthese" className="flex-1">Synthèse</TabsTrigger>
+                        <TabsTrigger value="note" className="flex-1">Note</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="synthese" className="space-y-3 mt-0">
+                        {contactLead && (
+                          <>
+                            <div>
+                              <div className="font-semibold text-sm mb-1">Site web</div>
+                              <div className="text-sm text-muted-foreground">
+                                Entreprise innovante dans le secteur {contactLead.company_sector}. Spécialisée dans les solutions technologiques avec une forte croissance ces dernières années. Site web moderne présentant leurs services et références clients.
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-8 mt-1 px-2 text-xs">
+                                Afficher plus
+                              </Button>
+                            </div>
+                            
+                            <div>
+                              <div className="font-semibold text-sm mb-1">Actualité</div>
+                              <div className="text-sm text-muted-foreground">
+                                Annonce récente d'une levée de fonds de 2M€. L'entreprise prévoit de recruter 15 personnes cette année et d'ouvrir un nouveau site. Expansion internationale en cours avec ouverture prévue en Belgique.
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-8 mt-1 px-2 text-xs">
+                                Afficher plus
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </TabsContent>
+                      
+                      <TabsContent value="note" className="mt-0">
+                        <Textarea
+                          placeholder="Ajouter une note..."
+                          className="min-h-[120px]"
+                          value={editedNote}
+                          onChange={(e) => {
+                            setEditedNote(e.target.value);
+                            setTimeout(() => autoSave(), 500);
+                          }}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </CardContent>
                 </Card>
               </div>
