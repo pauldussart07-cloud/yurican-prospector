@@ -81,6 +81,8 @@ const ProspectsMobile = () => {
   const [loading, setLoading] = useState(true);
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<any | null>(null);
+  const [isSearchContactDrawerOpen, setIsSearchContactDrawerOpen] = useState(false);
   const [editedStatus, setEditedStatus] = useState<ContactStatus>('Nouveau');
   const [editedNote, setEditedNote] = useState('');
   const [editedFollowUpDate, setEditedFollowUpDate] = useState('');
@@ -128,7 +130,12 @@ const ProspectsMobile = () => {
   const handleLeadClick = (lead: any) => {
     // Trouver tous les contacts de cette entreprise
     const leadContacts = contacts.filter(c => c.lead_id === lead.id);
-    if (leadContacts.length === 0) return;
+    if (leadContacts.length === 0) {
+      // Aucun contact trouvé - ouvrir le drawer de recherche
+      setSelectedLead(lead);
+      setIsSearchContactDrawerOpen(true);
+      return;
+    }
     
     // Trouver le contact avec le plus haut niveau de décision
     const highestContact = leadContacts.reduce((prev, current) => {
@@ -296,9 +303,39 @@ const ProspectsMobile = () => {
                         )}
                       </div>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(lead.status as ContactStatus)} className="text-xs">
-                      {lead.status}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge variant={getStatusBadgeVariant(lead.status as ContactStatus)} className="text-xs">
+                        {lead.status}
+                      </Badge>
+                      <div className="flex gap-1">
+                        {lead.company_website && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(lead.company_website, '_blank');
+                            }}
+                          >
+                            <Globe className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {lead.company_linkedin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(lead.company_linkedin, '_blank');
+                            }}
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -332,9 +369,65 @@ const ProspectsMobile = () => {
                           </div>
                         )}
                       </div>
-                      <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
-                        {contact.status}
-                      </Badge>
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
+                          {contact.status}
+                        </Badge>
+                        <div className="flex gap-1">
+                          {contact.phone && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`tel:${contact.phone}`, '_blank');
+                              }}
+                            >
+                              <Phone className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contact.phone && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`sms:${contact.phone}`, '_blank');
+                              }}
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contact.email && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`mailto:${contact.email}`, '_blank');
+                              }}
+                            >
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {contact.linkedin && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(contact.linkedin, '_blank');
+                              }}
+                            >
+                              <Linkedin className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -621,6 +714,82 @@ const ProspectsMobile = () => {
               </div>
             );
           })()}
+        </DrawerContent>
+      </Drawer>
+
+      {/* Drawer recherche de contacts */}
+      <Drawer open={isSearchContactDrawerOpen} onOpenChange={setIsSearchContactDrawerOpen}>
+        <DrawerContent className="h-[80vh]">
+          <DrawerHeader className="text-left pb-2 pt-3 px-4">
+            <DrawerTitle className="text-base font-bold">Rechercher des contacts</DrawerTitle>
+          </DrawerHeader>
+
+          {selectedLead && (
+            <div className="px-4 pb-4 space-y-4 flex-1 overflow-y-auto">
+              {/* Info entreprise */}
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="font-semibold text-base mb-1">{selectedLead.company_name}</div>
+                  {selectedLead.company_sector && (
+                    <div className="text-sm text-muted-foreground">{selectedLead.company_sector}</div>
+                  )}
+                  <div className="flex items-center gap-2 mt-2">
+                    {selectedLead.company_headcount && (
+                      <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                        {selectedLead.company_headcount} pers.
+                      </span>
+                    )}
+                    {selectedLead.company_ca && (
+                      <span className="text-xs bg-muted/50 rounded px-2 py-1">
+                        {(selectedLead.company_ca / 1000000).toFixed(1)}M€
+                      </span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Formulaire de recherche */}
+              <Card>
+                <CardContent className="pt-4 pb-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-semibold mb-3 block">
+                        Aucun contact trouvé pour cette entreprise
+                      </Label>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Recherchez des contacts selon votre ciblage contact (personas)
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs mb-2 block">Sélectionner un persona à rechercher</Label>
+                      <Select>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Choisir un persona..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dg">Directeur Général</SelectItem>
+                          <SelectItem value="dir_marketing">Directeur Marketing</SelectItem>
+                          <SelectItem value="dir_commercial">Directeur Commercial</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button className="w-full" size="lg">
+                      <Search className="h-4 w-4 mr-2" />
+                      Rechercher des contacts
+                    </Button>
+
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground text-center">
+                        La recherche utilisera vos crédits pour trouver les contacts correspondants
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </DrawerContent>
       </Drawer>
     </div>
