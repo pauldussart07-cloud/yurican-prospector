@@ -486,8 +486,27 @@ const ProspectsMobile = () => {
                 <Card>
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-start gap-3">
-                      {/* Colonne gauche - Icônes verticales */}
-                      <div className="flex flex-col gap-2">
+                      {/* Gauche - Select action (4/8) */}
+                      <div className="flex-[4]">
+                        <Select 
+                          value={selectedAction?.toString() || ""} 
+                          onValueChange={(value) => setSelectedAction(parseInt(value))}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Sélectionner une action" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {actions.map((action) => (
+                              <SelectItem key={action.id} value={action.id.toString()}>
+                                {action.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Centre - Icônes verticales (1/8) */}
+                      <div className="flex-[1] flex flex-col gap-2 items-center">
                         {selectedContact.phone && (
                           <Button
                             variant="ghost"
@@ -520,8 +539,8 @@ const ProspectsMobile = () => {
                         )}
                       </div>
                       
-                      {/* Centre - Bouton GO */}
-                      <div className="flex flex-col items-center flex-1">
+                      {/* Droite - Bouton GO (3/8) */}
+                      <div className="flex-[3] flex flex-col items-center">
                         <Button
                           className="h-14 w-20 text-lg font-bold"
                           disabled={!selectedAction}
@@ -545,25 +564,6 @@ const ProspectsMobile = () => {
                           <div className="text-muted-foreground">Dernière:</div>
                           <div className="font-medium">{lastAction || 'Aucune'}</div>
                         </div>
-                      </div>
-                      
-                      {/* Droite - Select action */}
-                      <div className="flex-1">
-                        <Select 
-                          value={selectedAction?.toString() || ""} 
-                          onValueChange={(value) => setSelectedAction(parseInt(value))}
-                        >
-                          <SelectTrigger className="h-10">
-                            <SelectValue placeholder="Sélectionner une action" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {actions.map((action) => (
-                              <SelectItem key={action.id} value={action.id.toString()}>
-                                {action.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </div>
                   </CardContent>
