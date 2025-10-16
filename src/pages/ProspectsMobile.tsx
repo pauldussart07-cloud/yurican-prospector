@@ -439,8 +439,34 @@ const ProspectsMobile = () => {
 
       {/* Drawer fiche contact */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="h-[90vh]">
-          <DrawerHeader className="text-left pb-2 pt-3 px-4">
+        <DrawerContent 
+          className="h-full"
+          onPointerMove={(e) => {
+            const drawer = e.currentTarget;
+            const startX = drawer.dataset.startX ? parseFloat(drawer.dataset.startX) : null;
+            if (startX !== null) {
+              const deltaX = e.clientX - startX;
+              if (Math.abs(deltaX) > 50) {
+                const currentIndex = leads.flatMap(l => l.contacts || []).findIndex(c => c.id === selectedContact?.id);
+                const allContacts = leads.flatMap(l => l.contacts || []);
+                if (deltaX > 0 && currentIndex > 0) {
+                  setSelectedContact(allContacts[currentIndex - 1]);
+                  drawer.dataset.startX = '';
+                } else if (deltaX < 0 && currentIndex < allContacts.length - 1) {
+                  setSelectedContact(allContacts[currentIndex + 1]);
+                  drawer.dataset.startX = '';
+                }
+              }
+            }
+          }}
+          onPointerDown={(e) => {
+            e.currentTarget.dataset.startX = e.clientX.toString();
+          }}
+          onPointerUp={(e) => {
+            e.currentTarget.dataset.startX = '';
+          }}
+        >
+          <DrawerHeader className="text-left pb-1 pt-2 px-4">
             <DrawerTitle className="text-base font-bold">Fiche Contact</DrawerTitle>
           </DrawerHeader>
 
@@ -448,11 +474,11 @@ const ProspectsMobile = () => {
             const contactLead = leads.find(l => l.id === selectedContact.lead_id);
             
             return (
-              <div className="px-4 pb-4 space-y-3 flex-1 overflow-y-auto">
+              <div className="px-4 pb-2 space-y-2 flex-1 overflow-y-auto">
                 {/* BLOC 1 - Entreprise */}
                 {contactLead && (
                   <Card>
-                    <CardContent className="pt-4 pb-4">
+                    <CardContent className="pt-3 pb-3">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex-1">
                           <div className="font-semibold text-base">{contactLead.company_name}</div>
@@ -516,7 +542,7 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 2 - Dates */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-3 pb-3">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs text-muted-foreground mb-1.5 block">Date engagement</Label>
@@ -549,7 +575,7 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 3 - Contact */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-3 pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="font-semibold text-base">{selectedContact.full_name}</div>
@@ -577,7 +603,7 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 4 - Moyens de contact et Actions */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-3 pb-3">
                     <div className="flex items-start gap-3">
                       {/* Gauche - Select action (4/8) */}
                       <div className="flex-[4]">
@@ -664,14 +690,14 @@ const ProspectsMobile = () => {
 
                 {/* BLOC 5 - Synthèse/Note */}
                 <Card>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-3 pb-3">
                     <Tabs defaultValue="synthese" className="w-full">
-                      <TabsList className="w-full mb-3">
+                      <TabsList className="w-full mb-2">
                         <TabsTrigger value="synthese" className="flex-1">Synthèse</TabsTrigger>
                         <TabsTrigger value="note" className="flex-1">Note</TabsTrigger>
                       </TabsList>
                       
-                      <TabsContent value="synthese" className="space-y-3 mt-0">
+                      <TabsContent value="synthese" className="space-y-2 mt-0">
                         {contactLead && (
                           <>
                             <div>
@@ -700,7 +726,7 @@ const ProspectsMobile = () => {
                       <TabsContent value="note" className="mt-0">
                         <Textarea
                           placeholder="Ajouter une note..."
-                          className="min-h-[120px]"
+                          className="min-h-[80px]"
                           value={editedNote}
                           onChange={(e) => {
                             setEditedNote(e.target.value);
