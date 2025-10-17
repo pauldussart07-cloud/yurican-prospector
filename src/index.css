@@ -2,79 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design system with rich colors and textures */
+/* === YURICAN Design System — palette issue du logo === */
 @layer base {
   :root {
-    /* ====== Nouvelle palette 3 couleurs ====== */
-
-    /* Base: Fond ivoire */
+    /* Fond & texte */
     --background: 36 43% 97%; /* ivoire #FBF8F3 */
-    --foreground: 215 9% 15%; /* text #23272B */
+    --foreground: 215 9% 15%; /* slate foncé #1E2B36 */
 
-    --card: 0 0% 100%; /* surface blanc #FFFFFF */
+    --card: 0 0% 100%;
     --card-foreground: 215 9% 15%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 215 9% 15%;
 
-    /* 1️⃣ Couleur signature: Bleu marine profond */
-    --primary: 200 74% 26%; /* primary #114A72 */
+    /* Couleurs de marque (extraites du logo) */
+    --primary: 203 72% 41%; /* bleu tornade #1D77B5 */
     --primary-foreground: 0 0% 100%;
 
-    /* 2️⃣ Couleur secondaire: Ink steel (bleu acier) */
-    --secondary: 200 28% 33%; /* secondary #3C5A6B */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 195 74% 52%; /* cyan ciel #2AB2E2 */
+    --secondary-foreground: 215 9% 15%;
 
-    /* 3️⃣ Couleur accent: Saffron (safran) */
-    --accent: 45 100% 48%; /* accent #F4B000 */
-    --accent-foreground: 215 9% 15%;
+    --accent: 230 80% 68%; /* bleu-lila #667AEF */
+    --accent-foreground: 0 0% 100%;
 
-    --muted: 213 27% 92%; /* muted #E9EDF2 */
-    --muted-foreground: 215 9% 15%;
+    /* Neutres & états */
+    --muted: 213 27% 92%; /* #E9EDF2 */
+    --muted-foreground: 215 9% 30%;
 
-    --destructive: 0 75% 52%;
+    --destructive: 0 75% 52%; /* #E64E4E */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 160 50% 38%; /* vert succès riche */
+    --success: 160 50% 40%; /* #25A777 */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 52%;
+    --warning: 45 100% 50%; /* #FFB400 */
     --warning-foreground: 38 60% 12%;
 
-    --border: 213 24% 85%; /* border #D5DDE6 */
+    --border: 213 24% 85%; /* #D5DDE6 */
     --input: 0 0% 100%;
-    --ring: 200 74% 26%;
+    --ring: 203 72% 41%;
 
     --radius: 0.75rem;
 
     /* Sidebar & Header */
     --sidebar-background: 36 35% 95%;
     --sidebar-foreground: 215 9% 15%;
-    --sidebar-primary: 200 74% 26%;
+    --sidebar-primary: 203 72% 41%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 213 22% 90%;
     --sidebar-accent-foreground: 215 9% 15%;
     --sidebar-border: 213 24% 85%;
-    --sidebar-ring: 200 74% 26%;
+    --sidebar-ring: 203 72% 41%;
 
     --header-background: 36 35% 95%;
     --header-foreground: 215 9% 15%;
 
-    /* Ombres profondes et contrastées */
+    /* Ombres */
     --shadow-sm: 0 2px 4px 0 hsl(200 30% 10% / 0.08);
-    --shadow-md: 0 6px 12px -2px hsl(200 30% 10% / 0.12), 0 2px 4px 0 hsl(200 74% 26% / 0.08);
-    --shadow-lg: 0 12px 24px -4px hsl(200 30% 10% / 0.16), 0 4px 8px 0 hsl(200 74% 26% / 0.1);
-    --shadow-xl: 0 24px 40px -8px hsl(200 30% 10% / 0.2), 0 8px 16px 0 hsl(200 74% 26% / 0.12);
+    --shadow-md: 0 6px 12px -2px hsl(200 30% 10% / 0.12), 0 2px 4px 0 hsl(203 72% 41% / 0.08);
+    --shadow-lg: 0 12px 24px -4px hsl(200 30% 10% / 0.16), 0 4px 8px 0 hsl(203 72% 41% / 0.1);
+    --shadow-xl: 0 24px 40px -8px hsl(200 30% 10% / 0.2), 0 8px 16px 0 hsl(203 72% 41% / 0.12);
 
-    /* Gradients riches */
-    --gradient-primary: linear-gradient(135deg, hsl(200 74% 26%), hsl(200 74% 35%));
-    --gradient-secondary: linear-gradient(135deg, hsl(200 28% 33%), hsl(200 28% 42%));
-    --gradient-accent: linear-gradient(135deg, hsl(45 100% 48%), hsl(45 100% 58%));
+    /* Dégradés inspirés du logo (cyan → bleu → lila) */
+    --gradient-primary: linear-gradient(135deg, hsl(195 74% 52%), hsl(203 72% 41%));
+    --gradient-secondary: linear-gradient(135deg, hsl(203 72% 41%), hsl(230 80% 68%));
+    --gradient-accent: linear-gradient(135deg, hsl(195 74% 52%), hsl(230 80% 68%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(36 25% 98%) 100%);
     --gradient-card-hover: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(200 30% 96%) 100%);
 
-    --glow-primary: 0 0 30px hsl(200 74% 26% / 0.4);
-    --glow-secondary: 0 0 30px hsl(45 100% 48% / 0.4);
+    /* Glow subtils */
+    --glow-primary: 0 0 32px hsl(203 72% 41% / 0.4);
+    --glow-secondary: 0 0 32px hsl(230 80% 68% / 0.35);
+
+    /* Nuancier (pratique pour charts/UI states) */
+    --primary-50: 204 100% 97%;
+    --primary-100: 203 96% 90%;
+    --primary-200: 202 86% 80%;
+    --primary-300: 201 78% 68%;
+    --primary-400: 201 72% 56%; /* #3DAAE3 */
+    --primary-500: 203 72% 41%; /* #1D77B5 */
+    --primary-600: 202 78% 26%; /* #0E4A73 */
+    --primary-700: 206 63% 22%;
+    --primary-800: 210 55% 18%;
+    --primary-900: 215 50% 14%;
   }
 
   .dark {
@@ -83,17 +92,14 @@
 
     --card: 215 20% 13%;
     --card-foreground: 36 43% 97%;
-
     --popover: 215 20% 13%;
     --popover-foreground: 36 43% 97%;
 
-    --primary: 200 74% 35%;
+    --primary: 203 72% 50%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 200 28% 42%;
-    --secondary-foreground: 0 0% 100%;
-
-    --accent: 45 100% 55%;
+    --secondary: 195 74% 58%;
+    --secondary-foreground: 215 20% 10%;
+    --accent: 230 80% 70%;
     --accent-foreground: 215 20% 10%;
 
     --muted: 215 20% 18%;
@@ -101,32 +107,31 @@
 
     --destructive: 0 75% 58%;
     --destructive-foreground: 0 0% 100%;
-
     --success: 160 50% 45%;
     --success-foreground: 215 20% 10%;
-
     --warning: 45 95% 60%;
     --warning-foreground: 45 60% 10%;
 
     --border: 215 20% 25%;
     --input: 215 20% 16%;
-    --ring: 200 74% 35%;
+    --ring: 203 72% 50%;
 
     --sidebar-background: 215 20% 12%;
     --sidebar-foreground: 36 43% 97%;
-    --sidebar-primary: 200 74% 35%;
+    --sidebar-primary: 203 72% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 215 20% 18%;
     --sidebar-accent-foreground: 36 43% 97%;
     --sidebar-border: 215 20% 23%;
-    --sidebar-ring: 200 74% 35%;
+    --sidebar-ring: 203 72% 50%;
 
     --header-background: 215 20% 12%;
     --header-foreground: 36 43% 97%;
 
+    /* BG avec halos bleus/lila discrets */
     --gradient-bg:
-      radial-gradient(circle at 20% 50%, hsl(200 35% 15% / 0.5), transparent 50%),
-      radial-gradient(circle at 80% 80%, hsl(45 45% 15% / 0.4), transparent 50%), hsl(215 20% 10%);
+      radial-gradient(circle at 20% 50%, hsl(203 72% 22% / 0.55), transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(230 80% 28% / 0.45), transparent 50%), hsl(215 20% 10%);
   }
 }
 
@@ -140,12 +145,12 @@
     background: hsl(var(--background));
   }
 
-  /* Cartes avec texture et relief fort */
+  /* Cartes */
   .card,
   .shadow-card,
   .ui-surface {
     box-shadow:
-      0 1px 0 0 hsl(0 0% 100%),
+      0 1px 0 0 hsl(0 0% 100% / 1),
       0 1px 3px 0 hsl(215 30% 10% / 0.1),
       var(--shadow-lg);
     border: 2px solid hsl(var(--border));
@@ -163,10 +168,10 @@
     padding: 2px;
     background: linear-gradient(
       145deg,
-      hsl(var(--primary) / 0.08) 0%,
-      transparent 30%,
+      hsl(var(--secondary) / 0.1) 0%,
+      transparent 35%,
       transparent 70%,
-      hsl(var(--secondary) / 0.05) 100%
+      hsl(var(--accent) / 0.1) 100%
     );
     -webkit-mask:
       linear-gradient(#fff 0 0) content-box,
@@ -180,12 +185,12 @@
     box-shadow:
       0 1px 0 0 hsl(0 0% 100%),
       0 2px 6px 0 hsl(215 30% 10% / 0.12),
-      0 16px 32px -6px hsl(200 74% 26% / 0.15);
+      0 16px 32px -6px hsl(203 72% 41% / 0.15);
     transform: translateY(-2px);
     background: var(--gradient-card-hover);
   }
 
-  /* Header avec profondeur */
+  /* Header */
   .app-header {
     backdrop-filter: saturate(1.15) blur(8px);
     background: linear-gradient(180deg, hsl(var(--header-background) / 0.95), hsl(var(--header-background) / 0.85));
@@ -193,7 +198,7 @@
     box-shadow: var(--shadow-md);
   }
 
-  /* Sidebar avec texture */
+  /* Sidebar */
   .app-sidebar {
     background: linear-gradient(180deg, hsl(var(--sidebar-background) / 0.98), hsl(var(--sidebar-background) / 0.95));
     border-right: 2px solid hsl(var(--border) / 0.8);
@@ -210,32 +215,30 @@
     width: 2px;
     background: linear-gradient(
       180deg,
-      hsl(var(--primary) / 0.2),
-      hsl(var(--secondary) / 0.15),
-      hsl(var(--accent) / 0.2)
+      hsl(var(--secondary) / 0.25),
+      hsl(var(--primary) / 0.25),
+      hsl(var(--accent) / 0.25)
     );
   }
 
-  /* Boutons avec plus de présence */
+  /* Boutons */
   button,
   .btn {
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.01em;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
   button:hover,
   .btn:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
   }
-
   button:active,
   .btn:active {
     transform: translateY(0);
   }
 
-  /* Badges avec texture */
+  /* Badges */
   .badge {
     font-weight: 600;
     padding: 0.25rem 0.75rem;
@@ -245,7 +248,7 @@
     border: 1px solid hsl(var(--border) / 0.5);
   }
 
-  /* Inputs avec texture et contraste */
+  /* Inputs */
   input,
   textarea,
   select {
@@ -256,7 +259,6 @@
       0 1px 0 0 hsl(0 0% 100%);
     transition: all 0.2s;
   }
-
   input:focus,
   textarea:focus,
   select:focus {
@@ -267,36 +269,32 @@
       0 1px 0 0 hsl(0 0% 100%);
   }
 
-  /* Liens avec effet riche */
+  /* Liens */
   a {
     transition: color 0.2s;
   }
-
   a:hover {
     color: hsl(var(--primary));
   }
 
-  /* Scrollbar personnalisée */
+  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
-
   ::-webkit-scrollbar-track {
     background: hsl(var(--muted) / 0.3);
   }
-
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--primary) / 0.5);
     border-radius: 5px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.7);
   }
 }
 
-/* Animations de texture */
+/* Animation shimmer */
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
@@ -305,9 +303,8 @@
     background-position: 1000px 0;
   }
 }
-
 .shimmer {
-  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.05) 50%, transparent);
+  background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.06) 50%, transparent);
   background-size: 1000px 100%;
   animation: shimmer 3s infinite;
 }
