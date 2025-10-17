@@ -1170,9 +1170,9 @@ Cordialement,
                           </div>
                         ))}
                         
-                        {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
-                        {remainingCount > 0 && (
-                          <div className="flex justify-center">
+                        {/* Boutons en bas : Afficher plus et Chercher des contacts */}
+                        <div className="flex items-center justify-between gap-2">
+                          {remainingCount > 0 && (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1194,25 +1194,40 @@ Cordialement,
                                 </>
                               )}
                             </Button>
-                          </div>
-                        )}
+                          )}
+                          
+                          {/* Bouton "Chercher des contacts" */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={remainingCount > 0 ? "flex-1" : "w-full"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedLead(lead.id);
+                              setShowPersonaDialog(true);
+                            }}
+                          >
+                            <UsersIcon className="h-4 w-4 mr-2" />
+                            Chercher des contacts
+                          </Button>
+                        </div>
                       </>
-                    ) : null}
-                    
-                    {/* Bouton "Chercher des contacts" toujours visible */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedLead(lead.id);
-                        setShowPersonaDialog(true);
-                      }}
-                    >
-                      <UsersIcon className="h-4 w-4 mr-2" />
-                      Chercher des contacts
-                    </Button>
+                    ) : (
+                      /* Bouton "Chercher des contacts" quand il n'y a pas de contacts */
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedLead(lead.id);
+                          setShowPersonaDialog(true);
+                        }}
+                      >
+                        <UsersIcon className="h-4 w-4 mr-2" />
+                        Chercher des contacts
+                      </Button>
+                    )}
                   </div>
 
                   {/* Bloc 2 : Informations entreprise avec logo */}
