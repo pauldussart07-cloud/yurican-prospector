@@ -3,20 +3,43 @@
 @tailwind utilities;
 
 /* Design system with rich colors and textures */
-
 @layer base {
   :root {
     /* ====== Nouvelle palette 3 couleurs ====== */
 
-    --primary: 203 72% 41%; /* #1D77B5 */
-    --secondary: 208 50% 36%; /* #2E5F8C */
-    --accent: 230 80% 68%; /* #667AEF */
-    --background: 36 43% 97%; /* #FBF8F3 */
-    --foreground: 215 9% 15%; /* #1E2B36 */
-    --border: 213 24% 85%; /* #D5DDE6 */
-    --success: 160 50% 40%; /* #25A777 */
-    --warning: 45 100% 50%; /* #FFB400 */
-    --destructive: 0 75% 58%; /* #E64E4E */
+    /* Base: Fond ivoire */
+    --background: 36 43% 97%; /* ivoire #FBF8F3 */
+    --foreground: 215 9% 15%; /* text #23272B */
+
+    --card: 0 0% 100%; /* surface blanc #FFFFFF */
+    --card-foreground: 215 9% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 9% 15%;
+
+    /* 1️⃣ Couleur signature: Bleu marine profond */
+    --primary: 200 74% 26%; /* primary #114A72 */
+    --primary-foreground: 0 0% 100%;
+
+    /* 2️⃣ Couleur secondaire: Ink steel (bleu acier) */
+    --secondary: 200 28% 33%; /* secondary #3C5A6B */
+    --secondary-foreground: 0 0% 100%;
+
+    /* 3️⃣ Couleur accent: Saffron (safran) */
+    --accent: 45 100% 48%; /* accent #F4B000 */
+    --accent-foreground: 215 9% 15%;
+
+    --muted: 213 27% 92%; /* muted #E9EDF2 */
+    --muted-foreground: 215 9% 15%;
+
+    --destructive: 0 75% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 160 50% 38%; /* vert succès riche */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 52%;
+    --warning-foreground: 38 60% 12%;
 
     --border: 213 24% 85%; /* border #D5DDE6 */
     --input: 0 0% 100%;
@@ -49,6 +72,7 @@
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 48%), hsl(45 100% 58%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(36 25% 98%) 100%);
     --gradient-card-hover: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(200 30% 96%) 100%);
+
     --glow-primary: 0 0 30px hsl(200 74% 26% / 0.4);
     --glow-secondary: 0 0 30px hsl(45 100% 48% / 0.4);
   }
