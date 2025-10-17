@@ -89,6 +89,7 @@ const ProspectsMobile = () => {
   const [editedEngagementDate, setEditedEngagementDate] = useState('');
   const [selectedAction, setSelectedAction] = useState<number | null>(null);
   const [lastAction, setLastAction] = useState<string>('');
+  const [isContactListDrawerOpen, setIsContactListDrawerOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -574,29 +575,37 @@ const ProspectsMobile = () => {
                 </Card>
 
                  {/* BLOC 3 - Contact */}
-                 <Card>
+                 <Card className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setIsContactListDrawerOpen(true)}>
                    <CardContent className="pt-2 pb-2">
                      <div className="flex items-start justify-between gap-2">
                        <div className="flex-1">
-                         <div className="font-semibold text-sm">{selectedContact.full_name}</div>
+                         <div className="font-semibold text-sm flex items-center gap-2">
+                           {selectedContact.full_name}
+                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                         </div>
                          <div className="text-xs text-muted-foreground mt-0.5">{selectedContact.role}</div>
+                         <div className="text-xs text-muted-foreground mt-1">
+                           {contacts.filter(c => c.lead_id === selectedContact.lead_id).length} contact(s)
+                         </div>
                        </div>
                        
-                       <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
-                         setEditedStatus(value);
-                         setTimeout(() => autoSave(), 500);
-                       }}>
-                         <SelectTrigger className="h-8 w-[110px] text-xs">
-                           <SelectValue />
-                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Nouveau">Nouveau</SelectItem>
-                          <SelectItem value="Engagé">Engagé</SelectItem>
-                          <SelectItem value="Discussion">Discussion</SelectItem>
-                          <SelectItem value="RDV">RDV</SelectItem>
-                          <SelectItem value="Exclu">Exclu</SelectItem>
-                        </SelectContent>
-                      </Select>
+                       <div onClick={(e) => e.stopPropagation()}>
+                         <Select value={editedStatus} onValueChange={(value: ContactStatus) => {
+                           setEditedStatus(value);
+                           setTimeout(() => autoSave(), 500);
+                         }}>
+                           <SelectTrigger className="h-8 w-[110px] text-xs">
+                             <SelectValue />
+                           </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Nouveau">Nouveau</SelectItem>
+                            <SelectItem value="Engagé">Engagé</SelectItem>
+                            <SelectItem value="Discussion">Discussion</SelectItem>
+                            <SelectItem value="RDV">RDV</SelectItem>
+                            <SelectItem value="Exclu">Exclu</SelectItem>
+                          </SelectContent>
+                        </Select>
+                       </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -816,6 +825,69 @@ const ProspectsMobile = () => {
               </Card>
             </div>
           )}
+        </DrawerContent>
+      </Drawer>
+
+      {/* Drawer liste des contacts de l'entreprise */}
+      <Drawer open={isContactListDrawerOpen} onOpenChange={setIsContactListDrawerOpen}>
+        <DrawerContent className="h-[70vh]">
+          <DrawerHeader className="text-left pb-2 pt-3 px-4">
+            <DrawerTitle className="text-base font-bold">Contacts de l'entreprise</DrawerTitle>
+          </DrawerHeader>
+
+          {selectedContact && (() => {
+            const contactLead = leads.find(l => l.id === selectedContact.lead_id);
+            const leadContacts = contacts.filter(c => c.lead_id === selectedContact.lead_id);
+            
+            return (
+              <div className="px-4 pb-4 space-y-3 flex-1 overflow-y-auto">
+                {contactLead && (
+                  <Card>
+                    <CardContent className="pt-3 pb-3">
+                      <div className="font-semibold text-base">{contactLead.company_name}</div>
+                      {contactLead.company_sector && (
+                        <div className="text-xs text-muted-foreground mt-1">{contactLead.company_sector}</div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="space-y-2">
+                  {leadContacts.map(contact => (
+                    <Card 
+                      key={contact.id}
+                      className={`cursor-pointer hover:bg-accent/50 transition-colors ${contact.id === selectedContact.id ? 'border-primary border-2' : ''}`}
+                      onClick={() => {
+                        setSelectedContact(contact);
+                        setEditedStatus(contact.status);
+                        setEditedNote(contact.note || '');
+                        setEditedFollowUpDate(contact.follow_up_date || '');
+                        setEditedEngagementDate(contact.engagement_date || '');
+                        setIsContactListDrawerOpen(false);
+                      }}
+                    >
+                      <CardContent className="pt-3 pb-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <div className="font-semibold text-sm">{contact.full_name}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{contact.role}</div>
+                          </div>
+                          <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
+                            {contact.status}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-1 mt-2">
+                          {contact.phone && <Phone className="h-3 w-3 text-muted-foreground" />}
+                          {contact.email && <Mail className="h-3 w-3 text-muted-foreground" />}
+                          {contact.linkedin && <Linkedin className="h-3 w-3 text-muted-foreground" />}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </DrawerContent>
       </Drawer>
     </div>
