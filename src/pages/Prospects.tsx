@@ -1095,121 +1095,124 @@ Cordialement,
                   {/* Bloc 4 : Liste des contacts */}
                   <div className="w-64 space-y-2">
                     {leadContacts.length > 0 ? (
-                      displayedContacts.map((contact, index) => (
-                        <div
-                          key={contact.id}
-                          className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-all hover:shadow-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactClick(contact);
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
-                            {(contact as any).personaPosition || index + 1}
-                          </div>
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <p className="text-sm font-semibold truncate">{contact.fullName}</p>
-                            <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <HoverCard>
-                              <HoverCardTrigger asChild>
-                                <Mail className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
-                              </HoverCardTrigger>
-                              <HoverCardContent className="w-auto">
-                                <p className="text-xs">{contact.email}</p>
-                              </HoverCardContent>
-                            </HoverCard>
-                            
-                            {isContactInfoDiscovered(contact.id, 'phone') ? (
+                      <>
+                        {displayedContacts.map((contact, index) => (
+                          <div
+                            key={contact.id}
+                            className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-all hover:shadow-sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContactClick(contact);
+                            }}
+                          >
+                            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
+                              {(contact as any).personaPosition || index + 1}
+                            </div>
+                            <div className="flex-1 min-w-0 space-y-1">
+                              <p className="text-sm font-semibold truncate">{contact.fullName}</p>
+                              <p className="text-xs text-muted-foreground truncate">{contact.role}</p>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
                               <HoverCard>
                                 <HoverCardTrigger asChild>
-                                  <Phone className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
+                                  <Mail className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
                                 </HoverCardTrigger>
                                 <HoverCardContent className="w-auto">
-                                  <p className="text-xs">{contact.phone}</p>
+                                  <p className="text-xs">{contact.email}</p>
                                 </HoverCardContent>
                               </HoverCard>
-                            ) : (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <Phone 
-                                    className="h-4 w-4 text-muted-foreground/30 hover:text-muted-foreground/50 cursor-pointer transition-colors" 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDiscoverRequest(contact.id, 'phone');
-                                    }}
-                                  />
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs blur-sm select-none">{contact.phone}</p>
-                                </HoverCardContent>
-                              </HoverCard>
-                            )}
-                            
-                            {contact.linkedin && (
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <a
-                                    href={contact.linkedin}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="flex items-center"
-                                  >
-                                    <Linkedin className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
-                                  </a>
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-auto">
-                                  <p className="text-xs">Voir le profil LinkedIn</p>
-                                </HoverCardContent>
-                              </HoverCard>
-                            )}
+                              
+                              {isContactInfoDiscovered(contact.id, 'phone') ? (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <Phone className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs">{contact.phone}</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              ) : (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <Phone 
+                                      className="h-4 w-4 text-muted-foreground/30 hover:text-muted-foreground/50 cursor-pointer transition-colors" 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDiscoverRequest(contact.id, 'phone');
+                                      }}
+                                    />
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs blur-sm select-none">{contact.phone}</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              )}
+                              
+                              {contact.linkedin && (
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <a
+                                      href={contact.linkedin}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="flex items-center"
+                                    >
+                                      <Linkedin className="h-4 w-4 text-primary hover:text-primary/80 cursor-pointer transition-colors" />
+                                    </a>
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-auto">
+                                    <p className="text-xs">Voir le profil LinkedIn</p>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedLead(lead.id);
-                          setShowPersonaDialog(true);
-                        }}
-                      >
-                        <UsersIcon className="h-4 w-4 mr-2" />
-                        Chercher les contacts
-                      </Button>
-                    )}
+                        ))}
+                        
+                        {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
+                        {remainingCount > 0 && (
+                          <div className="flex justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpandContacts(lead.id);
+                              }}
+                              className="text-[10px] h-6 px-2 gap-1 hover:bg-accent/50 transition-colors"
+                            >
+                              {isContactsExpanded ? (
+                                <>
+                                  <ChevronUp className="h-3 w-3" />
+                                  Moins
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="h-3 w-3" />
+                                  +{remainingCount}
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    ) : null}
                     
-                    {/* Bouton "Afficher x de plus" / "Afficher moins" sous les contacts */}
-                    {leadContacts.length > 0 && remainingCount > 0 && (
-                      <div className="mt-2 flex justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpandContacts(lead.id);
-                          }}
-                          className="text-[10px] h-6 px-2 gap-1 hover:bg-accent/50 transition-colors"
-                        >
-                          {isContactsExpanded ? (
-                            <>
-                              <ChevronUp className="h-3 w-3" />
-                              Moins
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="h-3 w-3" />
-                              +{remainingCount}
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
+                    {/* Bouton "Chercher des contacts" toujours visible */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedLead(lead.id);
+                        setShowPersonaDialog(true);
+                      }}
+                    >
+                      <UsersIcon className="h-4 w-4 mr-2" />
+                      Chercher des contacts
+                    </Button>
                   </div>
 
                   {/* Bloc 2 : Informations entreprise avec logo */}
