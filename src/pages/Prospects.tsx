@@ -1340,7 +1340,7 @@ Cordialement,
                 </div>
 
                 {/* Statut */}
-                <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center">
+                <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center text-xs py-0.5">
                   {getLeadStatus(lead.id)}
                 </Badge>
               </div>
