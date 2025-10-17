@@ -287,7 +287,9 @@ const ProspectsMobile = () => {
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold truncate">{lead.company_name}</div>
+                      <div className="font-semibold truncate">
+                        {lead.company_name} ({contacts.filter(c => c.lead_id === lead.id).length})
+                      </div>
                       {lead.company_sector && (
                         <div className="text-xs text-muted-foreground mt-1">{lead.company_sector}</div>
                       )}
