@@ -284,7 +284,7 @@ const ProspectsMobile = () => {
           ) : (
             filteredLeads.map(lead => (
               <Card key={lead.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleLeadClick(lead)}>
-                <CardContent className="pt-4 pb-4">
+                <CardContent className="pt-2 pb-2">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold truncate flex items-center gap-1.5">
@@ -356,7 +356,7 @@ const ProspectsMobile = () => {
               const contactLead = leads.find(l => l.id === contact.lead_id);
               return (
                 <Card key={contact.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => handleContactClick(contact)}>
-                  <CardContent className="pt-4 pb-4">
+                  <CardContent className="pt-2 pb-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
