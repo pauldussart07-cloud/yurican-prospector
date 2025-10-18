@@ -359,12 +359,12 @@ const ProspectsMobile = () => {
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="font-semibold truncate">{contact.full_name}</div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="font-semibold">{contact.full_name}</div>
                           {contactLead && (
-                            <div className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
                               <Building2 className="h-3 w-3" />
-                              <span className="truncate">{contactLead.company_name}</span>
+                              <span>{contactLead.company_name}</span>
                             </div>
                           )}
                         </div>
