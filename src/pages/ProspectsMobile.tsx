@@ -359,14 +359,16 @@ const ProspectsMobile = () => {
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold truncate">{contact.full_name}</div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-semibold truncate">{contact.full_name}</div>
+                          {contactLead && (
+                            <div className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                              <Building2 className="h-3 w-3" />
+                              <span className="truncate">{contactLead.company_name}</span>
+                            </div>
+                          )}
+                        </div>
                         <div className="text-xs text-muted-foreground mt-1">{contact.role}</div>
-                        {contactLead && (
-                          <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                            <Building2 className="h-3 w-3" />
-                            {contactLead.company_name}
-                          </div>
-                        )}
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <Badge variant={getStatusBadgeVariant(contact.status as ContactStatus)} className="text-xs">
