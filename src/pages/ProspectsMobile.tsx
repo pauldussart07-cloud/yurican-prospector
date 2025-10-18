@@ -294,20 +294,12 @@ const ProspectsMobile = () => {
                           <span className="text-xs text-muted-foreground">{contacts.filter(c => c.lead_id === lead.id).length}</span>
                         </div>
                       </div>
-                      {lead.company_sector && (
-                        <div className="text-xs text-muted-foreground mt-1">{lead.company_sector}</div>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        {lead.company_headcount && (
-                          <span className="text-xs bg-muted/50 rounded px-2 py-1">
-                            {lead.company_headcount} pers.
-                          </span>
-                        )}
-                        {lead.company_ca && (
-                          <span className="text-xs bg-muted/50 rounded px-2 py-1">
-                            {(lead.company_ca / 1000000).toFixed(1)}M€
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                        {lead.company_sector && <span>{lead.company_sector}</span>}
+                        {lead.company_sector && (lead.company_headcount || lead.company_ca) && <span>•</span>}
+                        {lead.company_headcount && <span>{lead.company_headcount} pers.</span>}
+                        {lead.company_headcount && lead.company_ca && <span>•</span>}
+                        {lead.company_ca && <span>{(lead.company_ca / 1000000).toFixed(1)}M€</span>}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
