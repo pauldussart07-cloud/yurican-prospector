@@ -1293,56 +1293,59 @@ Cordialement,
                     </div>
                   </div>
 
-                {/* Bloc 3 : Synthèse */}
-                <div className="flex-1 px-2">
-                  {lead.isHotSignal ? (
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
-                        {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
-                      </p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const firstContact = leadContacts[0];
-                          if (firstContact) {
-                            handleContactClick(firstContact);
-                          }
-                        }}
-                      >
-                        Voir plus →
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
-                        {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
-                        {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
-                      </p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const firstContact = leadContacts[0];
-                          if (firstContact) {
-                            handleContactClick(firstContact);
-                          }
-                        }}
-                      >
-                        Voir plus →
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                {/* Colonne avec Statut et Synthèse */}
+                <div className="flex-1 flex flex-col gap-3">
+                  {/* Statut */}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center text-xs py-0.5">
+                    {getLeadStatus(lead.id)}
+                  </Badge>
 
-                {/* Statut */}
-                <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center text-xs py-0.5">
-                  {getLeadStatus(lead.id)}
-                </Badge>
+                  {/* Bloc 3 : Synthèse */}
+                  <div>
+                    {lead.isHotSignal ? (
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
+                          {lead.signalSummary || "Aucun signal détecté pour cette entreprise."}
+                        </p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-orange-700 hover:text-orange-900 p-0 h-auto mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const firstContact = leadContacts[0];
+                            if (firstContact) {
+                              handleContactClick(firstContact);
+                            }
+                          }}
+                        >
+                          Voir plus →
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-900 leading-relaxed line-clamp-3">
+                          {highlightText(company.name, searchQuery)} - {company.sector.toLowerCase()} - {company.department}. 
+                          {company.headcount} employés, {(company.ca / 1000000).toFixed(1)}M€ de chiffre d'affaires.
+                        </p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="text-blue-700 hover:text-blue-900 p-0 h-auto mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const firstContact = leadContacts[0];
+                            if (firstContact) {
+                              handleContactClick(firstContact);
+                            }
+                          }}
+                        >
+                          Voir plus →
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               </CardContent>
             </Card>
