@@ -1040,7 +1040,7 @@ const Marche = () => {
                     <Button 
                       size="sm" 
                       onClick={() => handleGo(company)}
-                      className="gap-1.5 bg-success hover:bg-success/90 text-success-foreground shadow-md hover:shadow-lg transition-all"
+                      className="gap-1.5 bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-md hover:shadow-lg transition-all"
                     >
                       <ThumbsUp className="h-3.5 w-3.5" />
                       <span className="text-xs font-semibold">GO</span>
@@ -1048,7 +1048,7 @@ const Marche = () => {
                     <Button 
                       size="sm" 
                       onClick={() => handleNoGo(company)}
-                      className="gap-1.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-md hover:shadow-lg transition-all"
+                      className="gap-1.5 bg-muted hover:bg-muted/80 text-muted-foreground shadow-md hover:shadow-lg transition-all border-2 border-border"
                     >
                       <ThumbsDown className="h-3.5 w-3.5" />
                       <span className="text-xs font-semibold">NO GO</span>
