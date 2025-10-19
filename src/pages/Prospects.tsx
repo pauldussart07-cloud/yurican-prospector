@@ -1293,8 +1293,14 @@ Cordialement,
                     </div>
                   </div>
 
-                {/* Bloc 3 : Synthèse */}
-                <div className="w-56">
+                {/* Colonne droite : Statut et Synthèse */}
+                <div className="flex-shrink-0 ml-auto flex flex-col gap-3 w-56">
+                  {/* Statut */}
+                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center text-xs py-0.5 self-end">
+                    {getLeadStatus(lead.id)}
+                  </Badge>
+
+                  {/* Bloc 3 : Synthèse */}
                   {lead.isHotSignal ? (
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                       <p className="text-sm text-orange-900 leading-relaxed line-clamp-3">
@@ -1337,13 +1343,6 @@ Cordialement,
                       </Button>
                     </div>
                   )}
-                </div>
-
-                {/* Statut - tout à droite */}
-                <div className="flex-shrink-0 ml-auto">
-                  <Badge variant={getStatusBadgeVariant(getLeadStatus(lead.id))} className="w-36 justify-center text-xs py-0.5">
-                    {getLeadStatus(lead.id)}
-                  </Badge>
                 </div>
               </div>
               </CardContent>
