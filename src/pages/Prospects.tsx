@@ -1093,7 +1093,7 @@ Cordialement,
                   </div>
 
                   {/* Bloc 4 : Liste des contacts */}
-                  <div className="w-80 space-y-2">
+                  <div className="w-96 space-y-2">
                     {leadContacts.length > 0 ? (
                       <>
                         {displayedContacts.map((contact, index) => (
@@ -1231,7 +1231,7 @@ Cordialement,
                   </div>
 
                   {/* Bloc 2 : Informations entreprise avec logo */}
-                  <div className="flex-shrink-0 w-64 relative">
+                  <div className="flex-shrink-0 w-72 relative">
                     {/* Nom et logo */}
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1 min-w-0">
