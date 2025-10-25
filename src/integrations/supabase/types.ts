@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_activities: {
+        Row: {
+          activity_description: string
+          activity_type: string
+          contact_id: string
+          created_at: string
+          id: string
+          lead_id: string
+          new_value: string | null
+          previous_value: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_description: string
+          activity_type: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          new_value?: string | null
+          previous_value?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_description?: string
+          activity_type?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          new_value?: string | null
+          previous_value?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_functions: {
         Row: {
           category: string | null

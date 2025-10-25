@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban, History } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ import { fr } from 'date-fns/locale';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { ActivityTimeline } from '@/components/ActivityTimeline';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -79,6 +80,7 @@ import {
 const Prospects = () => {
   const { toast } = useToast();
   const { getActionName, actions } = useActions();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [leads, setLeads] = useState<any[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -89,6 +91,7 @@ const Prospects = () => {
   const [selectedContact, setSelectedContact] = useState<any | null>(null);
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const [contactActivities, setContactActivities] = useState<any[]>([]);
   const [emailPreview, setEmailPreview] = useState<{
     isOpen: boolean;
     actionName: string;
@@ -462,7 +465,19 @@ Cordialement,
   };
 
   // Fonction pour exécuter l'action après confirmation
-  const executeAction = () => {
+  const executeAction = async () => {
+    if (!selectedContact) return;
+
+    const lead = leads.find(l => l.id === selectedContact.companyId);
+    if (lead) {
+      await recordActivity(
+        selectedContact.id,
+        lead.id,
+        'action',
+        `${emailPreview.actionName} effectuée`
+      );
+    }
+
     toast({
       title: "Action exécutée",
       description: `${emailPreview.actionName} a été exécutée avec succès`,
@@ -501,6 +516,17 @@ Cordialement,
         variant: 'destructive',
       });
       return;
+    }
+
+    // Enregistrer l'activité
+    const lead = leads.find(l => l.id === selectedContact.companyId);
+    if (lead) {
+      await recordActivity(
+        selectedContact.id,
+        lead.id,
+        'meeting',
+        `${meetingPreview.actionName} planifié pour le ${format(meetingDate, "dd MMMM yyyy 'à' HH:mm", { locale: fr })}`
+      );
     }
 
     // Mettre à jour l'état local
@@ -737,11 +763,63 @@ Cordialement,
     setContactNote((contact as any).note || '');
     setFollowUpDate((contact as any).followUpDate || '');
     setShowContactDialog(true);
+    loadContactActivities(contact.id);
+  };
+
+  // Charger les activités d'un contact
+  const loadContactActivities = async (contactId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('contact_activities')
+      .select('*')
+      .eq('contact_id', contactId)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(2);
+
+    if (!error && data) {
+      setContactActivities(data);
+    }
+  };
+
+  // Enregistrer une activité
+  const recordActivity = async (
+    contactId: string,
+    leadId: string,
+    activityType: 'note' | 'action' | 'status_change' | 'meeting',
+    description: string,
+    previousValue?: string,
+    newValue?: string
+  ) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('contact_activities')
+      .insert({
+        user_id: user.id,
+        contact_id: contactId,
+        lead_id: leadId,
+        activity_type: activityType,
+        activity_description: description,
+        previous_value: previousValue || null,
+        new_value: newValue || null,
+      });
+
+    if (!error) {
+      // Recharger les activités
+      loadContactActivities(contactId);
+    }
   };
 
   const handleStatusChange = async (contactId: string, newStatus: ContactStatus) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
+    const contact = contacts.find(c => c.id === contactId);
+    const oldStatus = (contact as any)?.status || 'Nouveau';
 
     // Mise à jour dans Supabase
     const { error } = await supabase
@@ -758,6 +836,19 @@ Cordialement,
         variant: 'destructive',
       });
       return;
+    }
+
+    // Enregistrer l'activité
+    const lead = leads.find(l => contacts.some(c => c.id === contactId && c.companyId === l.id));
+    if (lead && oldStatus !== newStatus) {
+      await recordActivity(
+        contactId,
+        lead.id,
+        'status_change',
+        `Statut modifié`,
+        oldStatus,
+        newStatus
+      );
     }
 
     // Mise à jour de l'état local
@@ -782,6 +873,9 @@ Cordialement,
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const oldNote = selectedContact.note || '';
+    const hasNoteChanged = oldNote !== contactNote;
+
     // Mise à jour dans Supabase
     const { error } = await supabase
       .from('lead_contacts')
@@ -801,6 +895,17 @@ Cordialement,
         variant: 'destructive',
       });
       return;
+    }
+
+    // Enregistrer l'activité si la note a changé
+    const lead = leads.find(l => l.id === selectedContact.companyId);
+    if (lead && hasNoteChanged && contactNote.trim()) {
+      await recordActivity(
+        selectedContact.id,
+        lead.id,
+        'note',
+        `Note enregistrée: ${contactNote.substring(0, 50)}${contactNote.length > 50 ? '...' : ''}`
+      );
     }
 
     // Mise à jour de l'état local
@@ -1818,6 +1923,31 @@ Cordialement,
                           </div>
                         )}
                       </div>
+                    </Card>
+
+                    {/* Bloc 5 : Résumé des activités */}
+                    <Card className="p-4 bg-background">
+                      <div className="flex items-center gap-2 mb-3">
+                        <History className="h-4 w-4 text-primary" />
+                        <h3 className="font-semibold text-sm">Résumé des activités</h3>
+                      </div>
+                      
+                      <div className="mb-3">
+                        <ActivityTimeline activities={contactActivities} limit={2} />
+                      </div>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs text-primary hover:text-primary/80"
+                        onClick={() => {
+                          if (selectedContact) {
+                            navigate(`/contact-activities/${selectedContact.id}`);
+                          }
+                        }}
+                      >
+                        Voir l'ensemble des activités
+                      </Button>
                     </Card>
                   </div>
 
