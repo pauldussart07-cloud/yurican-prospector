@@ -1923,31 +1923,31 @@ Cordialement,
                           </div>
                         )}
                       </div>
-                    </Card>
 
-                    {/* Bloc 5 : Résumé des activités */}
-                    <Card className="p-4 bg-background">
-                      <div className="flex items-center gap-2 mb-3">
-                        <History className="h-4 w-4 text-primary" />
-                        <h3 className="font-semibold text-sm">Résumé des activités</h3>
-                      </div>
-                      
-                      <div className="mb-3">
-                        <ActivityTimeline activities={contactActivities} limit={2} />
-                      </div>
+                      {/* Résumé des activités */}
+                      <div className="border-t mt-4 pt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <History className="h-4 w-4 text-primary" />
+                          <h3 className="font-semibold text-sm">Résumé des activités</h3>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <ActivityTimeline activities={contactActivities} limit={2} />
+                        </div>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full text-xs text-primary hover:text-primary/80"
-                        onClick={() => {
-                          if (selectedContact) {
-                            navigate(`/contact-activities/${selectedContact.id}`);
-                          }
-                        }}
-                      >
-                        Voir l'ensemble des activités
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full text-xs text-primary hover:text-primary/80"
+                          onClick={() => {
+                            if (selectedContact) {
+                              navigate(`/contact-activities/${selectedContact.id}`);
+                            }
+                          }}
+                        >
+                          Voir l'ensemble des activités
+                        </Button>
+                      </div>
                     </Card>
                   </div>
 
