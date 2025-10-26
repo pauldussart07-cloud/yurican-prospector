@@ -867,7 +867,7 @@ Cordialement,
     });
   };
 
-  const handleSaveContact = async () => {
+  const handleSaveNote = async () => {
     if (!selectedContact) return;
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -891,7 +891,7 @@ Cordialement,
       console.error('Error updating contact:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible d\'enregistrer les modifications.',
+        description: 'Impossible d\'enregistrer la note.',
         variant: 'destructive',
       });
       return;
@@ -918,11 +918,9 @@ Cordialement,
     setContacts(updatedContacts);
     
     toast({
-      title: 'Modifications enregistrées',
-      description: 'Les modifications ont été enregistrées avec succès.',
+      title: 'Note enregistrée',
+      description: 'La note a été enregistrée avec succès.',
     });
-    
-    setShowContactDialog(false);
   };
 
   const handleDiscoverRequest = (contactId: string, type: 'phone' | 'email') => {
@@ -1959,10 +1957,17 @@ Cordialement,
                         <Textarea 
                           id="note"
                           placeholder="Ajoutez vos notes..."
-                          className="min-h-[80px] resize-none text-xs"
+                          className="min-h-[80px] resize-none text-xs mb-2"
                           value={contactNote}
                           onChange={(e) => setContactNote(e.target.value)}
                         />
+                        <Button 
+                          onClick={handleSaveNote}
+                          size="sm"
+                          className="w-full"
+                        >
+                          Enregistrer la note
+                        </Button>
                       </div>
                       
                       <div className="space-y-3">
@@ -1995,11 +2000,6 @@ Cordialement,
               </div>
             );
           })()}
-          <DialogFooter className="mt-6">
-            <Button onClick={handleSaveContact}>
-              Enregistrer les modifications
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
