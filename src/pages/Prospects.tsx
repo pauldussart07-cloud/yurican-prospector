@@ -1709,7 +1709,7 @@ Cordialement,
           setFollowUpDate('');
         }
       }}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[75vh] overflow-y-auto">
           {selectedContact && (() => {
             const lead = leads.find(l => l.id === selectedContact.companyId);
             const company = lead ? mockCompanies.find(c => c.id === lead.companyId) : null;
