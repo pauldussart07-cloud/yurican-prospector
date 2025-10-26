@@ -25,7 +25,9 @@ import { fr } from 'date-fns/locale';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { companySummaryService } from '@/services/companySummaryService';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
+import { DialogOverlay } from '@/components/ui/dialog';
 
 // Types et hiérarchie des statuts
 type ContactStatus = 'Nouveau' | 'Engagé' | 'Discussion' | 'RDV' | 'Exclu';
@@ -141,6 +143,12 @@ const Prospects = () => {
   const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
   const [statusFilter, setStatusFilter] = useState<ContactStatus | 'all'>('all');
   const [expandedContactsLeads, setExpandedContactsLeads] = useState<Set<string>>(new Set());
+  
+  // États pour la fiche entreprise détaillée
+  const [selectedCompanyForDetails, setSelectedCompanyForDetails] = useState<any | null>(null);
+  const [companySummary, setCompanySummary] = useState('');
+  const [loadingCompanySummary, setLoadingCompanySummary] = useState(false);
+  const [companySummaries, setCompanySummaries] = useState<Map<string, string>>(new Map());
 
   // Appliquer les filtres depuis l'URL
   useEffect(() => {
@@ -997,6 +1005,33 @@ Cordialement,
     );
   };
 
+  // Fonction pour gérer le clic sur le bloc entreprise
+  const handleCompanyDetailsClick = async (company: any) => {
+    setSelectedCompanyForDetails(company);
+    
+    // Vérifier si on a déjà un résumé pour cette entreprise
+    const existingSummary = companySummaries.get(company.id);
+    if (existingSummary) {
+      setCompanySummary(existingSummary);
+      return;
+    }
+    
+    setCompanySummary('');
+    setLoadingCompanySummary(true);
+    
+    try {
+      const generatedSummary = await companySummaryService.summarize(company);
+      setCompanySummary(generatedSummary);
+      // Stocker le résumé généré
+      setCompanySummaries(prev => new Map(prev).set(company.id, generatedSummary));
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      setCompanySummary('Erreur lors de la génération du résumé.');
+    } finally {
+      setLoadingCompanySummary(false);
+    }
+  };
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'hsl(40 25% 95%)' }}>
       <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -1334,7 +1369,13 @@ Cordialement,
                   </div>
 
                   {/* Bloc 2 : Informations entreprise avec logo */}
-                  <div className="flex-shrink-0 w-72 relative">
+                  <div 
+                    className="flex-shrink-0 w-72 relative cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCompanyDetailsClick(company);
+                    }}
+                  >
                     {/* Nom et logo */}
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1 min-w-0">
@@ -2041,6 +2082,167 @@ Cordialement,
               Exécuter l'action
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog pour la fiche entreprise détaillée */}
+      <Dialog open={!!selectedCompanyForDetails} onOpenChange={(open) => !open && setSelectedCompanyForDetails(null)}>
+        <DialogOverlay className="backdrop-blur-md bg-transparent" />
+        <DialogContent className="max-w-7xl max-h-[70vh] overflow-y-auto p-6">
+          {selectedCompanyForDetails && (
+            <div className="w-full">
+              {/* Disposition en 3 colonnes */}
+              <div className="grid grid-cols-12 gap-6">
+                {/* Colonne gauche : Carte entreprise comme dans la liste */}
+                <div className="col-span-3">
+                  <Card className="bg-card">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col gap-3">
+                        {/* Logo */}
+                        <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mx-auto">
+                          <Building2 className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        
+                        {/* Nom et localisation */}
+                        <div className="text-center space-y-2">
+                          <h3 className="text-base font-semibold">
+                            {selectedCompanyForDetails.name}
+                          </h3>
+                          <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="h-3 w-3" />
+                              <span>{selectedCompanyForDetails.department}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Briefcase className="h-3 w-3" />
+                              <span>{selectedCompanyForDetails.sector}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          <Badge className="text-xs">{selectedCompanyForDetails.naf}</Badge>
+                        </div>
+
+                        {/* KPI rapides */}
+                        <div className="pt-3 border-t space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <TrendingUp className="h-3 w-3" />
+                              CA
+                            </span>
+                            <span className="font-semibold">{(selectedCompanyForDetails.ca / 1000000).toFixed(1)}M€</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              Effectif
+                            </span>
+                            <span className="font-semibold">{selectedCompanyForDetails.headcount} emp.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Colonne centrale : KPI en 2 colonnes */}
+                <div className="col-span-5">
+                  <h3 className="text-lg font-semibold mb-4">Informations détaillées</h3>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Adresse</span>
+                      <p className="text-sm font-medium">{selectedCompanyForDetails.address}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">SIRET</span>
+                      <p className="text-sm font-medium">{selectedCompanyForDetails.siret}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Code NAF</span>
+                      <p className="text-sm font-medium">{selectedCompanyForDetails.naf}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur</span>
+                      <p className="text-sm font-medium">{selectedCompanyForDetails.sector}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Chiffre d'affaires</span>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                        <p className="text-sm font-medium">{(selectedCompanyForDetails.ca / 1000000).toFixed(1)}M€</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Effectif</span>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-blue-600" />
+                        <p className="text-sm font-medium">{selectedCompanyForDetails.headcount} employés</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Département</span>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        <p className="text-sm font-medium">{selectedCompanyForDetails.department}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur d'activité</span>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        <p className="text-sm font-medium">{selectedCompanyForDetails.sector}</p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Site web</span>
+                      <a 
+                        href={selectedCompanyForDetails.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Visiter le site →
+                      </a>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">LinkedIn</span>
+                      <a 
+                        href={selectedCompanyForDetails.linkedin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Linkedin className="h-3 w-3" />
+                        Voir le profil →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Colonne droite : Synthèse */}
+                <div className="col-span-4">
+                  <h3 className="text-lg font-semibold mb-4">Synthèse</h3>
+                  <div className="bg-muted/20 rounded-lg p-4 border border-border mb-4">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {loadingCompanySummary ? 'Génération de la synthèse en cours...' : companySummary || 'Aucune synthèse disponible'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
