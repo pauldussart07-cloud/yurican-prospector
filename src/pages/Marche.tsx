@@ -50,6 +50,7 @@ const Marche = () => {
   
   // Filtres
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>('all');
   const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [hideNoGo, setHideNoGo] = useState(true);
@@ -391,6 +392,18 @@ const Marche = () => {
         leads.filter(l => l.isHotSignal).map(l => l.companyId)
       );
       filtered = filtered.filter(c => signalCompanyIds.has(c.id));
+      
+      // Filtrer par type d'événement si sélectionné
+      if (eventTypeFilter !== 'all') {
+        // Pour l'instant, on simule le filtrage - à remplacer par la vraie logique
+        // quand les types d'événements seront stockés en base de données
+        filtered = filtered.filter(c => {
+          // Simulation : alterner les types d'événements selon l'ID
+          const eventTypes = ['appel_offre', 'recrutement', 'levee_fonds', 'expansion'];
+          const index = parseInt(c.id) % eventTypes.length;
+          return eventTypes[index] === eventTypeFilter;
+        });
+      }
     }
 
     // Apply targeting filter if active
@@ -453,7 +466,7 @@ const Marche = () => {
       
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [companies, hideNoGo, activeTargeting, departmentFilter, sortCriteria, sortDirection]);
+  }, [companies, hideNoGo, viewMode, eventTypeFilter, activeTargeting, departmentFilter, sortCriteria, sortDirection]);
 
   // Pagination
   const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
@@ -681,6 +694,37 @@ const Marche = () => {
             ) : (
               <>
                 {/* Filtres et tris */}
+                {viewMode === 'signal' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Événement : {eventTypeFilter === 'all' && 'Tous'}
+                        {eventTypeFilter === 'appel_offre' && 'Appel d\'offre'}
+                        {eventTypeFilter === 'recrutement' && 'Recrutement'}
+                        {eventTypeFilter === 'levee_fonds' && 'Levée de fonds'}
+                        {eventTypeFilter === 'expansion' && 'Expansion'}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="bg-background">
+                      <DropdownMenuItem onClick={() => setEventTypeFilter('all')}>
+                        Tous les événements
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEventTypeFilter('appel_offre')}>
+                        Appel d'offre
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEventTypeFilter('recrutement')}>
+                        Recrutement
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEventTypeFilter('levee_fonds')}>
+                        Levée de fonds
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEventTypeFilter('expansion')}>
+                        Expansion
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
