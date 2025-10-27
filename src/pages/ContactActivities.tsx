@@ -4,8 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
-import { ArrowLeft, Building2, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Globe, Linkedin, MapPin, TrendingUp, DollarSign, Package } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { companySummaryService } from '@/services/companySummaryService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Activity {
   id: string;
@@ -42,6 +45,9 @@ export default function ContactActivities() {
   const [lead, setLead] = useState<Lead | null>(null);
   const [otherContacts, setOtherContacts] = useState<OtherContact[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCompanyDetails, setShowCompanyDetails] = useState(false);
+  const [companySummary, setCompanySummary] = useState<string>('');
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -105,8 +111,36 @@ export default function ContactActivities() {
     }
   };
 
-  const handleViewCompany = () => {
-    navigate('/prospects');
+  const handleViewCompany = async () => {
+    if (!lead) return;
+    
+    setShowCompanyDetails(true);
+    setLoadingSummary(true);
+    
+    try {
+      const summary = await companySummaryService.summarize({
+        id: lead.id,
+        name: lead.company_name,
+        siret: lead.id,
+        sector: '',
+        department: '',
+        ca: 0,
+        headcount: 0,
+        website: '',
+        linkedin: '',
+        naf: '',
+        address: '',
+        logoUrl: '',
+        isHidden: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      setCompanySummary(summary);
+    } catch (error) {
+      console.error('Error loading summary:', error);
+    } finally {
+      setLoadingSummary(false);
+    }
   };
 
   const handleViewOtherContact = (otherContactId: string) => {
@@ -211,6 +245,75 @@ export default function ContactActivities() {
           )}
         </div>
       </div>
+
+      {/* Company Details Dialog */}
+      <Dialog open={showCompanyDetails} onOpenChange={setShowCompanyDetails}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">{lead?.company_name}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Summary Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Résumé de l'entreprise</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingSummary ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground leading-relaxed">{companySummary}</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Company Info Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Building2 className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nom</p>
+                      <p className="font-medium">{lead?.company_name}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Package className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">SIRET</p>
+                      <p className="font-medium">{lead?.id || 'N/A'}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setShowCompanyDetails(false)}
+              >
+                Fermer
+              </Button>
+              <Button onClick={() => navigate('/prospects')}>
+                Voir dans Prospects
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
