@@ -4,11 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
-import { ArrowLeft, Building2, Users, Globe, Linkedin, MapPin, TrendingUp, DollarSign, Package } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Globe, Linkedin, MapPin, TrendingUp, DollarSign, Package, ExternalLink, Briefcase } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { companySummaryService } from '@/services/companySummaryService';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 interface Activity {
   id: string;
@@ -29,6 +29,15 @@ interface Contact {
 interface Lead {
   id: string;
   company_name: string;
+  company_sector?: string;
+  company_department?: string;
+  company_ca?: number;
+  company_headcount?: number;
+  company_website?: string;
+  company_linkedin?: string;
+  company_address?: string;
+  company_siret?: string;
+  company_naf?: string;
 }
 
 interface OtherContact {
@@ -73,7 +82,7 @@ export default function ContactActivities() {
       // Load lead/company info
       const { data: leadData, error: leadError } = await supabase
         .from('leads')
-        .select('id, company_name')
+        .select('id, company_name, company_sector, company_department, company_ca, company_headcount, company_website, company_linkedin, company_address, company_siret, company_naf')
         .eq('id', contactData.lead_id)
         .eq('user_id', user.id)
         .single();
@@ -248,70 +257,211 @@ export default function ContactActivities() {
 
       {/* Company Details Dialog */}
       <Dialog open={showCompanyDetails} onOpenChange={setShowCompanyDetails}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">{lead?.company_name}</DialogTitle>
+            <DialogTitle className="sr-only">{lead?.company_name}</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-6">
-            {/* Summary Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Résumé de l'entreprise</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingSummary ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground leading-relaxed">{companySummary}</p>
-                )}
-              </CardContent>
-            </Card>
+          {lead && (
+            <div className="grid grid-cols-12 gap-6">
+              {/* Colonne gauche : Carte entreprise */}
+              <div className="col-span-3">
+                <Card className="bg-card">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col gap-3">
+                      {/* Logo */}
+                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center mx-auto">
+                        <Building2 className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      
+                      {/* Nom et localisation */}
+                      <div className="text-center space-y-2">
+                        <h3 className="text-base font-semibold">
+                          {lead.company_name}
+                        </h3>
+                        <div className="flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+                          {lead.company_department && (
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="h-3 w-3" />
+                              <span>{lead.company_department}</span>
+                            </div>
+                          )}
+                          {lead.company_sector && (
+                            <div className="flex items-center gap-1.5">
+                              <Briefcase className="h-3 w-3" />
+                              <span>{lead.company_sector}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
-            {/* Company Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Building2 className="h-5 w-5 text-primary mt-1" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Nom</p>
-                      <p className="font-medium">{lead?.company_name}</p>
+                      {/* Badges */}
+                      {lead.company_naf && (
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          <Badge className="text-xs">{lead.company_naf}</Badge>
+                        </div>
+                      )}
+
+                      {/* KPI rapides */}
+                      {(lead.company_ca || lead.company_headcount) && (
+                        <div className="pt-3 border-t space-y-2">
+                          {lead.company_ca && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground flex items-center gap-1">
+                                <TrendingUp className="h-3 w-3" />
+                                CA
+                              </span>
+                              <span className="font-semibold">{(lead.company_ca / 1000000).toFixed(1)}M€</span>
+                            </div>
+                          )}
+                          {lead.company_headcount && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                Effectif
+                              </span>
+                              <span className="font-semibold">{lead.company_headcount} emp.</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
 
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Package className="h-5 w-5 text-primary mt-1" />
+              {/* Colonne centrale : KPI en 2 colonnes */}
+              <div className="col-span-5">
+                <h3 className="text-lg font-semibold mb-4">Informations détaillées</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                  {lead.company_address && (
                     <div>
-                      <p className="text-sm text-muted-foreground">SIRET</p>
-                      <p className="font-medium">{lead?.id || 'N/A'}</p>
+                      <span className="text-xs text-muted-foreground block mb-1">Adresse</span>
+                      <p className="text-sm font-medium">{lead.company_address}</p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  )}
+                  
+                  {lead.company_siret && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">SIRET</span>
+                      <p className="text-sm font-medium">{lead.company_siret}</p>
+                    </div>
+                  )}
+                  
+                  {lead.company_naf && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Code NAF</span>
+                      <p className="text-sm font-medium">{lead.company_naf}</p>
+                    </div>
+                  )}
+                  
+                  {lead.company_sector && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur</span>
+                      <p className="text-sm font-medium">{lead.company_sector}</p>
+                    </div>
+                  )}
+                  
+                  {lead.company_ca && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Chiffre d'affaires</span>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-green-600" />
+                        <p className="text-sm font-medium">{(lead.company_ca / 1000000).toFixed(1)}M€</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {lead.company_headcount && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Effectif</span>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-blue-600" />
+                        <p className="text-sm font-medium">{lead.company_headcount} employés</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {lead.company_department && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Département</span>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        <p className="text-sm font-medium">{lead.company_department}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {lead.company_sector && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Secteur d'activité</span>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        <p className="text-sm font-medium">{lead.company_sector}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {lead.company_website && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">Site web</span>
+                      <a 
+                        href={lead.company_website} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Visiter le site →
+                      </a>
+                    </div>
+                  )}
+                  
+                  {lead.company_linkedin && (
+                    <div>
+                      <span className="text-xs text-muted-foreground block mb-1">LinkedIn</span>
+                      <a 
+                        href={lead.company_linkedin} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                      >
+                        <Linkedin className="h-3 w-3" />
+                        Voir le profil →
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-            {/* Actions */}
-            <div className="flex gap-2 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => setShowCompanyDetails(false)}
-              >
-                Fermer
-              </Button>
-              <Button onClick={() => navigate('/prospects')}>
-                Voir dans Prospects
-              </Button>
+              {/* Colonne droite : Synthèse et actions */}
+              <div className="col-span-4">
+                <h3 className="text-lg font-semibold mb-4">Synthèse</h3>
+                <div className="bg-muted/20 rounded-lg p-4 border border-border mb-4">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {loadingSummary ? 'Génération de la synthèse en cours...' : companySummary || 'Aucune synthèse disponible'}
+                  </p>
+                </div>
+                
+                {/* Actions */}
+                <div className="space-y-3">
+                  <Button 
+                    className="w-full"
+                    onClick={() => navigate('/prospects')}
+                  >
+                    Voir dans Prospects
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowCompanyDetails(false)}
+                  >
+                    Fermer
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
