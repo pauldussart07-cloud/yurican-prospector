@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { companySummaryService } from '@/services/companySummaryService';
 import { ActivityTimeline } from '@/components/ActivityTimeline';
+import { CompanyActivityTimeline } from '@/components/CompanyActivityTimeline';
 import { DialogOverlay } from '@/components/ui/dialog';
 
 // Types et hiérarchie des statuts
@@ -2088,13 +2089,13 @@ Cordialement,
       {/* Dialog pour la fiche entreprise détaillée */}
       <Dialog open={!!selectedCompanyForDetails} onOpenChange={(open) => !open && setSelectedCompanyForDetails(null)}>
         <DialogOverlay className="backdrop-blur-md bg-transparent" />
-        <DialogContent className="max-w-7xl max-h-[70vh] overflow-y-auto p-6">
+        <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-y-auto p-6">
           {selectedCompanyForDetails && (
             <div className="w-full">
-              {/* Disposition en 3 colonnes */}
+              {/* Disposition en 4 colonnes */}
               <div className="grid grid-cols-12 gap-6">
                 {/* Colonne gauche : Carte entreprise comme dans la liste */}
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <Card className="bg-card">
                     <CardContent className="p-4">
                       <div className="flex flex-col gap-3">
@@ -2148,7 +2149,7 @@ Cordialement,
                 </div>
 
                 {/* Colonne centrale : KPI en 2 colonnes */}
-                <div className="col-span-5">
+                <div className="col-span-4">
                   <h3 className="text-lg font-semibold mb-4">Informations détaillées</h3>
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div>
@@ -2231,13 +2232,21 @@ Cordialement,
                   </div>
                 </div>
 
-                {/* Colonne droite : Synthèse */}
-                <div className="col-span-4">
+                {/* Colonne milieu-droite : Synthèse */}
+                <div className="col-span-3">
                   <h3 className="text-lg font-semibold mb-4">Synthèse</h3>
                   <div className="bg-muted/20 rounded-lg p-4 border border-border mb-4">
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">
                       {loadingCompanySummary ? 'Génération de la synthèse en cours...' : companySummary || 'Aucune synthèse disponible'}
                     </p>
+                  </div>
+                </div>
+
+                {/* Colonne droite : Timeline d'activité */}
+                <div className="col-span-3">
+                  <h3 className="text-lg font-semibold mb-4">Timeline d'activité</h3>
+                  <div className="bg-muted/10 rounded-lg p-4 border border-border max-h-[60vh] overflow-y-auto">
+                    <CompanyActivityTimeline companyId={selectedCompanyForDetails.id} />
                   </div>
                 </div>
               </div>
