@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban, History } from 'lucide-react';
+import { Phone, Mail, Users as UsersIcon, Building2, MapPin, Briefcase, ExternalLink, Linkedin, TrendingUp, Users, ArrowUp, ArrowDown, ChevronDown, ChevronUp, ChevronRight, Globe, ThumbsUp, ThumbsDown, Calendar, UserCircle2, Target, Medal, Search, List, Kanban, History, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { KanbanView } from '@/components/KanbanView';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useActions } from '@/contexts/ActionsContext';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -126,6 +126,11 @@ const Prospects = () => {
   const [showDiscoverDialog, setShowDiscoverDialog] = useState(false);
   const [contactToDiscover, setContactToDiscover] = useState<{ id: string; type: 'phone' | 'email' } | null>(null);
   const [loadingLeads, setLoadingLeads] = useState(true);
+  const [meetingDetails, setMeetingDetails] = useState<{
+    isOpen: boolean;
+    contact: any | null;
+    lead: any | null;
+  }>({ isOpen: false, contact: null, lead: null });
   
   // Persona selector state
   const [totalContactsToGenerate, setTotalContactsToGenerate] = useState(3);
@@ -1971,7 +1976,21 @@ Cordialement,
                         </div>
                         
                         <div className="mb-3">
-                          <ActivityTimeline activities={contactActivities} limit={2} />
+                          <ActivityTimeline 
+                            activities={contactActivities} 
+                            limit={2}
+                            onActivityClick={(activity) => {
+                              if (activity.activity_type === 'meeting') {
+                                // Récupérer les détails complets pour afficher la fiche RDV
+                                const lead = leads.find(l => l.id === selectedLead);
+                                setMeetingDetails({
+                                  isOpen: true,
+                                  contact: selectedContact,
+                                  lead: lead || null
+                                });
+                              }
+                            }}
+                          />
                         </div>
 
                         <Button
@@ -2239,6 +2258,187 @@ Cordialement,
                       {loadingCompanySummary ? 'Génération de la synthèse en cours...' : companySummary || 'Aucune synthèse disponible'}
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Meeting Details Dialog (from Agenda) */}
+      <Dialog open={meetingDetails.isOpen} onOpenChange={(open) => setMeetingDetails({ ...meetingDetails, isOpen: open })}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {meetingDetails.contact && meetingDetails.lead 
+                ? `RDV - ${meetingDetails.lead.company_name} - ${meetingDetails.contact.full_name}` 
+                : 'Fiche Contact'}
+            </DialogTitle>
+          </DialogHeader>
+
+          {meetingDetails.contact && meetingDetails.lead && (
+            <div className="space-y-6">
+              {/* Informations Contact */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Contact</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Nom</div>
+                    <div className="font-medium flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      {meetingDetails.contact.full_name}
+                    </div>
+                  </div>
+                  {meetingDetails.contact.role && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Fonction</div>
+                      <div className="font-medium">{meetingDetails.contact.role}</div>
+                    </div>
+                  )}
+                  {meetingDetails.contact.email && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Email</div>
+                      <a
+                        href={`mailto:${meetingDetails.contact.email}`}
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Mail className="h-4 w-4" />
+                        {meetingDetails.contact.email}
+                      </a>
+                    </div>
+                  )}
+                  {meetingDetails.contact.phone && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Téléphone</div>
+                      <a
+                        href={`tel:${meetingDetails.contact.phone}`}
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Phone className="h-4 w-4" />
+                        {meetingDetails.contact.phone}
+                      </a>
+                    </div>
+                  )}
+                  {meetingDetails.contact.linkedin && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">LinkedIn</div>
+                      <a
+                        href={meetingDetails.contact.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                        Profil LinkedIn
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Informations Entreprise */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Entreprise</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-sm text-muted-foreground">Nom</div>
+                    <div className="font-medium flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      {meetingDetails.lead.company_name}
+                    </div>
+                  </div>
+                  {meetingDetails.lead.company_sector && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Secteur</div>
+                      <div className="font-medium">{meetingDetails.lead.company_sector}</div>
+                    </div>
+                  )}
+                  {meetingDetails.lead.company_headcount && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Effectif</div>
+                      <div className="font-medium">{meetingDetails.lead.company_headcount} employés</div>
+                    </div>
+                  )}
+                  {meetingDetails.lead.company_address && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">Adresse</div>
+                      <div className="font-medium flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {meetingDetails.lead.company_address}
+                      </div>
+                    </div>
+                  )}
+                  {meetingDetails.lead.company_website && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Site web</div>
+                      <a
+                        href={meetingDetails.lead.company_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Globe className="h-4 w-4" />
+                        Site web
+                      </a>
+                    </div>
+                  )}
+                  {meetingDetails.lead.company_linkedin && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">LinkedIn Entreprise</div>
+                      <a
+                        href={meetingDetails.lead.company_linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium flex items-center gap-2 text-primary hover:underline"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                        Page LinkedIn
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actualité / Signal */}
+              {meetingDetails.lead.signal_summary && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold border-b pb-2">Actualité & Signaux</h3>
+                  <div className="bg-accent/50 p-4 rounded-lg border border-accent">
+                    <div className="text-sm leading-relaxed">
+                      {meetingDetails.lead.signal_summary}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* RDV et Statut */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold border-b pb-2">Rendez-vous</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {meetingDetails.contact.follow_up_date && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Date</div>
+                      <div className="font-medium flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        {format(parseISO(meetingDetails.contact.follow_up_date), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-sm text-muted-foreground">Statut</div>
+                    <Badge variant={getStatusBadgeVariant(meetingDetails.contact.status)}>
+                      {meetingDetails.contact.status}
+                    </Badge>
+                  </div>
+                  {meetingDetails.contact.note && (
+                    <div className="col-span-2">
+                      <div className="text-sm text-muted-foreground">Notes</div>
+                      <div className="font-medium bg-muted p-3 rounded-md">
+                        {meetingDetails.contact.note}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

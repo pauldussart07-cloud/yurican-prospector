@@ -14,6 +14,7 @@ interface Activity {
 interface ActivityTimelineProps {
   activities: Activity[];
   limit?: number;
+  onActivityClick?: (activity: Activity) => void;
 }
 
 const getActivityIcon = (type: string) => {
@@ -46,7 +47,7 @@ const getActivityColor = (type: string) => {
   }
 };
 
-export const ActivityTimeline = ({ activities, limit }: ActivityTimelineProps) => {
+export const ActivityTimeline = ({ activities, limit, onActivityClick }: ActivityTimelineProps) => {
   const displayedActivities = limit ? activities.slice(0, limit) : activities;
 
   if (activities.length === 0) {
@@ -61,7 +62,15 @@ export const ActivityTimeline = ({ activities, limit }: ActivityTimelineProps) =
   return (
     <div className="space-y-4">
       {displayedActivities.map((activity, index) => (
-        <div key={activity.id} className="flex gap-3 relative">
+        <div 
+          key={activity.id} 
+          className={`flex gap-3 relative ${onActivityClick && activity.activity_type === 'meeting' ? 'cursor-pointer hover:bg-accent/50 rounded-lg p-2 -m-2 transition-colors' : ''}`}
+          onClick={() => {
+            if (onActivityClick && activity.activity_type === 'meeting') {
+              onActivityClick(activity);
+            }
+          }}
+        >
           {/* Timeline line */}
           {index !== displayedActivities.length - 1 && (
             <div className="absolute left-[15px] top-8 bottom-0 w-[2px] bg-border" />
