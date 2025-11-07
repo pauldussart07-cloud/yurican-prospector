@@ -315,51 +315,54 @@ const SequenceEditor = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 overflow-auto p-8 bg-muted/20">
+        <div className="max-w-2xl mx-auto">
           {/* Sequence Flow */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Start Node */}
-            <Card className="p-6 text-center bg-muted/50">
-              <div className="font-medium text-muted-foreground">Sequence start</div>
+            <Card className="p-4 text-center bg-background border-2">
+              <div className="text-sm font-medium text-muted-foreground">Début de la séquence</div>
             </Card>
 
             {/* Connector */}
             <div className="flex justify-center">
-              <div className="w-0.5 h-8 bg-border" />
+              <div className="w-0.5 h-6 bg-border" />
             </div>
 
             {/* Steps */}
             {steps.map((step, index) => (
               <div key={step.id}>
                 {/* Step Card */}
-                <Card className={`p-6 border-2 ${isStepIncomplete(step) ? 'border-destructive' : 'border-border'}`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
+                <Card className={`p-4 border-2 ${isStepIncomplete(step) ? 'border-destructive' : 'border-border'} hover:shadow-md transition-shadow`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                      <Clock className="h-3 w-3" />
                       <span>{getDelayText(step)}</span>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => {
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
                       setEditingStep(step);
                       setShowEditSheet(true);
                     }}>
-                      <Edit2 className="h-4 w-4" />
+                      <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
                       {getStepIcon(step.step_type)}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium">{getStepLabel(step.step_type)}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">{getStepLabel(step.step_type)}</div>
                       {isStepIncomplete(step) && (
-                        <div className="text-sm text-destructive">Paramétrage incomplet</div>
+                        <div className="text-xs text-destructive flex items-center gap-1 mt-0.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                          Paramétrage incomplet
+                        </div>
                       )}
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -379,7 +382,7 @@ const SequenceEditor = () => {
                 {/* Connector */}
                 {index < steps.length - 1 && (
                   <div className="flex justify-center">
-                    <div className="w-0.5 h-8 bg-border" />
+                    <div className="w-0.5 h-6 bg-border" />
                   </div>
                 )}
               </div>
@@ -387,27 +390,27 @@ const SequenceEditor = () => {
 
             {/* Add Step Button */}
             <div className="flex justify-center">
-              <div className="w-0.5 h-8 bg-border" />
+              <div className="w-0.5 h-6 bg-border" />
             </div>
 
             <div className="flex justify-center relative">
               <DropdownMenu open={showStepMenu} onOpenChange={setShowStepMenu}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="rounded-full h-10 w-10">
-                    <Plus className="h-5 w-5" />
+                  <Button variant="outline" size="icon" className="rounded-full h-9 w-9 shadow-sm hover:shadow-md transition-shadow">
+                    <Plus className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center">
-                  <DropdownMenuItem onClick={() => handleAddStep('email')}>
-                    <Mail className="h-4 w-4 mr-2" />
+                <DropdownMenuContent align="center" className="w-56">
+                  <DropdownMenuItem onClick={() => handleAddStep('email')} className="cursor-pointer">
+                    <Mail className="h-4 w-4 mr-2 text-primary" />
                     Envoyer un email
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddStep('whatsapp')}>
-                    <MessageCircle className="h-4 w-4 mr-2" />
+                  <DropdownMenuItem onClick={() => handleAddStep('whatsapp')} className="cursor-pointer">
+                    <MessageCircle className="h-4 w-4 mr-2 text-green-500" />
                     Envoyer un WhatsApp
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddStep('linkedin')}>
-                    <Linkedin className="h-4 w-4 mr-2" />
+                  <DropdownMenuItem onClick={() => handleAddStep('linkedin')} className="cursor-pointer">
+                    <Linkedin className="h-4 w-4 mr-2 text-blue-500" />
                     Actions LinkedIn
                   </DropdownMenuItem>
                 </DropdownMenuContent>
