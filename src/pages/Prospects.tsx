@@ -2246,7 +2246,10 @@ Cordialement,
                 <div className="col-span-3">
                   <h3 className="text-lg font-semibold mb-4">Timeline d'activité</h3>
                   <div className="bg-muted/10 rounded-lg p-4 border border-border max-h-[60vh] overflow-y-auto">
-                    <CompanyActivityTimeline companyId={selectedCompanyForDetails.id} />
+                    <CompanyActivityTimeline companyId={(() => {
+                      const lead = leads.find(l => l.companyId === selectedCompanyForDetails.id);
+                      return lead?.id || selectedCompanyForDetails.id;
+                    })()} />
                   </div>
                 </div>
               </div>
