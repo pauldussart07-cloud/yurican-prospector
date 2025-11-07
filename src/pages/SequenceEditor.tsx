@@ -296,20 +296,11 @@ const SequenceEditor = () => {
             />
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={sequence.is_active}
-                onCheckedChange={(checked) => handleUpdateSequence({ is_active: checked })}
-              />
-            </div>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-5 w-5" />
-            </Button>
-            <Button>Next step →</Button>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={sequence.is_active}
+              onCheckedChange={(checked) => handleUpdateSequence({ is_active: checked })}
+            />
           </div>
         </div>
       </div>
