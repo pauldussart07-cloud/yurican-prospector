@@ -12,6 +12,8 @@ import Vision from "./pages/Vision";
 import Marche from "./pages/Marche";
 import Prospects from "./pages/Prospects";
 import Agenda from "./pages/Agenda";
+import Sequences from "./pages/Sequences";
+import SequenceEditor from "./pages/SequenceEditor";
 import Targeting from "./pages/Targeting";
 import Parametrage from "./pages/Parametrage";
 import ProspectsMobile from "./pages/ProspectsMobile";
@@ -55,6 +57,8 @@ const App = () => (
                               <Route path="/marche" element={<Marche />} />
                               <Route path="/prospects" element={<Prospects />} />
                               <Route path="/agenda" element={<Agenda />} />
+                              <Route path="/sequences" element={<Sequences />} />
+                              <Route path="/sequences/:id" element={<SequenceEditor />} />
                               <Route path="/targeting" element={<Targeting />} />
                               <Route path="/parametrage" element={<Parametrage />} />
                               <Route path="/prospects-mobile" element={<ProspectsMobile />} />

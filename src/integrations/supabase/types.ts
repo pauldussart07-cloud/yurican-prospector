@@ -331,6 +331,80 @@ export type Database = {
         }
         Relationships: []
       }
+      sequence_steps: {
+        Row: {
+          created_at: string
+          delay_unit: string | null
+          delay_value: number | null
+          email_body: string | null
+          email_subject: string | null
+          id: string
+          sequence_id: string
+          step_order: number
+          step_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delay_unit?: string | null
+          delay_value?: number | null
+          email_body?: string | null
+          email_subject?: string | null
+          id?: string
+          sequence_id: string
+          step_order: number
+          step_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delay_unit?: string | null
+          delay_value?: number | null
+          email_body?: string | null
+          email_subject?: string | null
+          id?: string
+          sequence_id?: string
+          step_order?: number
+          step_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequences: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       targetings: {
         Row: {
           created_at: string | null
