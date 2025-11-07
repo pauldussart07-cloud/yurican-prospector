@@ -22,6 +22,9 @@ interface Sequence {
   is_active: boolean;
   created_at: string;
   step_count?: number;
+  active_contacts?: number;
+  open_rate?: number;
+  reply_rate?: number;
 }
 
 const Sequences = () => {
@@ -52,19 +55,57 @@ const Sequences = () => {
 
       if (error) throw error;
 
-      // Fetch step counts for each sequence
-      const sequencesWithCounts = await Promise.all(
+      // Fetch step counts and analytics for each sequence
+      const sequencesWithStats = await Promise.all(
         (sequencesData || []).map(async (seq) => {
-          const { count } = await supabase
+          // Get step count
+          const { count: stepCount } = await supabase
             .from('sequence_steps')
             .select('*', { count: 'exact', head: true })
             .eq('sequence_id', seq.id);
 
-          return { ...seq, step_count: count || 0 };
+          // Get active contacts count
+          const { count: activeContacts } = await supabase
+            .from('sequence_enrollments')
+            .select('*', { count: 'exact', head: true })
+            .eq('sequence_id', seq.id)
+            .eq('status', 'active');
+
+          // Get total emails sent
+          const { count: emailsSent } = await supabase
+            .from('sequence_analytics')
+            .select('*', { count: 'exact', head: true })
+            .eq('sequence_id', seq.id)
+            .eq('event_type', 'sent');
+
+          // Get opens
+          const { count: opens } = await supabase
+            .from('sequence_analytics')
+            .select('*', { count: 'exact', head: true })
+            .eq('sequence_id', seq.id)
+            .eq('event_type', 'opened');
+
+          // Get replies
+          const { count: replies } = await supabase
+            .from('sequence_analytics')
+            .select('*', { count: 'exact', head: true })
+            .eq('sequence_id', seq.id)
+            .eq('event_type', 'replied');
+
+          const openRate = emailsSent && emailsSent > 0 ? ((opens || 0) / emailsSent) * 100 : 0;
+          const replyRate = emailsSent && emailsSent > 0 ? ((replies || 0) / emailsSent) * 100 : 0;
+
+          return { 
+            ...seq, 
+            step_count: stepCount || 0,
+            active_contacts: activeContacts || 0,
+            open_rate: openRate,
+            reply_rate: replyRate
+          };
         })
       );
 
-      setSequences(sequencesWithCounts);
+      setSequences(sequencesWithStats);
     } catch (error) {
       console.error('Error fetching sequences:', error);
       toast.error('Erreur lors du chargement des séquences');
@@ -243,9 +284,13 @@ const Sequences = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span>Stats</span>
-                        <span>Creator GB</span>
-                        <span>Leads {sequence.step_count || 0}</span>
+                        <span>{sequence.active_contacts || 0} contacts actifs</span>
+                        <span>•</span>
+                        <span>{sequence.open_rate?.toFixed(1) || 0}% taux d'ouverture</span>
+                        <span>•</span>
+                        <span>{sequence.reply_rate?.toFixed(1) || 0}% taux de réponse</span>
+                        <span>•</span>
+                        <span>{sequence.step_count || 0} étapes</span>
                       </div>
                     </div>
                   </div>

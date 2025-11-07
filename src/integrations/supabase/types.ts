@@ -331,6 +331,115 @@ export type Database = {
         }
         Relationships: []
       }
+      sequence_analytics: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          event_date: string
+          event_type: string
+          id: string
+          sequence_id: string
+          step_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          event_date?: string
+          event_type: string
+          id?: string
+          sequence_id: string
+          step_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          event_date?: string
+          event_type?: string
+          id?: string
+          sequence_id?: string
+          step_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_analytics_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "sequence_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_analytics_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_analytics_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "sequence_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequence_enrollments: {
+        Row: {
+          completed_at: string | null
+          contact_id: string
+          created_at: string
+          current_step: number
+          enrolled_at: string
+          id: string
+          sequence_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          contact_id: string
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          sequence_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          contact_id?: string
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          sequence_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_enrollments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "lead_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_enrollments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sequence_steps: {
         Row: {
           created_at: string
@@ -344,6 +453,8 @@ export type Database = {
           step_order: number
           step_type: string
           updated_at: string
+          whatsapp_audio_url: string | null
+          whatsapp_message: string | null
         }
         Insert: {
           created_at?: string
@@ -357,6 +468,8 @@ export type Database = {
           step_order: number
           step_type: string
           updated_at?: string
+          whatsapp_audio_url?: string | null
+          whatsapp_message?: string | null
         }
         Update: {
           created_at?: string
@@ -370,6 +483,8 @@ export type Database = {
           step_order?: number
           step_type?: string
           updated_at?: string
+          whatsapp_audio_url?: string | null
+          whatsapp_message?: string | null
         }
         Relationships: [
           {

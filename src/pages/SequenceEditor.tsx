@@ -38,6 +38,8 @@ interface SequenceStep {
   email_subject?: string;
   email_body?: string;
   sender_email?: string;
+  whatsapp_message?: string;
+  whatsapp_audio_url?: string;
 }
 
 interface Sequence {
@@ -144,6 +146,8 @@ const SequenceEditor = () => {
         email_subject: stepType === 'email' ? '' : null,
         email_body: stepType === 'email' ? '' : null,
         sender_email: stepType === 'email' ? userEmail : null,
+        whatsapp_message: stepType === 'whatsapp' ? '' : null,
+        whatsapp_audio_url: stepType === 'whatsapp' ? null : null,
       };
 
       const { data, error } = await supabase
@@ -158,8 +162,8 @@ const SequenceEditor = () => {
       setSteps([...steps, newStepData]);
       setShowStepMenu(false);
       
-      // Open edit sheet immediately for email steps
-      if (stepType === 'email') {
+      // Open edit sheet immediately for email and whatsapp steps
+      if (stepType === 'email' || stepType === 'whatsapp') {
         setEditingStep(newStepData);
         setShowEditSheet(true);
       }
@@ -248,6 +252,14 @@ const SequenceEditor = () => {
     return step.step_type === 'email' && (!step.email_subject || !step.email_body);
   };
 
+  const isWhatsAppStepIncomplete = (step: SequenceStep) => {
+    return step.step_type === 'whatsapp' && !step.whatsapp_message;
+  };
+
+  const isStepIncomplete = (step: SequenceStep) => {
+    return isEmailStepIncomplete(step) || isWhatsAppStepIncomplete(step);
+  };
+
   const insertVariable = (variable: string) => {
     if (!editingStep) return;
     const textarea = document.querySelector('textarea[name="email_body"]') as HTMLTextAreaElement;
@@ -321,7 +333,7 @@ const SequenceEditor = () => {
             {steps.map((step, index) => (
               <div key={step.id}>
                 {/* Step Card */}
-                <Card className={`p-6 border-2 ${isEmailStepIncomplete(step) ? 'border-destructive' : 'border-border'}`}>
+                <Card className={`p-6 border-2 ${isStepIncomplete(step) ? 'border-destructive' : 'border-border'}`}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
@@ -341,7 +353,7 @@ const SequenceEditor = () => {
                     </div>
                     <div className="flex-1">
                       <div className="font-medium">{getStepLabel(step.step_type)}</div>
-                      {isEmailStepIncomplete(step) && (
+                      {isStepIncomplete(step) && (
                         <div className="text-sm text-destructive">Paramétrage incomplet</div>
                       )}
                     </div>
@@ -520,6 +532,80 @@ const SequenceEditor = () => {
                 </>
               )}
 
+              {/* WhatsApp Specific Fields */}
+              {editingStep.step_type === 'whatsapp' && (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Message</Label>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Champs de fusion
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => insertVariable('prenom')}>
+                            Prénom
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('nom')}>
+                            Nom
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('entreprise')}>
+                            Entreprise
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('poste')}>
+                            Poste
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <Textarea
+                      name="whatsapp_message"
+                      value={editingStep.whatsapp_message || ''}
+                      onChange={(e) => setEditingStep({
+                        ...editingStep,
+                        whatsapp_message: e.target.value
+                      })}
+                      placeholder="Écrivez votre message WhatsApp..."
+                      rows={12}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Message audio (optionnel)</Label>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="gap-2">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                        Enregistrer un audio
+                      </Button>
+                      {editingStep.whatsapp_audio_url && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setEditingStep({ ...editingStep, whatsapp_audio_url: undefined })}
+                        >
+                          Supprimer l'audio
+                        </Button>
+                      )}
+                    </div>
+                    {editingStep.whatsapp_audio_url && (
+                      <div className="text-sm text-muted-foreground">
+                        Audio enregistré
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      Utiliser un template
+                    </Button>
+                  </div>
+                </>
+              )}
+
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => setShowEditSheet(false)}>
                   Annuler
@@ -531,6 +617,8 @@ const SequenceEditor = () => {
                     email_subject: editingStep.email_subject,
                     email_body: editingStep.email_body,
                     sender_email: editingStep.sender_email,
+                    whatsapp_message: editingStep.whatsapp_message,
+                    whatsapp_audio_url: editingStep.whatsapp_audio_url,
                   });
                   setShowEditSheet(false);
                 }}>
