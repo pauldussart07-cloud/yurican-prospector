@@ -138,7 +138,7 @@ const Prospects = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'ciblage' | 'signal'>('ciblage');
-  const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department' | 'status'>('name');
+  const [sortCriteria, setSortCriteria] = useState<'name' | 'sector' | 'revenue' | 'headcount' | 'department' | 'status' | 'followUpDate'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState('');
   const [displayMode, setDisplayMode] = useState<'list' | 'kanban'>('list');
@@ -708,6 +708,27 @@ Cordialement,
         case 'status':
           comparison = a.lead.status.localeCompare(b.lead.status);
           break;
+        case 'followUpDate':
+          // Récupérer la date de suivi la plus proche pour chaque lead
+          const contactsForLeadA = contacts.filter(c => c.companyId === a.lead.id);
+          const contactsForLeadB = contacts.filter(c => c.companyId === b.lead.id);
+          
+          const followUpDatesA = contactsForLeadA
+            .map(c => c.followUpDate)
+            .filter(d => d)
+            .sort();
+          const followUpDatesB = contactsForLeadB
+            .map(c => c.followUpDate)
+            .filter(d => d)
+            .sort();
+          
+          const nearestDateA = followUpDatesA[0] || '';
+          const nearestDateB = followUpDatesB[0] || '';
+          
+          if (!nearestDateA && nearestDateB) comparison = 1;
+          else if (nearestDateA && !nearestDateB) comparison = -1;
+          else comparison = nearestDateA.localeCompare(nearestDateB);
+          break;
       }
       
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -1138,6 +1159,7 @@ Cordialement,
                       {sortCriteria === 'headcount' && 'Effectif'}
                       {sortCriteria === 'department' && 'Département'}
                       {sortCriteria === 'status' && 'Statut'}
+                      {sortCriteria === 'followUpDate' && 'Date de suivi'}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-background">
@@ -1158,6 +1180,9 @@ Cordialement,
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setSortCriteria('status')}>
                       Statut
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortCriteria('followUpDate')}>
+                      Date de suivi
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

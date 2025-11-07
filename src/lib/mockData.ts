@@ -30,6 +30,10 @@ export interface Contact {
   domain: string;
   source: string;
   createdAt: Date;
+  status?: string;
+  note?: string;
+  followUpDate?: string;
+  personaPosition?: number | null;
 }
 
 export interface Lead {
