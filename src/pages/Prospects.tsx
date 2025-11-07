@@ -682,11 +682,7 @@ Cordialement,
     }
 
     return statusFiltered.sort((a, b) => {
-      // Priorité 1: Les signaux chauds d'abord
-      if (a.lead.isHotSignal && !b.lead.isHotSignal) return -1;
-      if (!a.lead.isHotSignal && b.lead.isHotSignal) return 1;
-      
-      // Priorité 2: Tri selon le critère sélectionné
+      // Tri selon le critère sélectionné
       let comparison = 0;
       
       switch (sortCriteria) {
@@ -729,6 +725,12 @@ Cordialement,
           else if (nearestDateA && !nearestDateB) comparison = -1;
           else comparison = nearestDateA.localeCompare(nearestDateB);
           break;
+      }
+      
+      // Si les valeurs sont égales selon le critère principal, prioriser les signaux chauds
+      if (comparison === 0) {
+        if (a.lead.isHotSignal && !b.lead.isHotSignal) return -1;
+        if (!a.lead.isHotSignal && b.lead.isHotSignal) return 1;
       }
       
       return sortDirection === 'asc' ? comparison : -comparison;
