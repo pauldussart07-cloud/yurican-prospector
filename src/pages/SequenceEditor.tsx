@@ -21,11 +21,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -37,6 +37,7 @@ interface SequenceStep {
   delay_unit: 'minutes' | 'hours' | 'days';
   email_subject?: string;
   email_body?: string;
+  sender_email?: string;
 }
 
 interface Sequence {
@@ -52,14 +53,37 @@ const SequenceEditor = () => {
   const [steps, setSteps] = useState<SequenceStep[]>([]);
   const [showStepMenu, setShowStepMenu] = useState(false);
   const [editingStep, setEditingStep] = useState<SequenceStep | null>(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showEditSheet, setShowEditSheet] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
     if (id) {
       fetchSequence();
       fetchSteps();
+      fetchUserEmail();
     }
   }, [id]);
+
+  const fetchUserEmail = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.email) {
+          setUserEmail(profile.email);
+        } else {
+          setUserEmail(user.email || '');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user email:', error);
+    }
+  };
 
   const fetchSequence = async () => {
     try {
@@ -119,6 +143,7 @@ const SequenceEditor = () => {
         delay_unit: 'days' as const,
         email_subject: stepType === 'email' ? '' : null,
         email_body: stepType === 'email' ? '' : null,
+        sender_email: stepType === 'email' ? userEmail : null,
       };
 
       const { data, error } = await supabase
@@ -129,8 +154,16 @@ const SequenceEditor = () => {
 
       if (error) throw error;
 
-      setSteps([...steps, data as SequenceStep]);
+      const newStepData = data as SequenceStep;
+      setSteps([...steps, newStepData]);
       setShowStepMenu(false);
+      
+      // Open edit sheet immediately for email steps
+      if (stepType === 'email') {
+        setEditingStep(newStepData);
+        setShowEditSheet(true);
+      }
+      
       toast.success('Étape ajoutée');
     } catch (error) {
       console.error('Error adding step:', error);
@@ -201,11 +234,30 @@ const SequenceEditor = () => {
   };
 
   const getDelayText = (step: SequenceStep) => {
-    if (step.delay_value === 0) return 'Send immediately';
-    const unit = step.delay_value === 1 
-      ? step.delay_unit.slice(0, -1) 
-      : step.delay_unit;
-    return `Wait for ${step.delay_value} ${unit}`;
+    if (step.delay_value === 0) return 'Envoyer immédiatement';
+    const unitMap: Record<string, string> = {
+      'minutes': step.delay_value === 1 ? 'minute' : 'minutes',
+      'hours': step.delay_value === 1 ? 'heure' : 'heures',
+      'days': step.delay_value === 1 ? 'jour' : 'jours',
+    };
+    const unit = unitMap[step.delay_unit] || step.delay_unit;
+    return `Attendre ${step.delay_value} ${unit}`;
+  };
+
+  const isEmailStepIncomplete = (step: SequenceStep) => {
+    return step.step_type === 'email' && (!step.email_subject || !step.email_body);
+  };
+
+  const insertVariable = (variable: string) => {
+    if (!editingStep) return;
+    const textarea = document.querySelector('textarea[name="email_body"]') as HTMLTextAreaElement;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = editingStep.email_body || '';
+      const newText = text.substring(0, start) + `{{${variable}}}` + text.substring(end);
+      setEditingStep({ ...editingStep, email_body: newText });
+    }
   };
 
   if (!sequence) {
@@ -269,15 +321,15 @@ const SequenceEditor = () => {
             {steps.map((step, index) => (
               <div key={step.id}>
                 {/* Step Card */}
-                <Card className={`p-6 border-2 ${step.step_type === 'email' && !step.email_subject ? 'border-destructive' : 'border-primary'}`}>
+                <Card className={`p-6 border-2 ${isEmailStepIncomplete(step) ? 'border-destructive' : 'border-border'}`}>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-sm text-primary">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
                       <span>{getDelayText(step)}</span>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => {
                       setEditingStep(step);
-                      setShowEditDialog(true);
+                      setShowEditSheet(true);
                     }}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -289,8 +341,8 @@ const SequenceEditor = () => {
                     </div>
                     <div className="flex-1">
                       <div className="font-medium">{getStepLabel(step.step_type)}</div>
-                      {step.step_type === 'email' && !step.email_subject && (
-                        <div className="text-sm text-destructive">Action needed</div>
+                      {isEmailStepIncomplete(step) && (
+                        <div className="text-sm text-destructive">Paramétrage incomplet</div>
                       )}
                     </div>
                     <DropdownMenu>
@@ -353,15 +405,15 @@ const SequenceEditor = () => {
         </div>
       </div>
 
-      {/* Edit Step Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingStep && getStepLabel(editingStep.step_type)}</DialogTitle>
-          </DialogHeader>
+      {/* Edit Step Sheet */}
+      <Sheet open={showEditSheet} onOpenChange={setShowEditSheet}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{editingStep && getStepLabel(editingStep.step_type)}</SheetTitle>
+          </SheetHeader>
 
           {editingStep && (
-            <div className="space-y-6">
+            <div className="space-y-6 mt-6">
               {/* Delay Settings */}
               <div className="space-y-2">
                 <Label>Délai d'attente</Label>
@@ -398,6 +450,21 @@ const SequenceEditor = () => {
               {editingStep.step_type === 'email' && (
                 <>
                   <div className="space-y-2">
+                    <Label>Expéditeur</Label>
+                    <Select
+                      value={editingStep.sender_email || userEmail}
+                      onValueChange={(value) => setEditingStep({ ...editingStep, sender_email: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un expéditeur" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={userEmail}>{userEmail}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label>Objet</Label>
                     <Input
                       value={editingStep.email_subject || ''}
@@ -410,22 +477,51 @@ const SequenceEditor = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Corps de l'email</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Contenu</Label>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Champs de fusion
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => insertVariable('prenom')}>
+                            Prénom
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('nom')}>
+                            Nom
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('entreprise')}>
+                            Entreprise
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertVariable('poste')}>
+                            Poste
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                     <Textarea
+                      name="email_body"
                       value={editingStep.email_body || ''}
                       onChange={(e) => setEditingStep({
                         ...editingStep,
                         email_body: e.target.value
                       })}
                       placeholder="Écrivez votre message..."
-                      rows={8}
+                      rows={12}
                     />
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm">
+                        Utiliser un template
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}
 
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowEditSheet(false)}>
                   Annuler
                 </Button>
                 <Button onClick={() => {
@@ -434,16 +530,17 @@ const SequenceEditor = () => {
                     delay_unit: editingStep.delay_unit,
                     email_subject: editingStep.email_subject,
                     email_body: editingStep.email_body,
+                    sender_email: editingStep.sender_email,
                   });
-                  setShowEditDialog(false);
+                  setShowEditSheet(false);
                 }}>
                   Enregistrer
                 </Button>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

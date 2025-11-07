@@ -339,6 +339,7 @@ export type Database = {
           email_body: string | null
           email_subject: string | null
           id: string
+          sender_email: string | null
           sequence_id: string
           step_order: number
           step_type: string
@@ -351,6 +352,7 @@ export type Database = {
           email_body?: string | null
           email_subject?: string | null
           id?: string
+          sender_email?: string | null
           sequence_id: string
           step_order: number
           step_type: string
@@ -363,6 +365,7 @@ export type Database = {
           email_body?: string | null
           email_subject?: string | null
           id?: string
+          sender_email?: string | null
           sequence_id?: string
           step_order?: number
           step_type?: string
