@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ActivityTimeline } from './ActivityTimeline';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Activity {
   id: string;
@@ -15,11 +17,14 @@ interface Activity {
 
 interface CompanyActivityTimelineProps {
   companyId: string;
+  limit?: number;
 }
 
-export const CompanyActivityTimeline = ({ companyId }: CompanyActivityTimelineProps) => {
+export const CompanyActivityTimeline = ({ companyId, limit = 2 }: CompanyActivityTimelineProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCompanyActivities = async () => {
@@ -36,17 +41,29 @@ export const CompanyActivityTimeline = ({ companyId }: CompanyActivityTimelinePr
 
         if (!contacts || contacts.length === 0) {
           setActivities([]);
+          setTotalCount(0);
           setLoading(false);
           return;
         }
 
-        // Récupérer toutes les activités de tous les contacts
+        // Récupérer les activités limitées de tous les contacts
         const contactIds = contacts.map(c => c.id);
+        
+        // Get total count
+        const { count } = await supabase
+          .from('contact_activities')
+          .select('*', { count: 'exact', head: true })
+          .in('contact_id', contactIds);
+        
+        setTotalCount(count || 0);
+
+        // Get limited activities
         const { data: activitiesData, error: activitiesError } = await supabase
           .from('contact_activities')
           .select('*')
           .in('contact_id', contactIds)
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(limit);
 
         if (activitiesError) throw activitiesError;
 
@@ -68,6 +85,7 @@ export const CompanyActivityTimeline = ({ companyId }: CompanyActivityTimelinePr
       } catch (error) {
         console.error('Erreur lors de la récupération des activités:', error);
         setActivities([]);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
@@ -76,7 +94,7 @@ export const CompanyActivityTimeline = ({ companyId }: CompanyActivityTimelinePr
     if (companyId) {
       fetchCompanyActivities();
     }
-  }, [companyId]);
+  }, [companyId, limit]);
 
   if (loading) {
     return (
@@ -86,5 +104,29 @@ export const CompanyActivityTimeline = ({ companyId }: CompanyActivityTimelinePr
     );
   }
 
-  return <ActivityTimeline activities={activities} />;
+  if (activities.length === 0) {
+    return (
+      <div className="text-center py-4 text-muted-foreground text-sm">
+        Aucune activité enregistrée
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <ActivityTimeline activities={activities} />
+      
+      {totalCount > limit && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full"
+          onClick={() => navigate(`/company-activities/${companyId}`)}
+        >
+          Voir toutes les activités ({totalCount})
+          <ArrowRight className="h-4 w-4 ml-2" />
+        </Button>
+      )}
+    </div>
+  );
 };

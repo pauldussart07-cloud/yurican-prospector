@@ -27,6 +27,7 @@ import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
 import Header from "./components/Header";
 import ContactActivities from "./pages/ContactActivities";
+import CompanyActivities from "./pages/CompanyActivities";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
                               <Route path="/parametrage-mobile" element={<ParametrageMobile />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/contact-activities/:contactId" element={<ContactActivities />} />
+                              <Route path="/company-activities/:leadId" element={<CompanyActivities />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </div>
