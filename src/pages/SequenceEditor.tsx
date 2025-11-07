@@ -20,12 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -55,7 +49,6 @@ const SequenceEditor = () => {
   const [steps, setSteps] = useState<SequenceStep[]>([]);
   const [showStepMenu, setShowStepMenu] = useState(false);
   const [editingStep, setEditingStep] = useState<SequenceStep | null>(null);
-  const [showEditSheet, setShowEditSheet] = useState(false);
   const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
@@ -162,10 +155,9 @@ const SequenceEditor = () => {
       setSteps([...steps, newStepData]);
       setShowStepMenu(false);
       
-      // Open edit sheet immediately for email and whatsapp steps
+      // Select the new step for editing
       if (stepType === 'email' || stepType === 'whatsapp') {
         setEditingStep(newStepData);
-        setShowEditSheet(true);
       }
       
       toast.success('Étape ajoutée');
@@ -281,10 +273,10 @@ const SequenceEditor = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
+    <div className="flex-1 flex flex-col bg-background h-screen overflow-hidden">
       {/* Header */}
-      <div className="border-b border-border p-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="border-b border-border p-4 flex-shrink-0">
+        <div className="flex items-center justify-between max-w-full mx-auto">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/sequences')}>
               <X className="h-5 w-5" />
@@ -314,121 +306,138 @@ const SequenceEditor = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto p-8 bg-muted/20">
-        <div className="max-w-2xl mx-auto">
-          {/* Sequence Flow */}
-          <div className="space-y-3">
-            {/* Start Node */}
-            <Card className="p-4 text-center bg-background border-2">
-              <div className="text-sm font-medium text-muted-foreground">Début de la séquence</div>
-            </Card>
+      {/* Main Content - Split View */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Panel - Sequence Flow */}
+        <div className="flex-1 overflow-auto p-8 bg-muted/20 border-r border-border">
+          <div className="max-w-2xl mx-auto">
+            {/* Sequence Flow */}
+            <div className="space-y-3">
+              {/* Start Node */}
+              <Card className="p-4 text-center bg-background border-2">
+                <div className="text-sm font-medium text-muted-foreground">Début de la séquence</div>
+              </Card>
 
-            {/* Connector */}
-            <div className="flex justify-center">
-              <div className="w-0.5 h-6 bg-border" />
-            </div>
-
-            {/* Steps */}
-            {steps.map((step, index) => (
-              <div key={step.id}>
-                {/* Step Card */}
-                <Card className={`p-4 border-2 ${isStepIncomplete(step) ? 'border-destructive' : 'border-border'} hover:shadow-md transition-shadow`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                      <Clock className="h-3 w-3" />
-                      <span>{getDelayText(step)}</span>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
-                      setEditingStep(step);
-                      setShowEditSheet(true);
-                    }}>
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
-                      {getStepIcon(step.step_type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm">{getStepLabel(step.step_type)}</div>
-                      {isStepIncomplete(step) && (
-                        <div className="text-xs text-destructive flex items-center gap-1 mt-0.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
-                          Paramétrage incomplet
-                        </div>
-                      )}
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => handleDeleteStep(step.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </Card>
-
-                {/* Connector */}
-                {index < steps.length - 1 && (
-                  <div className="flex justify-center">
-                    <div className="w-0.5 h-6 bg-border" />
-                  </div>
-                )}
+              {/* Connector */}
+              <div className="flex justify-center">
+                <div className="w-0.5 h-6 bg-border" />
               </div>
-            ))}
 
-            {/* Add Step Button */}
-            <div className="flex justify-center">
-              <div className="w-0.5 h-6 bg-border" />
-            </div>
+              {/* Steps */}
+              {steps.map((step, index) => (
+                <div key={step.id}>
+                  {/* Step Card */}
+                  <Card 
+                    className={`p-4 border-2 cursor-pointer transition-all ${
+                      editingStep?.id === step.id 
+                        ? 'border-primary shadow-md' 
+                        : isStepIncomplete(step) 
+                          ? 'border-destructive hover:shadow-md' 
+                          : 'border-border hover:shadow-md'
+                    }`}
+                    onClick={() => setEditingStep(step)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
+                        <Clock className="h-3 w-3" />
+                        <span>{getDelayText(step)}</span>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteStep(step.id);
+                              if (editingStep?.id === step.id) {
+                                setEditingStep(null);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
 
-            <div className="flex justify-center relative">
-              <DropdownMenu open={showStepMenu} onOpenChange={setShowStepMenu}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="rounded-full h-9 w-9 shadow-sm hover:shadow-md transition-shadow">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56">
-                  <DropdownMenuItem onClick={() => handleAddStep('email')} className="cursor-pointer">
-                    <Mail className="h-4 w-4 mr-2 text-primary" />
-                    Envoyer un email
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddStep('whatsapp')} className="cursor-pointer">
-                    <MessageCircle className="h-4 w-4 mr-2 text-green-500" />
-                    Envoyer un WhatsApp
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleAddStep('linkedin')} className="cursor-pointer">
-                    <Linkedin className="h-4 w-4 mr-2 text-blue-500" />
-                    Actions LinkedIn
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+                        {getStepIcon(step.step_type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm">{getStepLabel(step.step_type)}</div>
+                        {isStepIncomplete(step) && (
+                          <div className="text-xs text-destructive flex items-center gap-1 mt-0.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                            Paramétrage incomplet
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Connector */}
+                  {index < steps.length - 1 && (
+                    <div className="flex justify-center">
+                      <div className="w-0.5 h-6 bg-border" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Add Step Button */}
+              <div className="flex justify-center">
+                <div className="w-0.5 h-6 bg-border" />
+              </div>
+
+              <div className="flex justify-center relative">
+                <DropdownMenu open={showStepMenu} onOpenChange={setShowStepMenu}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9 shadow-sm hover:shadow-md transition-shadow">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-56">
+                    <DropdownMenuItem onClick={() => handleAddStep('email')} className="cursor-pointer">
+                      <Mail className="h-4 w-4 mr-2 text-primary" />
+                      Envoyer un email
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAddStep('whatsapp')} className="cursor-pointer">
+                      <MessageCircle className="h-4 w-4 mr-2 text-green-500" />
+                      Envoyer un WhatsApp
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAddStep('linkedin')} className="cursor-pointer">
+                      <Linkedin className="h-4 w-4 mr-2 text-blue-500" />
+                      Actions LinkedIn
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Edit Step Sheet */}
-      <Sheet open={showEditSheet} onOpenChange={setShowEditSheet}>
-        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{editingStep && getStepLabel(editingStep.step_type)}</SheetTitle>
-          </SheetHeader>
+        {/* Right Panel - Configuration */}
+        <div className="w-[480px] flex-shrink-0 overflow-auto bg-background">
+          {editingStep ? (
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b">
+                <h2 className="text-lg font-semibold">{getStepLabel(editingStep.step_type)}</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setEditingStep(null)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
 
-          {editingStep && (
-            <div className="space-y-6 mt-6">
               {/* Delay Settings */}
               <div className="space-y-2">
                 <Label>Délai d'attente</Label>
@@ -609,9 +618,9 @@ const SequenceEditor = () => {
                 </>
               )}
 
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setShowEditSheet(false)}>
-                  Annuler
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setEditingStep(null)}>
+                  Fermer
                 </Button>
                 <Button onClick={() => {
                   handleUpdateStep(editingStep.id, {
@@ -623,15 +632,25 @@ const SequenceEditor = () => {
                     whatsapp_message: editingStep.whatsapp_message,
                     whatsapp_audio_url: editingStep.whatsapp_audio_url,
                   });
-                  setShowEditSheet(false);
                 }}>
                   Enregistrer
                 </Button>
               </div>
             </div>
+          ) : (
+            <div className="flex items-center justify-center h-full p-6 text-center">
+              <div className="space-y-3">
+                <div className="text-muted-foreground">
+                  Sélectionnez une étape pour la configurer
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Cliquez sur une étape dans la séquence pour afficher ses paramètres
+                </p>
+              </div>
+            </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </div>
+      </div>
     </div>
   );
 };
