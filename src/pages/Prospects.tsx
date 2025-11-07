@@ -1710,14 +1710,14 @@ Cordialement,
           setFollowUpDate('');
         }
       }}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl h-[90vh] flex flex-col p-0">
           {selectedContact && (() => {
             const lead = leads.find(l => l.id === selectedContact.companyId);
             const company = lead ? mockCompanies.find(c => c.id === lead.companyId) : null;
             if (!company || !lead) return null;
 
             return (
-              <div className="grid grid-cols-[320px_1fr] gap-6">
+              <div className="grid grid-cols-[320px_1fr] gap-6 h-full overflow-hidden p-6">
                 {/* Bloc 1 : Informations entreprise (gauche) */}
                 <Card className="p-4 bg-card h-fit">
                   <div className="space-y-4">
@@ -1805,7 +1805,7 @@ Cordialement,
                 </Card>
 
                 {/* Colonne droite : Blocs 2, 3, 4 + Note et dates */}
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto pr-2">
                   {/* Blocs 2, 3, 4 en ligne */}
                   <div className="grid grid-cols-3 gap-4">
                     {/* Bloc 2 : Informations du contact */}
