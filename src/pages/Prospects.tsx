@@ -899,6 +899,61 @@ Cordialement,
     });
   };
 
+  const handleFollowUpDateChange = async (newDate: string) => {
+    if (!selectedContact) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Mettre à jour l'état local immédiatement
+    setFollowUpDate(newDate);
+
+    // Mise à jour dans Supabase
+    const { error } = await supabase
+      .from('lead_contacts')
+      .update({ 
+        follow_up_date: newDate || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', selectedContact.id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating follow-up date:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible d\'enregistrer la date de suivi.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Enregistrer l'activité
+    const lead = leads.find(l => l.id === selectedContact.companyId);
+    if (lead && newDate) {
+      await recordActivity(
+        selectedContact.id,
+        lead.id,
+        'note',
+        `Date de suivi définie: ${new Date(newDate).toLocaleDateString('fr-FR')}`
+      );
+    }
+
+    // Mise à jour de l'état local
+    const updatedContacts = contacts.map(contact => 
+      contact.id === selectedContact.id 
+        ? { ...contact, followUpDate: newDate }
+        : contact
+    );
+    
+    setContacts(updatedContacts);
+    
+    toast({
+      title: 'Date enregistrée',
+      description: 'La date de suivi a été enregistrée avec succès.',
+    });
+  };
+
   const handleSaveNote = async () => {
     if (!selectedContact) return;
 
@@ -2055,7 +2110,7 @@ Cordialement,
                               type="date"
                               className="flex-1 h-8 text-xs"
                               value={followUpDate}
-                              onChange={(e) => setFollowUpDate(e.target.value)}
+                              onChange={(e) => handleFollowUpDateChange(e.target.value)}
                             />
                             <Button size="icon" variant="outline" className="h-8 w-8">
                               <Calendar className="h-3 w-3" />
