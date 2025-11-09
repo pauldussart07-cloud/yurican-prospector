@@ -410,12 +410,12 @@ const Marche = () => {
     if (activeTargeting) {
       filtered = filtered.filter(c => {
         // Filter by departments
-        if (activeTargeting.departments.length > 0 && !activeTargeting.departments.includes(c.department)) {
+        if (activeTargeting.departments?.length > 0 && !activeTargeting.departments.includes(c.department)) {
           return false;
         }
         
         // Filter by sectors
-        if (activeTargeting.sectors.length > 0 && !activeTargeting.sectors.some(s => c.sector.toLowerCase().includes(s.toLowerCase()))) {
+        if (activeTargeting.sectors?.length > 0 && !activeTargeting.sectors.some(s => c.sector.toLowerCase().includes(s.toLowerCase()))) {
           return false;
         }
         
