@@ -100,8 +100,6 @@ const Prospects = () => {
   const [sequences, setSequences] = useState<any[]>([]);
   const [maxContactsPerCompany, setMaxContactsPerCompany] = useState<number>(3);
   const [selectedPersonasForSequence, setSelectedPersonasForSequence] = useState<string[]>([]);
-  const [contactsPreview, setContactsPreview] = useState<any[]>([]);
-  const [showPreview, setShowPreview] = useState(false);
   const [emailPreview, setEmailPreview] = useState<{
     isOpen: boolean;
     actionName: string;
@@ -281,146 +279,7 @@ const Prospects = () => {
     loadSequences();
   }, [showSequenceDialog]);
 
-  // Fonction pour corriger les profils des contacts existants
-  const handleFixContactProfiles = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
-    try {
-      // Récupérer tous les personas actifs
-      const { data: personas, error: personasError } = await supabase
-        .from('personas')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('position', { ascending: true });
-
-      if (personasError || !personas || personas.length === 0) {
-        toast({
-          title: 'Erreur',
-          description: 'Aucun profil de ciblage trouvé. Créez des profils d\'abord.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Récupérer tous les contacts
-      const { data: allContacts, error: contactsError } = await supabase
-        .from('lead_contacts')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (contactsError || !allContacts) {
-        toast({
-          title: 'Erreur',
-          description: 'Impossible de récupérer les contacts',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Filtrer les contacts à corriger (sans persona_position ou avec une position invalide)
-      const validPositions = personas.map(p => p.position);
-      const contactsToFix = allContacts.filter(
-        c => c.persona_position === null || !validPositions.includes(c.persona_position)
-      );
-
-      if (contactsToFix.length === 0) {
-        toast({
-          title: 'Aucune correction nécessaire',
-          description: 'Tous les contacts ont déjà un profil valide',
-        });
-        return;
-      }
-
-      // Assigner un profil à chaque contact de manière équilibrée
-      const updates = contactsToFix.map((contact, index) => {
-        // Distribuer les contacts de manière circulaire sur les profils
-        const assignedPersona = personas[index % personas.length];
-        return {
-          id: contact.id,
-          persona_position: assignedPersona.position
-        };
-      });
-
-      // Mettre à jour par lots
-      const updatePromises = updates.map(update =>
-        supabase
-          .from('lead_contacts')
-          .update({ persona_position: update.persona_position })
-          .eq('id', update.id)
-          .eq('user_id', user.id)
-      );
-
-      const results = await Promise.all(updatePromises);
-      const errors = results.filter(r => r.error);
-
-      if (errors.length > 0) {
-        toast({
-          title: 'Correction partielle',
-          description: `${updates.length - errors.length}/${updates.length} contacts corrigés`,
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: 'Correction réussie',
-          description: `${updates.length} contact(s) ont été assignés à des profils actifs`,
-        });
-        
-        // Recharger les données
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Error fixing contact profiles:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de la correction',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Fonction pour calculer la prévisualisation des contacts
-  const calculateContactsPreview = () => {
-    const selectedLeadIds = Array.from(selectedLeads);
-    const preview: any[] = [];
-
-    for (const leadId of selectedLeadIds) {
-      const lead = leads.find(l => l.id === leadId);
-      const company = mockCompanies.find(c => c.id === lead?.companyId);
-      if (!company) continue;
-
-      // Récupérer les contacts de ce lead
-      const leadContacts = contacts.filter(c => c.companyId === leadId);
-      
-      // Filtrer par personas sélectionnés
-      const filteredContacts = leadContacts.filter(contact => {
-        if (contact.personaPosition !== null && contact.personaPosition !== undefined) {
-          const matchingPersona = userPersonas.find(
-            p => p.position === contact.personaPosition && selectedPersonasForSequence.includes(p.id)
-          );
-          return matchingPersona !== undefined;
-        }
-        return false;
-      });
-
-      // Limiter au nombre maximum par entreprise
-      const limitedContacts = filteredContacts.slice(0, maxContactsPerCompany);
-
-      if (limitedContacts.length > 0) {
-        preview.push({
-          companyName: company.name,
-          contacts: limitedContacts.map(c => ({
-            fullName: c.fullName,
-            role: c.role,
-            personaName: userPersonas.find(p => p.position === c.personaPosition)?.name || 'Profil inconnu'
-          }))
-        });
-      }
-    }
-
-    setContactsPreview(preview);
-    setShowPreview(true);
-  };
 
   // Fonction pour ajouter les contacts sélectionnés à une séquence
   const handleAddToSequence = async (sequenceId: string, sequenceName: string) => {
@@ -1435,20 +1294,9 @@ Cordialement,
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
-            {filteredAndSortedLeads.length} Prospect{filteredAndSortedLeads.length > 1 ? 's' : ''}
-          </Badge>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleFixContactProfiles}
-            className="flex items-center gap-2"
-          >
-            <Target className="h-4 w-4" />
-            Corriger les profils
-          </Button>
-        </div>
+        <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
+          {filteredAndSortedLeads.length} Prospect{filteredAndSortedLeads.length > 1 ? 's' : ''}
+        </Badge>
       </div>
 
       {displayMode === 'kanban' ? (
@@ -2765,8 +2613,6 @@ Cordialement,
           setSequenceDialogStep('config');
           setMaxContactsPerCompany(3);
           setSelectedPersonasForSequence([]);
-          setContactsPreview([]);
-          setShowPreview(false);
         }
       }}>
         <DialogContent className="max-w-2xl">
@@ -2859,41 +2705,6 @@ Cordialement,
                 )}
               </div>
 
-              {/* Prévisualisation des contacts */}
-              {showPreview && contactsPreview.length > 0 && (
-                <div className="border-t pt-4">
-                  <h4 className="font-medium text-sm mb-3">
-                    Prévisualisation : {contactsPreview.reduce((sum, c) => sum + c.contacts.length, 0)} contact(s) seront ajoutés
-                  </h4>
-                  <div className="space-y-3 max-h-[40vh] overflow-y-auto">
-                    {contactsPreview.map((company, idx) => (
-                      <div key={idx} className="bg-muted/20 rounded-lg p-3 border">
-                        <p className="font-semibold text-sm mb-2">{company.companyName}</p>
-                        <div className="space-y-1.5">
-                          {company.contacts.map((contact: any, contactIdx: number) => (
-                            <div key={contactIdx} className="flex items-center justify-between text-xs">
-                              <div>
-                                <span className="font-medium">{contact.fullName}</span>
-                                <span className="text-muted-foreground ml-2">{contact.role}</span>
-                              </div>
-                              <Badge variant="outline" className="text-xs">{contact.personaName}</Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {showPreview && contactsPreview.length === 0 && (
-                <div className="border-t pt-4">
-                  <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">
-                    <p className="font-medium mb-1">Aucun contact trouvé</p>
-                    <p className="text-xs">Aucun contact ne correspond aux critères sélectionnés. Vérifiez que vos contacts ont été générés avec les profils choisis.</p>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -2954,57 +2765,22 @@ Cordialement,
               Annuler
             </Button>
             {sequenceDialogStep === 'config' && (
-              <>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    if (selectedPersonasForSequence.length === 0) {
-                      toast({
-                        title: 'Sélection requise',
-                        description: 'Veuillez sélectionner au moins un profil de contact',
-                        variant: 'destructive',
-                      });
-                      return;
-                    }
-                    calculateContactsPreview();
-                  }}
-                  disabled={userPersonas.length === 0}
-                >
-                  Prévisualiser
-                </Button>
-                <Button 
-                  onClick={() => {
-                    if (selectedPersonasForSequence.length === 0) {
-                      toast({
-                        title: 'Sélection requise',
-                        description: 'Veuillez sélectionner au moins un profil de contact',
-                        variant: 'destructive',
-                      });
-                      return;
-                    }
-                    if (!showPreview) {
-                      toast({
-                        title: 'Prévisualisation requise',
-                        description: 'Veuillez prévisualiser les contacts avant de continuer',
-                        variant: 'destructive',
-                      });
-                      return;
-                    }
-                    if (contactsPreview.length === 0) {
-                      toast({
-                        title: 'Aucun contact',
-                        description: 'Aucun contact ne correspond aux critères. Impossible de continuer.',
-                        variant: 'destructive',
-                      });
-                      return;
-                    }
-                    setSequenceDialogStep('selection');
-                  }}
-                  disabled={userPersonas.length === 0}
-                >
-                  Suivant
-                </Button>
-              </>
+              <Button 
+                onClick={() => {
+                  if (selectedPersonasForSequence.length === 0) {
+                    toast({
+                      title: 'Sélection requise',
+                      description: 'Veuillez sélectionner au moins un profil de contact',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  setSequenceDialogStep('selection');
+                }}
+                disabled={userPersonas.length === 0}
+              >
+                Suivant
+              </Button>
             )}
           </DialogFooter>
         </DialogContent>
