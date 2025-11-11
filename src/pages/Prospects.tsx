@@ -96,7 +96,10 @@ const Prospects = () => {
   const [showActions, setShowActions] = useState(false);
   const [contactActivities, setContactActivities] = useState<any[]>([]);
   const [showSequenceDialog, setShowSequenceDialog] = useState(false);
+  const [sequenceDialogStep, setSequenceDialogStep] = useState<'config' | 'selection'>('config');
   const [sequences, setSequences] = useState<any[]>([]);
+  const [maxContactsPerCompany, setMaxContactsPerCompany] = useState<number>(3);
+  const [selectedPersonasForSequence, setSelectedPersonasForSequence] = useState<string[]>([]);
   const [emailPreview, setEmailPreview] = useState<{
     isOpen: boolean;
     actionName: string;
@@ -434,10 +437,10 @@ const Prospects = () => {
       setLoadingPersonas(false);
     };
 
-    if (showPersonaDialog) {
+    if (showPersonaDialog || showSequenceDialog) {
       loadUserPersonas();
     }
-  }, [showPersonaDialog]);
+  }, [showPersonaDialog, showSequenceDialog]);
 
   // Fonction pour générer le contenu de l'email
   const generateEmailContent = (actionId: number, contactName: string, companyName: string) => {
@@ -2469,64 +2472,187 @@ Cordialement,
       </Dialog>
 
       {/* Sequence Selection Dialog */}
-      <Dialog open={showSequenceDialog} onOpenChange={setShowSequenceDialog}>
+      <Dialog open={showSequenceDialog} onOpenChange={(open) => {
+        setShowSequenceDialog(open);
+        if (!open) {
+          setSequenceDialogStep('config');
+          setMaxContactsPerCompany(3);
+          setSelectedPersonasForSequence([]);
+        }
+      }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Ajouter à une séquence</DialogTitle>
+            <DialogTitle>
+              {sequenceDialogStep === 'config' ? 'Configuration de l\'ajout' : 'Sélection de la séquence'}
+            </DialogTitle>
             <DialogDescription>
-              Sélectionnez une séquence active pour ajouter les {selectedLeads.size} lead{selectedLeads.size > 1 ? 's' : ''} sélectionné{selectedLeads.size > 1 ? 's' : ''}
+              {sequenceDialogStep === 'config' 
+                ? `Configurez les paramètres pour les ${selectedLeads.size} lead${selectedLeads.size > 1 ? 's' : ''} sélectionné${selectedLeads.size > 1 ? 's' : ''}`
+                : `Sélectionnez une séquence active`
+              }
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-            {sequences.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>Aucune séquence active disponible</p>
-                <Button
-                  variant="link"
-                  onClick={() => {
-                    setShowSequenceDialog(false);
-                    navigate('/sequences');
-                  }}
-                  className="mt-2"
-                >
-                  Créer une séquence
-                </Button>
+          {sequenceDialogStep === 'config' ? (
+            <div className="space-y-6">
+              {/* Nombre max de contacts par entreprise */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Nombre maximum de contacts par entreprise
+                </Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={maxContactsPerCompany}
+                  onChange={(e) => setMaxContactsPerCompany(parseInt(e.target.value) || 1)}
+                  className="w-32"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Maximum de contacts à ajouter pour chaque entreprise sélectionnée
+                </p>
               </div>
-            ) : (
-              sequences.map((sequence) => (
-                <Card
-                  key={sequence.id}
-                  className="cursor-pointer hover:bg-accent transition-colors"
-                  onClick={() => {
-                    // TODO: Add logic to enroll leads in sequence
-                    toast({
-                      title: 'Fonctionnalité à venir',
-                      description: `Les leads seront ajoutés à la séquence "${sequence.name}"`,
-                    });
-                    setShowSequenceDialog(false);
-                  }}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold">{sequence.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Créée le {new Date(sequence.created_at).toLocaleDateString('fr-FR')}
-                        </p>
+
+              {/* Sélection des profils */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Profils de contacts à inclure
+                </Label>
+                {loadingPersonas ? (
+                  <p className="text-sm text-muted-foreground">Chargement des profils...</p>
+                ) : userPersonas.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <p className="text-sm">Aucun profil de ciblage actif</p>
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        setShowSequenceDialog(false);
+                        navigate('/parametrage');
+                      }}
+                      className="mt-2"
+                    >
+                      Créer un ciblage
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+                    {userPersonas.map((persona) => (
+                      <div
+                        key={persona.id}
+                        className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent cursor-pointer"
+                        onClick={() => {
+                          setSelectedPersonasForSequence(prev =>
+                            prev.includes(persona.id)
+                              ? prev.filter(id => id !== persona.id)
+                              : [...prev, persona.id]
+                          );
+                        }}
+                      >
+                        <Checkbox
+                          checked={selectedPersonasForSequence.includes(persona.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedPersonasForSequence(prev => [...prev, persona.id]);
+                            } else {
+                              setSelectedPersonasForSequence(prev => prev.filter(id => id !== persona.id));
+                            }
+                          }}
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{persona.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {persona.service} · {persona.decision_level}
+                          </p>
+                        </div>
                       </div>
-                      <Badge variant="secondary">Active</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              {sequences.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Aucune séquence active disponible</p>
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setShowSequenceDialog(false);
+                      navigate('/sequences');
+                    }}
+                    className="mt-2"
+                  >
+                    Créer une séquence
+                  </Button>
+                </div>
+              ) : (
+                sequences.map((sequence) => (
+                  <Card
+                    key={sequence.id}
+                    className="cursor-pointer hover:bg-accent transition-colors"
+                    onClick={() => {
+                      // TODO: Add logic to enroll leads in sequence
+                      toast({
+                        title: 'Fonctionnalité à venir',
+                        description: `${selectedLeads.size} lead(s) avec max ${maxContactsPerCompany} contact(s) chacun seront ajoutés à "${sequence.name}"`,
+                      });
+                      setShowSequenceDialog(false);
+                    }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold">{sequence.name}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Créée le {new Date(sequence.created_at).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                        <Badge variant="secondary">Active</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSequenceDialog(false)}>
+            {sequenceDialogStep === 'selection' && (
+              <Button 
+                variant="outline" 
+                onClick={() => setSequenceDialogStep('config')}
+              >
+                Retour
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowSequenceDialog(false);
+                setSequenceDialogStep('config');
+              }}
+            >
               Annuler
             </Button>
+            {sequenceDialogStep === 'config' && (
+              <Button 
+                onClick={() => {
+                  if (selectedPersonasForSequence.length === 0) {
+                    toast({
+                      title: 'Sélection requise',
+                      description: 'Veuillez sélectionner au moins un profil de contact',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  setSequenceDialogStep('selection');
+                }}
+                disabled={userPersonas.length === 0}
+              >
+                Suivant
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
