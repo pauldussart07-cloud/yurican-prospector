@@ -295,10 +295,13 @@ const Prospects = () => {
       // Récupérer tous les contacts des leads sélectionnés
       const selectedLeadIds = Array.from(selectedLeads);
       const contactsToEnroll: any[] = [];
+      let totalContactsChecked = 0;
+      let contactsWithoutPersona = 0;
 
       for (const leadId of selectedLeadIds) {
         // Récupérer les contacts de ce lead
         const leadContacts = contacts.filter(c => c.companyId === leadId);
+        totalContactsChecked += leadContacts.length;
         
         // Filtrer par personas sélectionnés
         const filteredContacts = leadContacts.filter(contact => {
@@ -309,6 +312,7 @@ const Prospects = () => {
             );
             return matchingPersona !== undefined;
           }
+          contactsWithoutPersona++;
           return false;
         });
 
@@ -318,9 +322,19 @@ const Prospects = () => {
       }
 
       if (contactsToEnroll.length === 0) {
+        let errorMessage = 'Aucun contact ne correspond aux critères sélectionnés.';
+        
+        if (totalContactsChecked === 0) {
+          errorMessage = 'Les entreprises sélectionnées n\'ont pas de contacts. Générez des contacts d\'abord.';
+        } else if (contactsWithoutPersona === totalContactsChecked) {
+          errorMessage = `${totalContactsChecked} contact(s) trouvé(s) mais aucun n'a de profil assigné. Régénérez les contacts avec vos profils actuels.`;
+        } else {
+          errorMessage = `${totalContactsChecked} contact(s) trouvé(s) mais aucun ne correspond aux profils sélectionnés (${contactsWithoutPersona} sans profil).`;
+        }
+        
         toast({
-          title: 'Aucun contact',
-          description: 'Aucun contact ne correspond aux critères sélectionnés',
+          title: 'Aucun contact éligible',
+          description: errorMessage,
           variant: 'destructive',
         });
         return;
