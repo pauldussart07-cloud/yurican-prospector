@@ -95,6 +95,8 @@ const Prospects = () => {
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [contactActivities, setContactActivities] = useState<any[]>([]);
+  const [showSequenceDialog, setShowSequenceDialog] = useState(false);
+  const [sequences, setSequences] = useState<any[]>([]);
   const [emailPreview, setEmailPreview] = useState<{
     isOpen: boolean;
     actionName: string;
@@ -247,6 +249,32 @@ const Prospects = () => {
 
     loadLeads();
   }, []);
+
+  // Load active sequences when dialog opens
+  useEffect(() => {
+    const loadSequences = async () => {
+      if (!showSequenceDialog) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('sequences')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading sequences:', error);
+        return;
+      }
+
+      setSequences(data || []);
+    };
+
+    loadSequences();
+  }, [showSequenceDialog]);
 
 
   const handleGenerateContacts = async () => {
@@ -1197,6 +1225,13 @@ Cordialement,
                 <span className="font-medium text-sm">
                   {selectedLeads.size} lead{selectedLeads.size > 1 ? 's' : ''} sélectionné{selectedLeads.size > 1 ? 's' : ''}
                 </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSequenceDialog(true)}
+                >
+                  Ajouter à une séquence
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -2428,6 +2463,69 @@ Cordialement,
             </Button>
             <Button onClick={executeMeeting} disabled={!meetingPreview.selectedDate}>
               Créer le rendez-vous
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sequence Selection Dialog */}
+      <Dialog open={showSequenceDialog} onOpenChange={setShowSequenceDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Ajouter à une séquence</DialogTitle>
+            <DialogDescription>
+              Sélectionnez une séquence active pour ajouter les {selectedLeads.size} lead{selectedLeads.size > 1 ? 's' : ''} sélectionné{selectedLeads.size > 1 ? 's' : ''}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {sequences.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Aucune séquence active disponible</p>
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    setShowSequenceDialog(false);
+                    navigate('/sequences');
+                  }}
+                  className="mt-2"
+                >
+                  Créer une séquence
+                </Button>
+              </div>
+            ) : (
+              sequences.map((sequence) => (
+                <Card
+                  key={sequence.id}
+                  className="cursor-pointer hover:bg-accent transition-colors"
+                  onClick={() => {
+                    // TODO: Add logic to enroll leads in sequence
+                    toast({
+                      title: 'Fonctionnalité à venir',
+                      description: `Les leads seront ajoutés à la séquence "${sequence.name}"`,
+                    });
+                    setShowSequenceDialog(false);
+                  }}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold">{sequence.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Créée le {new Date(sequence.created_at).toLocaleDateString('fr-FR')}
+                        </p>
+                      </div>
+                      <Badge variant="secondary">Active</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSequenceDialog(false)}>
+              Annuler
             </Button>
           </DialogFooter>
         </DialogContent>
