@@ -100,6 +100,8 @@ const Prospects = () => {
   const [sequences, setSequences] = useState<any[]>([]);
   const [maxContactsPerCompany, setMaxContactsPerCompany] = useState<number>(3);
   const [selectedPersonasForSequence, setSelectedPersonasForSequence] = useState<string[]>([]);
+  const [contactsPreview, setContactsPreview] = useState<any[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
   const [emailPreview, setEmailPreview] = useState<{
     isOpen: boolean;
     actionName: string;
@@ -278,6 +280,49 @@ const Prospects = () => {
 
     loadSequences();
   }, [showSequenceDialog]);
+
+  // Fonction pour calculer la prévisualisation des contacts
+  const calculateContactsPreview = () => {
+    const selectedLeadIds = Array.from(selectedLeads);
+    const preview: any[] = [];
+
+    for (const leadId of selectedLeadIds) {
+      const lead = leads.find(l => l.id === leadId);
+      const company = mockCompanies.find(c => c.id === lead?.companyId);
+      if (!company) continue;
+
+      // Récupérer les contacts de ce lead
+      const leadContacts = contacts.filter(c => c.companyId === leadId);
+      
+      // Filtrer par personas sélectionnés
+      const filteredContacts = leadContacts.filter(contact => {
+        if (contact.personaPosition !== null && contact.personaPosition !== undefined) {
+          const matchingPersona = userPersonas.find(
+            p => p.position === contact.personaPosition && selectedPersonasForSequence.includes(p.id)
+          );
+          return matchingPersona !== undefined;
+        }
+        return false;
+      });
+
+      // Limiter au nombre maximum par entreprise
+      const limitedContacts = filteredContacts.slice(0, maxContactsPerCompany);
+
+      if (limitedContacts.length > 0) {
+        preview.push({
+          companyName: company.name,
+          contacts: limitedContacts.map(c => ({
+            fullName: c.fullName,
+            role: c.role,
+            personaName: userPersonas.find(p => p.position === c.personaPosition)?.name || 'Profil inconnu'
+          }))
+        });
+      }
+    }
+
+    setContactsPreview(preview);
+    setShowPreview(true);
+  };
 
   // Fonction pour ajouter les contacts sélectionnés à une séquence
   const handleAddToSequence = async (sequenceId: string, sequenceName: string) => {
@@ -2611,6 +2656,8 @@ Cordialement,
           setSequenceDialogStep('config');
           setMaxContactsPerCompany(3);
           setSelectedPersonasForSequence([]);
+          setContactsPreview([]);
+          setShowPreview(false);
         }
       }}>
         <DialogContent className="max-w-2xl">
@@ -2702,6 +2749,42 @@ Cordialement,
                   </div>
                 )}
               </div>
+
+              {/* Prévisualisation des contacts */}
+              {showPreview && contactsPreview.length > 0 && (
+                <div className="border-t pt-4">
+                  <h4 className="font-medium text-sm mb-3">
+                    Prévisualisation : {contactsPreview.reduce((sum, c) => sum + c.contacts.length, 0)} contact(s) seront ajoutés
+                  </h4>
+                  <div className="space-y-3 max-h-[40vh] overflow-y-auto">
+                    {contactsPreview.map((company, idx) => (
+                      <div key={idx} className="bg-muted/20 rounded-lg p-3 border">
+                        <p className="font-semibold text-sm mb-2">{company.companyName}</p>
+                        <div className="space-y-1.5">
+                          {company.contacts.map((contact: any, contactIdx: number) => (
+                            <div key={contactIdx} className="flex items-center justify-between text-xs">
+                              <div>
+                                <span className="font-medium">{contact.fullName}</span>
+                                <span className="text-muted-foreground ml-2">{contact.role}</span>
+                              </div>
+                              <Badge variant="outline" className="text-xs">{contact.personaName}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {showPreview && contactsPreview.length === 0 && (
+                <div className="border-t pt-4">
+                  <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">
+                    <p className="font-medium mb-1">Aucun contact trouvé</p>
+                    <p className="text-xs">Aucun contact ne correspond aux critères sélectionnés. Vérifiez que vos contacts ont été générés avec les profils choisis.</p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -2762,22 +2845,57 @@ Cordialement,
               Annuler
             </Button>
             {sequenceDialogStep === 'config' && (
-              <Button 
-                onClick={() => {
-                  if (selectedPersonasForSequence.length === 0) {
-                    toast({
-                      title: 'Sélection requise',
-                      description: 'Veuillez sélectionner au moins un profil de contact',
-                      variant: 'destructive',
-                    });
-                    return;
-                  }
-                  setSequenceDialogStep('selection');
-                }}
-                disabled={userPersonas.length === 0}
-              >
-                Suivant
-              </Button>
+              <>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    if (selectedPersonasForSequence.length === 0) {
+                      toast({
+                        title: 'Sélection requise',
+                        description: 'Veuillez sélectionner au moins un profil de contact',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    calculateContactsPreview();
+                  }}
+                  disabled={userPersonas.length === 0}
+                >
+                  Prévisualiser
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (selectedPersonasForSequence.length === 0) {
+                      toast({
+                        title: 'Sélection requise',
+                        description: 'Veuillez sélectionner au moins un profil de contact',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    if (!showPreview) {
+                      toast({
+                        title: 'Prévisualisation requise',
+                        description: 'Veuillez prévisualiser les contacts avant de continuer',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    if (contactsPreview.length === 0) {
+                      toast({
+                        title: 'Aucun contact',
+                        description: 'Aucun contact ne correspond aux critères. Impossible de continuer.',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    setSequenceDialogStep('selection');
+                  }}
+                  disabled={userPersonas.length === 0}
+                >
+                  Suivant
+                </Button>
+              </>
             )}
           </DialogFooter>
         </DialogContent>
