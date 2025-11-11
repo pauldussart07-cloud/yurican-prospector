@@ -281,6 +281,104 @@ const Prospects = () => {
     loadSequences();
   }, [showSequenceDialog]);
 
+  // Fonction pour corriger les profils des contacts existants
+  const handleFixContactProfiles = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      // Récupérer tous les personas actifs
+      const { data: personas, error: personasError } = await supabase
+        .from('personas')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('position', { ascending: true });
+
+      if (personasError || !personas || personas.length === 0) {
+        toast({
+          title: 'Erreur',
+          description: 'Aucun profil de ciblage trouvé. Créez des profils d\'abord.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Récupérer tous les contacts
+      const { data: allContacts, error: contactsError } = await supabase
+        .from('lead_contacts')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (contactsError || !allContacts) {
+        toast({
+          title: 'Erreur',
+          description: 'Impossible de récupérer les contacts',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Filtrer les contacts à corriger (sans persona_position ou avec une position invalide)
+      const validPositions = personas.map(p => p.position);
+      const contactsToFix = allContacts.filter(
+        c => c.persona_position === null || !validPositions.includes(c.persona_position)
+      );
+
+      if (contactsToFix.length === 0) {
+        toast({
+          title: 'Aucune correction nécessaire',
+          description: 'Tous les contacts ont déjà un profil valide',
+        });
+        return;
+      }
+
+      // Assigner un profil à chaque contact de manière équilibrée
+      const updates = contactsToFix.map((contact, index) => {
+        // Distribuer les contacts de manière circulaire sur les profils
+        const assignedPersona = personas[index % personas.length];
+        return {
+          id: contact.id,
+          persona_position: assignedPersona.position
+        };
+      });
+
+      // Mettre à jour par lots
+      const updatePromises = updates.map(update =>
+        supabase
+          .from('lead_contacts')
+          .update({ persona_position: update.persona_position })
+          .eq('id', update.id)
+          .eq('user_id', user.id)
+      );
+
+      const results = await Promise.all(updatePromises);
+      const errors = results.filter(r => r.error);
+
+      if (errors.length > 0) {
+        toast({
+          title: 'Correction partielle',
+          description: `${updates.length - errors.length}/${updates.length} contacts corrigés`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Correction réussie',
+          description: `${updates.length} contact(s) ont été assignés à des profils actifs`,
+        });
+        
+        // Recharger les données
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error fixing contact profiles:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la correction',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Fonction pour calculer la prévisualisation des contacts
   const calculateContactsPreview = () => {
     const selectedLeadIds = Array.from(selectedLeads);
@@ -1337,9 +1435,20 @@ Cordialement,
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
-          {filteredAndSortedLeads.length} Prospect{filteredAndSortedLeads.length > 1 ? 's' : ''}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-sm bg-card border-border flex items-center">
+            {filteredAndSortedLeads.length} Prospect{filteredAndSortedLeads.length > 1 ? 's' : ''}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleFixContactProfiles}
+            className="flex items-center gap-2"
+          >
+            <Target className="h-4 w-4" />
+            Corriger les profils
+          </Button>
+        </div>
       </div>
 
       {displayMode === 'kanban' ? (
