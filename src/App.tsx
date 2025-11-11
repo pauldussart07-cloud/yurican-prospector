@@ -14,6 +14,7 @@ import Prospects from "./pages/Prospects";
 import Agenda from "./pages/Agenda";
 import Sequences from "./pages/Sequences";
 import SequenceEditor from "./pages/SequenceEditor";
+import SequenceAnalytics from "./pages/SequenceAnalytics";
 import Targeting from "./pages/Targeting";
 import Parametrage from "./pages/Parametrage";
 import ProspectsMobile from "./pages/ProspectsMobile";
@@ -60,6 +61,7 @@ const App = () => (
                               <Route path="/agenda" element={<Agenda />} />
                               <Route path="/sequences" element={<Sequences />} />
                               <Route path="/sequences/:id" element={<SequenceEditor />} />
+                              <Route path="/sequences/:id/analytics" element={<SequenceAnalytics />} />
                               <Route path="/targeting" element={<Targeting />} />
                               <Route path="/parametrage" element={<Parametrage />} />
                               <Route path="/prospects-mobile" element={<ProspectsMobile />} />
