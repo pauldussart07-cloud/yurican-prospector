@@ -279,6 +279,125 @@ const Prospects = () => {
     loadSequences();
   }, [showSequenceDialog]);
 
+  // Fonction pour ajouter les contacts sélectionnés à une séquence
+  const handleAddToSequence = async (sequenceId: string, sequenceName: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: 'Erreur',
+        description: 'Vous devez être connecté',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Récupérer tous les contacts des leads sélectionnés
+      const selectedLeadIds = Array.from(selectedLeads);
+      const contactsToEnroll: any[] = [];
+
+      for (const leadId of selectedLeadIds) {
+        // Récupérer les contacts de ce lead
+        const leadContacts = contacts.filter(c => c.companyId === leadId);
+        
+        // Filtrer par personas sélectionnés
+        const filteredContacts = leadContacts.filter(contact => {
+          // Si le contact a un persona_position, vérifier s'il correspond à un persona sélectionné
+          if (contact.personaPosition !== null && contact.personaPosition !== undefined) {
+            const matchingPersona = userPersonas.find(
+              p => p.position === contact.personaPosition && selectedPersonasForSequence.includes(p.id)
+            );
+            return matchingPersona !== undefined;
+          }
+          return false;
+        });
+
+        // Limiter au nombre maximum par entreprise
+        const limitedContacts = filteredContacts.slice(0, maxContactsPerCompany);
+        contactsToEnroll.push(...limitedContacts);
+      }
+
+      if (contactsToEnroll.length === 0) {
+        toast({
+          title: 'Aucun contact',
+          description: 'Aucun contact ne correspond aux critères sélectionnés',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Vérifier les enrollments existants pour éviter les doublons
+      const { data: existingEnrollments, error: checkError } = await supabase
+        .from('sequence_enrollments')
+        .select('contact_id')
+        .eq('sequence_id', sequenceId)
+        .in('contact_id', contactsToEnroll.map(c => c.id));
+
+      if (checkError) {
+        console.error('Error checking existing enrollments:', checkError);
+      }
+
+      const existingContactIds = new Set(existingEnrollments?.map(e => e.contact_id) || []);
+      const newContacts = contactsToEnroll.filter(c => !existingContactIds.has(c.id));
+
+      if (newContacts.length === 0) {
+        toast({
+          title: 'Contacts déjà inscrits',
+          description: 'Tous les contacts sélectionnés sont déjà dans cette séquence',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Créer les enrollments
+      const enrollments = newContacts.map(contact => ({
+        user_id: user.id,
+        sequence_id: sequenceId,
+        contact_id: contact.id,
+        current_step: 0,
+        status: 'active',
+      }));
+
+      const { error } = await supabase
+        .from('sequence_enrollments')
+        .insert(enrollments);
+
+      if (error) {
+        console.error('Error creating enrollments:', error);
+        toast({
+          title: 'Erreur',
+          description: 'Impossible d\'ajouter les contacts à la séquence',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const skippedCount = contactsToEnroll.length - newContacts.length;
+      const message = skippedCount > 0
+        ? `${newContacts.length} contact(s) ajouté(s) à "${sequenceName}" (${skippedCount} déjà inscrit(s))`
+        : `${newContacts.length} contact(s) ajouté(s) à "${sequenceName}"`;
+
+      toast({
+        title: 'Contacts ajoutés',
+        description: message,
+      });
+
+      setShowSequenceDialog(false);
+      setSequenceDialogStep('config');
+      setSelectedLeads(new Set());
+      setSelectedPersonasForSequence([]);
+      setMaxContactsPerCompany(3);
+
+    } catch (error) {
+      console.error('Error in handleAddToSequence:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de l\'ajout des contacts',
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const handleGenerateContacts = async () => {
     if (!selectedLead || userPersonas.length === 0) {
@@ -2591,14 +2710,7 @@ Cordialement,
                   <Card
                     key={sequence.id}
                     className="cursor-pointer hover:bg-accent transition-colors"
-                    onClick={() => {
-                      // TODO: Add logic to enroll leads in sequence
-                      toast({
-                        title: 'Fonctionnalité à venir',
-                        description: `${selectedLeads.size} lead(s) avec max ${maxContactsPerCompany} contact(s) chacun seront ajoutés à "${sequence.name}"`,
-                      });
-                      setShowSequenceDialog(false);
-                    }}
+                    onClick={() => handleAddToSequence(sequence.id, sequence.name)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
