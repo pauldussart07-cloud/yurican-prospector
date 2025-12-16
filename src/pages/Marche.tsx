@@ -74,6 +74,26 @@ const Marche = () => {
   const [userPersonas, setUserPersonas] = useState<any[]>([]);
   const [loadingPersonas, setLoadingPersonas] = useState(false);
   const [swipingCompanies, setSwipingCompanies] = useState<Map<string, 'left' | 'right'>>(new Map());
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if first visit to show onboarding
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('marche_onboarding_seen');
+    if (!hasSeenOnboarding && !activeTargeting) {
+      setShowOnboarding(true);
+    }
+  }, [activeTargeting]);
+
+  const dismissOnboarding = () => {
+    localStorage.setItem('marche_onboarding_seen', 'true');
+    setShowOnboarding(false);
+    navigate('/targeting');
+  };
+
+  const skipOnboarding = () => {
+    localStorage.setItem('marche_onboarding_seen', 'true');
+    setShowOnboarding(false);
+  };
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -626,7 +646,62 @@ const Marche = () => {
   const departments = Array.from(new Set(companies.map(c => c.department))).sort();
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto relative">
+      {/* Onboarding overlay for first-time users */}
+      {showOnboarding && (
+        <>
+          {/* Backdrop grisé */}
+          <div className="fixed inset-0 bg-black/60 z-40" onClick={skipOnboarding} />
+          
+          {/* Bulle d'onboarding */}
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+            <div className="relative pointer-events-auto animate-scale-in">
+              {/* Flèche vers le bouton */}
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                <svg 
+                  width="40" 
+                  height="60" 
+                  viewBox="0 0 40 60" 
+                  className="text-white animate-bounce"
+                >
+                  <path 
+                    d="M20 0 L20 45 M10 35 L20 45 L30 35" 
+                    stroke="currentColor" 
+                    strokeWidth="3" 
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              
+              {/* Card principale */}
+              <Card className="max-w-md bg-white shadow-2xl border-2 border-primary/20">
+                <CardContent className="p-6 text-center">
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Target className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">Bienvenue sur le Marché !</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Pour découvrir les entreprises qui correspondent à votre activité, 
+                    commencez par créer votre premier ciblage. Définissez vos critères 
+                    (secteur, taille, localisation) et nous vous proposerons les meilleures opportunités.
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={dismissOnboarding} className="w-full">
+                      <Target className="h-4 w-4 mr-2" />
+                      Créer mon premier Ciblage
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={skipOnboarding} className="text-muted-foreground">
+                      Plus tard
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Marché</h1>
         <Badge variant="outline" className="text-sm bg-white border-border flex items-center">
