@@ -634,10 +634,10 @@ const Marche = () => {
         </Badge>
       </div>
 
-
       {/* Liste des entreprises */}
       <div className="space-y-3">
         {/* Header avec checkbox select all et actions */}
+        {activeTargeting && (
         <div className="flex items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
@@ -773,8 +773,21 @@ const Marche = () => {
             )}
           </div>
         </div>
+        )}
 
-        {paginatedCompanies.map((company) => {
+        {!activeTargeting ? (
+          <Card className="p-12 flex flex-col items-center justify-center text-center">
+            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Target className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Aucun ciblage sélectionné</h3>
+            <p className="text-muted-foreground mb-4">Créez un ciblage pour voir les entreprises correspondantes</p>
+            <Button onClick={() => navigate('/targeting')}>
+              <Target className="h-4 w-4 mr-2" />
+              Créer un Ciblage
+            </Button>
+          </Card>
+        ) : paginatedCompanies.map((company) => {
           // Déterminer la taille de l'icône CA
           const getRevenueIcon = (ca: number) => {
             if (ca >= 50000000) return <TrendingUp className="h-5 w-5 text-green-600" />;
