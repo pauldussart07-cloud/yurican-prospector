@@ -29,6 +29,7 @@ import Profile from "./pages/Profile";
 import Header from "./components/Header";
 import ContactActivities from "./pages/ContactActivities";
 import CompanyActivities from "./pages/CompanyActivities";
+import Tutorial from "./pages/Tutorial";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/contact-activities/:contactId" element={<ContactActivities />} />
                               <Route path="/company-activities/:leadId" element={<CompanyActivities />} />
+                              <Route path="/tutorial" element={<Tutorial />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </div>
