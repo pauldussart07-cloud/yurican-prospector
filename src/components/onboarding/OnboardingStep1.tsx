@@ -14,7 +14,6 @@ interface Step1Data {
   jobTitle: string;
   companyName: string;
   sector: string;
-  phone: string;
 }
 
 interface Props {
@@ -212,18 +211,6 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
               </Command>
             </PopoverContent>
           </Popover>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="phone">Téléphone</Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder="+33 6 12 34 56 78"
-            value={data.phone}
-            onChange={(e) => updateField('phone', e.target.value)}
-            className="h-12"
-          />
         </div>
       </div>
     </div>
