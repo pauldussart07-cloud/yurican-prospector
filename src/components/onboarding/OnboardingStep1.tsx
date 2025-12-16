@@ -1,9 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Step1Data {
-  firstName: string;
-  lastName: string;
+  professionalStatus: string;
   jobTitle: string;
   phone: string;
 }
@@ -18,10 +18,18 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
     onChange({ ...data, [field]: value });
   };
 
+  const professionalStatusOptions = [
+    { value: 'employee', label: 'Employé' },
+    { value: 'freelance', label: 'Indépendant / Freelance' },
+    { value: 'job_seeking', label: "En recherche d'emploi" },
+    { value: 'creating_business', label: "En création d'entreprise" },
+    { value: 'student', label: 'Étudiant' },
+  ];
+
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-3xl font-bold mb-3">👋 Bienvenue{data.firstName ? ` ${data.firstName}` : ''} !</h2>
+        <h2 className="text-3xl font-bold mb-3">👋 Bienvenue !</h2>
         <p className="text-lg text-muted-foreground">
           On va commencer par quelques informations pour personnaliser votre expérience
         </p>
@@ -29,31 +37,24 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
 
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="firstName">
-            Prénom <span className="text-destructive">*</span>
+          <Label htmlFor="professionalStatus">
+            Situation professionnelle <span className="text-destructive">*</span>
           </Label>
-          <Input
-            id="firstName"
-            type="text"
-            placeholder="Jean"
-            value={data.firstName}
-            onChange={(e) => updateField('firstName', e.target.value)}
-            className="h-12"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="lastName">
-            Nom <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="lastName"
-            type="text"
-            placeholder="Dupont"
-            value={data.lastName}
-            onChange={(e) => updateField('lastName', e.target.value)}
-            className="h-12"
-          />
+          <Select
+            value={data.professionalStatus}
+            onValueChange={(value) => updateField('professionalStatus', value)}
+          >
+            <SelectTrigger className="h-12">
+              <SelectValue placeholder="Sélectionnez votre situation" />
+            </SelectTrigger>
+            <SelectContent>
+              {professionalStatusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
