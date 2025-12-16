@@ -19,6 +19,8 @@ const Onboarding = () => {
   const [step1Data, setStep1Data] = useState({
     professionalStatus: '',
     jobTitle: '',
+    companyName: '',
+    sector: '',
     phone: '',
   });
 
@@ -75,6 +77,14 @@ const Onboarding = () => {
         toast.error('Veuillez renseigner votre intitulé de poste');
         return;
       }
+      if (!step1Data.companyName.trim()) {
+        toast.error('Veuillez renseigner le nom de votre entreprise');
+        return;
+      }
+      if (!step1Data.sector) {
+        toast.error('Veuillez sélectionner un secteur d\'activité');
+        return;
+      }
     }
 
     // Validate step 3: require services and decision level
@@ -109,6 +119,7 @@ const Onboarding = () => {
         .update({
           job_level: step1Data.professionalStatus,
           job_function: step1Data.jobTitle.trim(),
+          company_name: step1Data.companyName.trim(),
           phone: step1Data.phone.trim() || null,
           tracked_events: step4Data.trackedEvents,
           onboarding_completed: true,
