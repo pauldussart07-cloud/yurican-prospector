@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 interface Step1Data {
   firstName: string;
   lastName: string;
-  email: string;
+  jobTitle: string;
   phone: string;
 }
 
@@ -57,15 +57,15 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">
-            Email <span className="text-destructive">*</span>
+          <Label htmlFor="jobTitle">
+            Intitulé du poste <span className="text-destructive">*</span>
           </Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="jean.dupont@example.com"
-            value={data.email}
-            onChange={(e) => updateField('email', e.target.value)}
+            id="jobTitle"
+            type="text"
+            placeholder="Directeur Commercial"
+            value={data.jobTitle}
+            onChange={(e) => updateField('jobTitle', e.target.value)}
             className="h-12"
           />
         </div>

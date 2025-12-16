@@ -19,7 +19,7 @@ const Onboarding = () => {
   const [step1Data, setStep1Data] = useState({
     firstName: '',
     lastName: '',
-    email: '',
+    jobTitle: '',
     phone: '',
   });
 
@@ -51,9 +51,7 @@ const Onboarding = () => {
       return;
     }
     setUserId(user.id);
-
-    // Pre-fill email from auth
-    setStep1Data(prev => ({ ...prev, email: user.email || '' }));
+    
 
     // Check if onboarding is already completed
     const { data: profile } = await supabase
@@ -74,8 +72,8 @@ const Onboarding = () => {
         toast.error('Veuillez renseigner votre prénom et nom');
         return;
       }
-      if (!step1Data.email.trim()) {
-        toast.error('Veuillez renseigner votre email');
+      if (!step1Data.jobTitle.trim()) {
+        toast.error('Veuillez renseigner votre intitulé de poste');
         return;
       }
     }
@@ -112,7 +110,7 @@ const Onboarding = () => {
         .update({
           first_name: step1Data.firstName.trim(),
           last_name: step1Data.lastName.trim(),
-          email: step1Data.email.trim(),
+          job_function: step1Data.jobTitle.trim(),
           phone: step1Data.phone.trim() || null,
           tracked_events: step4Data.trackedEvents,
           onboarding_completed: true,
