@@ -3,6 +3,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Step1Data {
@@ -22,7 +26,7 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
   const [sectors, setSectors] = useState<{ id: string; name: string; category: string | null }[]>([]);
   const [sectorSuggestions, setSectorSuggestions] = useState<string[]>([]);
   const [sectorInput, setSectorInput] = useState('');
-  const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
+  const [sectorOpen, setSectorOpen] = useState(false);
 
   const updateField = (field: keyof Step1Data, value: string) => {
     onChange({ ...data, [field]: value });
@@ -77,8 +81,8 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
 
   const handleSelectSector = (sectorName: string) => {
     updateField('sector', sectorName);
-    setSectorInput(sectorName);
-    setShowSectorSuggestions(false);
+    setSectorInput('');
+    setSectorOpen(false);
   };
 
   return (
@@ -144,20 +148,26 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
           <Label htmlFor="sector">
             Secteur d'activité de votre entreprise <span className="text-destructive">*</span>
           </Label>
-          <div className="relative">
-            <Command className="border rounded-md">
-              <CommandInput
-                placeholder="Rechercher un secteur..."
-                value={sectorInput}
-                onValueChange={(value) => {
-                  setSectorInput(value);
-                  setShowSectorSuggestions(true);
-                }}
-                onFocus={() => setShowSectorSuggestions(true)}
-                className="h-12"
-              />
-              {showSectorSuggestions && (sectorSuggestions.length > 0 || sectors.length > 0) && (
-                <CommandList className="max-h-48 overflow-y-auto">
+          <Popover open={sectorOpen} onOpenChange={setSectorOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={sectorOpen}
+                className="w-full h-12 justify-between font-normal"
+              >
+                {data.sector || "Sélectionnez un secteur..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+              <Command>
+                <CommandInput
+                  placeholder="Rechercher un secteur..."
+                  value={sectorInput}
+                  onValueChange={setSectorInput}
+                />
+                <CommandList className="max-h-48">
                   {sectorSuggestions.length > 0 ? (
                     <CommandGroup heading="Suggestions IA">
                       {sectorSuggestions.map((sector) => (
@@ -167,35 +177,41 @@ const OnboardingStep1 = ({ data, onChange }: Props) => {
                           onSelect={() => handleSelectSector(sector)}
                           className="cursor-pointer"
                         >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              data.sector === sector ? "opacity-100" : "opacity-0"
+                            )}
+                          />
                           {sector}
                         </CommandItem>
                       ))}
                     </CommandGroup>
-                  ) : sectorInput.length < 2 ? (
+                  ) : (
                     <CommandGroup heading="Tous les secteurs">
-                      {sectors.slice(0, 10).map((sector) => (
+                      {sectors.map((sector) => (
                         <CommandItem
                           key={sector.id}
                           value={sector.name}
                           onSelect={() => handleSelectSector(sector.name)}
                           className="cursor-pointer"
                         >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              data.sector === sector.name ? "opacity-100" : "opacity-0"
+                            )}
+                          />
                           {sector.name}
                         </CommandItem>
                       ))}
                     </CommandGroup>
-                  ) : (
-                    <CommandEmpty>Aucun secteur trouvé</CommandEmpty>
                   )}
+                  <CommandEmpty>Aucun secteur trouvé</CommandEmpty>
                 </CommandList>
-              )}
-            </Command>
-            {data.sector && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Secteur sélectionné : <span className="font-medium text-foreground">{data.sector}</span>
-              </p>
-            )}
-          </div>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-2">
