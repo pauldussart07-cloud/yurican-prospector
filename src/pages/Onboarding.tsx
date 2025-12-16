@@ -17,8 +17,7 @@ const Onboarding = () => {
 
   // Form data
   const [step1Data, setStep1Data] = useState({
-    firstName: '',
-    lastName: '',
+    professionalStatus: '',
     jobTitle: '',
     phone: '',
   });
@@ -66,10 +65,10 @@ const Onboarding = () => {
   };
 
   const handleNext = () => {
-    // Validate step 1: require name and email
+    // Validate step 1: require professional status and job title
     if (currentStep === 1) {
-      if (!step1Data.firstName.trim() || !step1Data.lastName.trim()) {
-        toast.error('Veuillez renseigner votre prénom et nom');
+      if (!step1Data.professionalStatus) {
+        toast.error('Veuillez sélectionner votre situation professionnelle');
         return;
       }
       if (!step1Data.jobTitle.trim()) {
@@ -108,8 +107,7 @@ const Onboarding = () => {
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          first_name: step1Data.firstName.trim(),
-          last_name: step1Data.lastName.trim(),
+          job_level: step1Data.professionalStatus,
           job_function: step1Data.jobTitle.trim(),
           phone: step1Data.phone.trim() || null,
           tracked_events: step4Data.trackedEvents,
